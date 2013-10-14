@@ -111,10 +111,15 @@ const unsigned char utf8_table4[] = {
 // - Handle CRLF
 // - Expand tabs
 // - Handle 1 code point spanning 2 addBytes calls
-// - Interpret invalid UTF-8 bytes as IEC-8859-1
-//   instead of filtering them out completely
 
 #define BYTES_TO_READ (data + length - p)
+#define CONVERT_FROM_ISO_8859_1(ptr, c) \
+        if (c < 128) { \
+            *ptr++ = (c); \
+        } else { \
+            *ptr++ = (0xc0 | (((c) >> 6) & 0x03)); \
+            *ptr++ = (0x80 | ((c) & 0x3f)); \
+        }
 
 int VfmdPreprocessor::addBytes(char *_data, int length)
 {
@@ -131,8 +136,10 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
 
         // Ensure we have enough space for a code point
         // Max code point size is 4 bytes
-        // So, check if we have atleast 4 bytes left in the buffer
-        if ((dst - buf + 4) > m_bufferSize) {
+        // But if each byte of a 4-byte invalid UTF-8 sequence is
+        // interpreted as ISO-8859-1, we could end up with 8 bytes.
+        // So, check if we have atleast 8 bytes left in the buffer.
+        if ((dst - buf + 8) > m_bufferSize) {
             if (m_lineCallback) {
                 (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
             }
@@ -158,11 +165,13 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
 
         if (c < 0xc0) {                     /* Isolated UTF-8 continuation byte */
                                             /* without a leading byte */
+            CONVERT_FROM_ISO_8859_1(dst, c);
             continue;
         }
 
         if (c >= 0xfe) {                    /* Bytes 0xfe and 0xff */
                                             /* are invalid in UTF-8 */
+            CONVERT_FROM_ISO_8859_1(dst, c);
             continue;
         }
 
@@ -170,130 +179,167 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         // or continuation bytes (1 <= ab <= 5)
         ab = utf8_table4[c & 0x3f];
 
-        register unsigned char *p1 = p;
-        if (BYTES_TO_READ >= ab) {
-            if (ab < 4) {
-                // Copy bytes to output without consuming the input
-                *dst++ = c;
-                for (int i = 0; i < ab; i++) {
-                    *dst++ = *(p1 + i);
-                }
-            } else {
-                // 5- and 6-byte sequences are considered unsafe
-            }
-        }
+        // 5-byte and 6-byte sequences are not valid UTF-8 as per RFC 3629
 
-        d = *p++; // Second byte
-
-        if ((ab < 4) && (d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
-            dst -= (ab + 1); // rewind the dst pointer to filter out the current code point
+        if (ab > 3) {
+            // Assume first byte to be in ISO-8859-1 encoding.
+            // Rest of the bytes are not consumed.
+            CONVERT_FROM_ISO_8859_1(dst, c);
             continue;
         }
 
-        /* For each continuation byte, check that the bytes start with the 0x80 bit
-        set and not the 0x40 bit. Then check for an overlong sequence, and for the
-        excluded range 0xd800 to 0xdfff. */
+        if (BYTES_TO_READ == 0) {
+            // TODO: Remember leading byte
+            continue;
+        }
+
+        // Overlong sequences and invalid code points
 
         switch (ab) {
 
-            /* 2-byte character. No further bytes to check for 0x80. Check first byte
-            for for xx00 000x (overlong sequence). */
+            /* 2-byte character.
+             * Check first byte for xx00 000x (overlong sequence) */
 
             case 1:
-                if ((c & 0x3e) == 0) {
-                    dst -= (ab + 1); // filter out the current code point
+                if ((c & 0x3e) == 0) {                  /* Overlong sequence */
+                    // Assume first byte to be in ISO-8859-1 encoding
+                    // First continuation byte is not consumed
+                    CONVERT_FROM_ISO_8859_1(dst, c);
                     continue;
                 }
+                d = *p++; // Second byte
                 break;
 
-            /* 3-byte character. Check third byte for 0x80. Then check first 2 bytes
-            for 1110 0000, xx0x xxxx (overlong sequence) or
-                1110 1101, 1010 xxxx (0xd800 - 0xdfff) */
+            /* 3-byte character.
+             * Check first 2 bytes for 1110 0000, xx0x xxxx (overlong sequence)
+             * Check first 2 bytes for 1110 1101, 1010 xxxx (0xd800 - 0xdfff) */
 
             case 2:
-                if (((*p++) & 0xc0) != 0x80) { /* Third byte not of the form 10xx xxxx */
-                    dst -= (ab + 1); // filter out the current code point
-                    continue;
-                }
-                if (c == 0xe0 && (d & 0x20) == 0) { /* Overlong sequence */
-                    dst -= (ab + 1); // filter out the current code point
-                    continue;
-                }
-                if (c == 0xed && d >= 0xa0) { /* Code points between U+D800 and U+DFFF */
-                                              /* are prohibited in UTF-8 */
-                    dst -= (ab + 1); // filter out the current code point
+                d = *p++; // Second byte
+                if (
+                    (c == 0xe0 && (d & 0x20) == 0) ||   /* Overlong sequence */
+                    (c == 0xed && d >= 0xa0)    /* Code points between U+D800 and U+DFFF */
+                                                /* are prohibited in UTF-8 */
+
+                   ) {
+                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
+                    // Third byte is not consumed.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
                     continue;
                 }
                 break;
 
-            /* 4-byte character. Check 3rd and 4th bytes for 0x80. Then check first 2
-            bytes for for 1111 0000, xx00 xxxx (overlong sequence), then check for a
-            character greater than 0x0010ffff (f4 8f bf bf) */
+            /* 4-byte character.
+             * Check first 2 bytes for for 1111 0000, xx00 xxxx (overlong sequence)
+             * Check for code point greater than 0x0010ffff (f4 8f bf bf) */
 
             case 3:
-                if (((*p++) & 0xc0) != 0x80) { /* Third byte not of the form 10xx xxxx */
-                    dst -= (ab + 1); // filter out the current code point
+                d = *p++; // Second byte
+                if (
+                    (c == 0xf0 && (d & 0x30) == 0) ||       /* Overlong sequence */
+                    (c > 0xf4 || (c == 0xf4 && d > 0x8f))   /* Code points above 0x0010ffff */
+                                                            /* are invalid */
+                   ) {
+                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
+                    // Last 2 bytes are not consumed.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
                     continue;
                 }
-                if (((*p++) & 0xc0) != 0x80) { /* Fourth byte not of the form 10xx xxxx */
-                    dst -= (ab + 1); // filter out the current code point
-                    continue;
-                }
-                if (c == 0xf0 && (d & 0x30) == 0) { /* Overlong sequence */
-                    dst -= (ab + 1); // filter out the current code point
-                    continue;
-                }
-                if (c > 0xf4 || (c == 0xf4 && d > 0x8f)) { /* Code points above 0x0010ffff */
-                                                           /* are invalid */
-                    dst -= (ab + 1); // filter out the current code point
+                break;
+        }
+
+        // Each trailing byte should be of the form 10xx xxxx
+
+        if (BYTES_TO_READ < (ab - 1)) {
+            // TODO: Remember trailing byte
+            continue;
+        }
+
+        unsigned char e, f;
+        switch (ab) {
+
+            case 1:
+                if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
+                    // Assume both bytes to be in ISO-8859-1 encoding.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
                     continue;
                 }
                 break;
 
-            /* 5-byte and 6-byte characters are not allowed by RFC 3629, and have
-            already been rejected. However, we should see how many bytes should be
-            consumed from the input data. If there are no errors, all continuing
-            bytes are consumed. Else, we consume till we hit an errant byte. */
-
-            /* 5-byte character. Check 3rd, 4th, and 5th bytes for 0x80. Then check for
-            1111 1000, xx00 0xxx */
-
-            case 4:
-                if (((*p++) & 0xc0) != 0x80) { /* Third byte not of the form 10xx xxxx */
+            case 2:
+                if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
+                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
+                    // Third byte is not consumed.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
                     continue;
                 }
-                if (((*p++) & 0xc0) != 0x80) { /* Fourth byte not of the form 10xx xxxx */
-                    continue;
-                }
-                if (((*p++) & 0xc0) != 0x80) { /* Fifth byte not of the form 10xx xxxx */
-                    continue;
-                }
-                if (c == 0xf8 && (d & 0x38) == 0) { /* Overlong sequence */
+                e = *p++; // Third byte
+                if ((e & 0xc0) != 0x80) {   /* Third byte not of the form 10xx xxxx */
+                    // Assume all 3 bytes to be in ISO-8859-1 encoding.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
+                    CONVERT_FROM_ISO_8859_1(dst, e);
                     continue;
                 }
                 break;
 
-            /* 6-byte character. Check 3rd-6th bytes for 0x80. Then check for
-            1111 1100, xx00 00xx. */
-
-            case 5:
-                if (((*p++) & 0xc0) != 0x80) { /* Third byte not of the form 10xx xxxx */
+            case 3:
+                if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
+                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
+                    // Last 2 bytes are not consumed.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
                     continue;
                 }
-                if (((*p++) & 0xc0) != 0x80) { /* Fourth byte not of the form 10xx xxxx */
+                e = *p++; // Third byte
+                if ((e & 0xc0) != 0x80) {   /* Third byte not of the form 10xx xxxx */
+                    // Assume first 3 bytes to be in ISO-8859-1 encoding.
+                    // Fourth byte is not consumed.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
+                    CONVERT_FROM_ISO_8859_1(dst, e);
                     continue;
                 }
-                if (((*p++) & 0xc0) != 0x80) { /* Fifth byte not of the form 10xx xxxx */
-                    continue;
-                }
-                if (((*p++) & 0xc0) != 0x80) { /* Sixth byte not of the form 10xx xxxx */
-                    continue;
-                }
-                if (c == 0xfc && (d & 0x3c) == 0) { /* Overlong sequence */
+                f = *p++; // Fourth byte
+                if ((e & 0xc0) != 0x80) {   /* Fourth byte not of the form 10xx xxxx */
+                    // Assume all 4 bytes to be in ISO-8859-1 encoding.
+                    CONVERT_FROM_ISO_8859_1(dst, c);
+                    CONVERT_FROM_ISO_8859_1(dst, d);
+                    CONVERT_FROM_ISO_8859_1(dst, e);
+                    CONVERT_FROM_ISO_8859_1(dst, f);
                     continue;
                 }
                 break;
-        } // End of switch (ab)
+
+        }
+
+        // If we're here, this is a valid UTF-8 code point.
+        // Just copy it.
+
+        switch (ab) {
+            case 0:
+                *dst++ = c;
+                break;
+            case 1:
+                *dst++ = c;
+                *dst++ = d;
+                break;
+            case 2:
+                *dst++ = c;
+                *dst++ = d;
+                *dst++ = e;
+                break;
+            case 3:
+                *dst++ = c;
+                *dst++ = d;
+                *dst++ = e;
+                *dst++ = f;
+                break;
+        }
 
     } // End of while (BYTES_TO_READ > 0)
 
