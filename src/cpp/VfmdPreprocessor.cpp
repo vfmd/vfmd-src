@@ -147,7 +147,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         // So, check if we have atleast 8 bytes left in the buffer.
         if ((dst - buf + 8) > m_bufferSize) {
             if (m_lineCallback) {
-                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, false);
             }
             m_filledBytes = 0;
             return (p - data);
@@ -235,7 +235,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         }
         if ((dst - buf + 1) > m_bufferSize) {
             if (m_lineCallback) {
-                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, false);
             }
             m_filledBytes = 0;
             return 0;
@@ -244,7 +244,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         if (nextByte == 0x0a) { // LF
             p++; // The byte should be consumed only if it's an LF
             if (m_lineCallback) {
-                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, true);
             }
             m_filledBytes = 0;
             dst = buf;
@@ -264,7 +264,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         // So, check if we have atleast 8 bytes left in the buffer.
         if ((dst - buf + 8) > m_bufferSize) {
             if (m_lineCallback) {
-                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, false);
             }
             m_filledBytes = 0;
             return (p - data);
@@ -285,7 +285,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                                             /* No continuation bytes */
             if (c == 0x0a) { // LF
                 if (m_lineCallback) {
-                    (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+                    (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, true);
                 }
                 m_filledBytes = 0;
                 dst = buf;
@@ -296,7 +296,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     unsigned char nextByte = *p++;
                     if (nextByte == 0x0a) { // LF
                         if (m_lineCallback) {
-                            (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+                            (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, true);
                         }
                         m_filledBytes = 0;
                         dst = buf;

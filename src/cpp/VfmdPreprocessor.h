@@ -2,7 +2,7 @@
 
 class VfmdPreprocessor {
 public:
-    typedef void (*LineCallbackFunc) (void *context, const char *data, int length);
+    typedef void (*LineCallbackFunc) (void *context, const char *data, int length, bool isCompleteLine);
 
     VfmdPreprocessor();
     ~VfmdPreprocessor();
