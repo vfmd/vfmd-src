@@ -109,9 +109,6 @@ const unsigned char utf8_table4[] = {
 // the return value is equal to length.
 // It is recommended that length <= (bufferSize / 4)
 
-// TODOs:
-// - Expand tabs
-
 #define BYTES_TO_READ (data + length - p)
 #define CONVERT_FROM_ISO_8859_1(ptr, c) \
         if (c < 128) { \
@@ -315,6 +312,14 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     m_isUnfinishedCRLF = true;
                     continue;
                 }
+            }
+            if (c == 0x09) { // TAB
+                register int spacesToInsert = 4 - (m_codePointCount % 4);
+                while (spacesToInsert--) {
+                    *dst++ = 0x20;
+                    m_codePointCount++;
+                }
+                continue;
             }
             *dst++ = c;
             m_codePointCount++;
