@@ -36,5 +36,7 @@ private:
         int bytesSeen;
         int bytesRemaining;
     } m_unfinishedCodePoint; // Used when the data of addBytes contains a partial code point
+
+    bool m_isUnfinishedCRLF;
 };
 

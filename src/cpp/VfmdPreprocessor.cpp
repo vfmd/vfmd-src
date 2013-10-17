@@ -9,6 +9,7 @@ VfmdPreprocessor::VfmdPreprocessor()
     , m_filledBytes(0)
     , m_lineCallback(0)
     , m_lineCallbackContext(0)
+    , m_isUnfinishedCRLF(false)
 {
 }
 
@@ -108,7 +109,6 @@ const unsigned char utf8_table4[] = {
 // It is recommended that length <= (bufferSize / 4)
 
 // TODOs:
-// - Handle CRLF
 // - Expand tabs
 
 #define BYTES_TO_READ (data + length - p)
@@ -225,6 +225,35 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
 
     } // End of if (m_unfinishedCodePoint.bytesSeen >= 2)
 
+    if (m_isUnfinishedCRLF) {
+
+        // The last call ended with a CR byte
+        // If this call starts with an LF byte, it indicates a line break
+
+        if (BYTES_TO_READ == 0) {
+            return 0;
+        }
+        if ((dst - buf + 1) > m_bufferSize) {
+            if (m_lineCallback) {
+                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+            }
+            m_filledBytes = 0;
+            return 0;
+        }
+        unsigned char nextByte = *p;
+        if (nextByte == 0x0a) { // LF
+            p++; // The byte should be consumed only if it's an LF
+            if (m_lineCallback) {
+                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+            }
+            m_filledBytes = 0;
+            dst = buf;
+        } else {
+            *dst++ = 0x0d; // CR from last call
+        }
+        m_isUnfinishedCRLF = false;
+    }
+
     while (BYTES_TO_READ > 0) {
         register unsigned char ab, c, d;
 
@@ -261,6 +290,24 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                 m_filledBytes = 0;
                 dst = buf;
                 continue;
+            }
+            if (c == 0x0d) { // CR
+                if (BYTES_TO_READ > 0) {
+                    unsigned char nextByte = *p++;
+                    if (nextByte == 0x0a) { // LF
+                        if (m_lineCallback) {
+                            (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf);
+                        }
+                        m_filledBytes = 0;
+                        dst = buf;
+                        continue;
+                    }
+                } else {
+                    // The data ends with a CR byte.
+                    // We should look for a LF byte in the next call's data
+                    m_isUnfinishedCRLF = true;
+                    continue;
+                }
             }
             *dst++ = c;
             continue;
