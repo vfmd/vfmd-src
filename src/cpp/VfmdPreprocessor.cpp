@@ -10,6 +10,7 @@ VfmdPreprocessor::VfmdPreprocessor()
     , m_lineCallback(0)
     , m_lineCallbackContext(0)
     , m_isUnfinishedCRLF(false)
+    , m_codePointCount(0)
 {
 }
 
@@ -204,12 +205,14 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                 if (ab == 4) {
                     *dst++ = f;
                 }
+                m_codePointCount++;
                 break;
 
             case 3: /* Error in the 3rd byte of the code point */
                 CONVERT_FROM_ISO_8859_1(dst, c);
                 CONVERT_FROM_ISO_8859_1(dst, d);
                 CONVERT_FROM_ISO_8859_1(dst, e);
+                m_codePointCount += 3;
                 break;
 
             case 4: /* Error in the 4th byte of the code point */
@@ -217,6 +220,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                 CONVERT_FROM_ISO_8859_1(dst, d);
                 CONVERT_FROM_ISO_8859_1(dst, e);
                 CONVERT_FROM_ISO_8859_1(dst, f);
+                m_codePointCount += 4;
                 break;
         }
 
@@ -247,6 +251,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                 (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, true);
             }
             m_filledBytes = 0;
+            m_codePointCount = 0;
             dst = buf;
         } else {
             *dst++ = 0x0d; // CR from last call
@@ -288,6 +293,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, true);
                 }
                 m_filledBytes = 0;
+                m_codePointCount = 0;
                 dst = buf;
                 continue;
             }
@@ -299,6 +305,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                             (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, true);
                         }
                         m_filledBytes = 0;
+                        m_codePointCount = 0;
                         dst = buf;
                         continue;
                     }
@@ -310,6 +317,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                 }
             }
             *dst++ = c;
+            m_codePointCount++;
             continue;
         }
 
@@ -335,6 +343,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
             // Assume first byte to be in ISO-8859-1 encoding.
             // Rest of the bytes are not consumed.
             CONVERT_FROM_ISO_8859_1(dst, c);
+            m_codePointCount++;
             continue;
         }
 
@@ -358,6 +367,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     // Assume first byte to be in ISO-8859-1 encoding
                     // First continuation byte is not consumed
                     CONVERT_FROM_ISO_8859_1(dst, c);
+                    m_codePointCount++;
                     continue;
                 }
                 d = *p++; // Second byte
@@ -379,6 +389,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     // Third byte is not consumed.
                     CONVERT_FROM_ISO_8859_1(dst, c);
                     CONVERT_FROM_ISO_8859_1(dst, d);
+                    m_codePointCount += 2;
                     continue;
                 }
                 break;
@@ -398,6 +409,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     // Last 2 bytes are not consumed.
                     CONVERT_FROM_ISO_8859_1(dst, c);
                     CONVERT_FROM_ISO_8859_1(dst, d);
+                    m_codePointCount += 2;
                     continue;
                 }
                 break;
@@ -413,6 +425,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     // Assume both bytes to be in ISO-8859-1 encoding.
                     CONVERT_FROM_ISO_8859_1(dst, c);
                     CONVERT_FROM_ISO_8859_1(dst, d);
+                    m_codePointCount += 2;
                     continue;
                 }
                 break;
@@ -423,6 +436,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     // Third byte is not consumed.
                     CONVERT_FROM_ISO_8859_1(dst, c);
                     CONVERT_FROM_ISO_8859_1(dst, d);
+                    m_codePointCount += 2;
                     continue;
                 }
                 if (BYTES_TO_READ == 0) {
@@ -436,6 +450,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     CONVERT_FROM_ISO_8859_1(dst, c);
                     CONVERT_FROM_ISO_8859_1(dst, d);
                     CONVERT_FROM_ISO_8859_1(dst, e);
+                    m_codePointCount += 3;
                     continue;
                 }
                 break;
@@ -446,6 +461,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     // Last 2 bytes are not consumed.
                     CONVERT_FROM_ISO_8859_1(dst, c);
                     CONVERT_FROM_ISO_8859_1(dst, d);
+                    m_codePointCount += 2;
                     continue;
                 }
                 if (BYTES_TO_READ == 0) {
@@ -460,6 +476,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     CONVERT_FROM_ISO_8859_1(dst, c);
                     CONVERT_FROM_ISO_8859_1(dst, d);
                     CONVERT_FROM_ISO_8859_1(dst, e);
+                    m_codePointCount += 3;
                     continue;
                 }
                 if (BYTES_TO_READ == 0) {
@@ -474,6 +491,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                     CONVERT_FROM_ISO_8859_1(dst, d);
                     CONVERT_FROM_ISO_8859_1(dst, e);
                     CONVERT_FROM_ISO_8859_1(dst, f);
+                    m_codePointCount += 4;
                     continue;
                 }
                 break;
@@ -503,6 +521,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
                 *dst++ = f;
                 break;
         }
+        m_codePointCount++;
 
     } // End of while (BYTES_TO_READ > 0)
 

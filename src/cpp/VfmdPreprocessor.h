@@ -1,4 +1,5 @@
 
+#include <stdlib.h>
 
 class VfmdPreprocessor {
 public:
@@ -38,5 +39,6 @@ private:
     } m_unfinishedCodePoint; // Used when the data of addBytes contains a partial code point
 
     bool m_isUnfinishedCRLF;
+    int64_t m_codePointCount; // number of code points in a line
 };
 
