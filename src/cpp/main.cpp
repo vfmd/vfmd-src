@@ -1,12 +1,16 @@
 #include "VfmdPreprocessor.h"
 #include <stdio.h>
 
-void callback(void *context, const char *data, int length) {
+void callback(void *context, const char *data, int length, bool isCompleteLine) {
     printf("LINE: [");
     for (int i = 0; i < length; i++) {
         printf("%c", data[i]);
     }
-    printf("]\n");
+    printf("]");
+    if (!isCompleteLine) {
+        printf(" ...");
+    }
+    printf("\n");
 }
 
 int main()
