@@ -301,16 +301,19 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
             }
             if (c == 0x0d) { // CR
                 if (BYTES_TO_READ > 0) {
-                    unsigned char nextByte = *p++;
+                    unsigned char nextByte = *p;
                     if (nextByte == 0x0a) { // LF
+                        p++; // The byte should be consumed only if it's an LF
                         if (m_lineCallback) {
                             (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, true);
                         }
                         m_filledBytes = 0;
                         m_codePointCount = 0;
                         dst = buf;
-                        continue;
+                    } else {
+                        *dst++ = c;
                     }
+                    continue;
                 } else {
                     // The data ends with a CR byte.
                     // We should look for a LF byte in the next call's data
