@@ -12,6 +12,8 @@ public:
     unsigned int bufferSize() const;
 
     int addBytes(char *data, int length);
+    void end();
+
     void setLineCallback(LineCallbackFunc fn);
     void setLineCallbackContext(void *context);
 

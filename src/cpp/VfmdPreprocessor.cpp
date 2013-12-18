@@ -541,3 +541,14 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
     m_filledBytes = (dst - buf);
     return (p - data);
 }
+
+void VfmdPreprocessor::end()
+{
+    unsigned char *buf = reinterpret_cast<unsigned char *>(m_buffer);
+
+    if (m_filledBytes) {
+        if (m_lineCallback) {
+            (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, m_filledBytes, true);
+        }
+    }
+}
