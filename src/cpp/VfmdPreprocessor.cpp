@@ -144,11 +144,12 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         // interpreted as ISO-8859-1, we could end up with 8 bytes.
         // So, check if we have atleast 8 bytes left in the buffer.
         if ((dst - buf + 8) > m_bufferSize) {
+            // Empty our buffer and start afresh
             if (m_lineCallback) {
                 (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, false);
             }
             m_filledBytes = 0;
-            return (p - data);
+            dst = buf;
         }
 
         // Check whether the remaining trailing bytes are of the form 10xx xxxx
@@ -234,13 +235,7 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         if (BYTES_TO_READ == 0) {
             return 0;
         }
-        if ((dst - buf + 1) > m_bufferSize) {
-            if (m_lineCallback) {
-                (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, false);
-            }
-            m_filledBytes = 0;
-            return 0;
-        }
+
         unsigned char nextByte = *p;
         if (nextByte == 0x0a) { // LF
             p++; // The byte should be consumed only if it's an LF
@@ -251,6 +246,15 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
             m_codePointCount = 0;
             dst = buf;
         } else {
+            // Ensure we have enough space for a one-byte code point (CR)
+            if ((dst - buf + 1) > m_bufferSize) {
+                // Empty our buffer and start afresh
+                if (m_lineCallback) {
+                    (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, false);
+                }
+                m_filledBytes = 0;
+                dst = buf;
+            }
             *dst++ = 0x0d; // CR from last call
         }
         m_isUnfinishedCRLF = false;
@@ -265,11 +269,12 @@ int VfmdPreprocessor::addBytes(char *_data, int length)
         // interpreted as ISO-8859-1, we could end up with 8 bytes.
         // So, check if we have atleast 8 bytes left in the buffer.
         if ((dst - buf + 8) > m_bufferSize) {
+            // Empty our buffer and start afresh
             if (m_lineCallback) {
                 (*m_lineCallback)(m_lineCallbackContext, (const char *) buf, dst - buf, false);
             }
             m_filledBytes = 0;
-            return (p - data);
+            dst = buf;
         }
 
         if (m_unfinishedCodePoint.bytesSeen == 1 && m_unfinishedCodePoint.bytesRemaining > 0) {
