@@ -1,6 +1,8 @@
 #include "VfmdPreprocessor.h"
 #include <stdio.h>
 
+#define BUFFER_SIZE 1024
+
 void callback(void *context, const char *data, int length, bool isCompleteLine) {
     printf("LINE: [");
     for (int i = 0; i < length; i++) {
@@ -13,12 +15,31 @@ void callback(void *context, const char *data, int length, bool isCompleteLine) 
     printf("\n");
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     VfmdPreprocessor prep;
     prep.setLineCallback(callback);
-    prep.addBytes((char*) "poda ", 5);
-    prep.addBytes((char*) "dei ", 4);
-    prep.addBytes((char*) "Amazing\n", 8);
-    prep.addBytes((char*) "Maurice\n", 8);
+
+    FILE *inputFile = 0;
+    if (argc >= 2) {
+        char *fileName = argv[1];
+        inputFile = fopen(fileName , "rb");
+        if (inputFile == NULL) {
+            fputs("Cannot open input file", stderr);
+            return -1;
+        }
+    } else {
+        inputFile = stdin;
+    }
+
+    char buffer[BUFFER_SIZE];
+    while(!feof(inputFile)) {
+        int bytesRead = fread(buffer, sizeof(char), BUFFER_SIZE, inputFile);
+        prep.addBytes(buffer, bytesRead);
+    }
+    prep.end();
+
+    fclose(inputFile);
+
+    return 0;
 }
