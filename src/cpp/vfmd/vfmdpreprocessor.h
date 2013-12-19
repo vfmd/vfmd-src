@@ -1,3 +1,5 @@
+#ifndef VFMDPREPROCESSOR_H
+#define VFMDPREPROCESSOR_H
 
 #include <stdlib.h>
 
@@ -44,3 +46,4 @@ private:
     int64_t m_codePointCount; // number of code points in a line
 };
 
+#endif // VFMDPREPROCESSOR_H
