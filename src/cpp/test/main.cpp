@@ -1,18 +1,16 @@
-#include "VfmdPreprocessor.h"
+#include "vfmdbytearray.h"
+#include "vfmdpreprocessor.h"
 #include <stdio.h>
+#include <string.h>
 
 #define BUFFER_SIZE 1024
 
-void callback(void *context, const char *data, int length, bool isCompleteLine) {
+void callback(void *context, const VfmdByteArray &line) {
     printf("LINE: [");
-    for (int i = 0; i < length; i++) {
-        printf("%c", data[i]);
+    for (int i = 0; i < line.size(); i++) {
+        printf("%c", (line.data())[i]);
     }
-    printf("]");
-    if (!isCompleteLine) {
-        printf(" ...");
-    }
-    printf("\n");
+    printf("]\n");
 }
 
 int main(int argc, char *argv[])
