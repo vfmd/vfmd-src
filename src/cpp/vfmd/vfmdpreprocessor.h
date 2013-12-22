@@ -2,16 +2,14 @@
 #define VFMDPREPROCESSOR_H
 
 #include <stdlib.h>
+#include "vfmdbytearray.h"
 
 class VfmdPreprocessor {
 public:
-    typedef void (*LineCallbackFunc) (void *context, const char *data, int length, bool isCompleteLine);
+    typedef void (*LineCallbackFunc) (void *context, const VfmdByteArray &line);
 
     VfmdPreprocessor();
     ~VfmdPreprocessor();
-
-    bool setBufferSize(unsigned int bufferSize);
-    unsigned int bufferSize() const;
 
     int addBytes(char *data, int length);
     void end();
@@ -22,11 +20,7 @@ public:
 private:
     void ensureBufferAllocated();
 
-    char *m_buffer;
-    unsigned int m_bufferSize;
-    bool m_isBufferAllocated;
-    unsigned int m_filledBytes;
-
+    VfmdByteArray m_line;
     LineCallbackFunc m_lineCallback;
     void *m_lineCallbackContext;
 
