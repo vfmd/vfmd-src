@@ -11,6 +11,10 @@ public:
     VfmdPreprocessor();
     ~VfmdPreprocessor();
 
+    /* Add bytes to the preprocessor.
+     * Should add at least 6 bytes at a time, so that
+     * a Unicode code point in UTF-8 is not split across more than
+     * two addBytes() calls. */
     int addBytes(char *data, int length);
     void end();
 
