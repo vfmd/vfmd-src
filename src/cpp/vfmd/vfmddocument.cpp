@@ -1,42 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "VfmdDocument.h"
+#include "vfmddocument.h"
+#include "vfmdpreprocessor.h"
+#include "vfmdinputlinesequence.h"
+
+void preprocessorLineCallback(void *context, const VfmdLine &line) {
+    VfmdInputLineSequence *documentLineSequence = (VfmdInputLineSequence *) context;
+    documentLineSequence->addLine(line);
+}
 
 VfmdDocument::VfmdDocument()
-    : m_bufferSize(4096),
-      m_buffer(NULL),
-      m_isBufferAllocated(false)
 {
+    m_preprocessor = new VfmdPreprocessor;
+    m_documentLineSequence = new VfmdInputLineSequence;
+    m_preprocessor->setLineCallback(preprocessorLineCallback);
+    m_preprocessor->setLineCallbackContext(m_documentLineSequence);
 }
 
 VfmdDocument::~VfmdDocument()
 {
-    free(m_buffer);
-}
-
-void VfmdDocument::ensureBufferAllocated()
-{
-    if (!m_isBufferAllocated) {
-        m_buffer = static_cast<char*>(malloc(m_bufferSize));
-    }
-}
-
-bool VfmdDocument::setBufferSize(unsigned int size)
-{
-    if (!m_isBufferAllocated) {
-        m_bufferSize = size;
-        return true;
-    }
-    return false;
-}
-
-unsigned int VfmdDocument::bufferSize() const
-{
-    return m_bufferSize;
+    delete m_preprocessor;
+    delete m_documentLineSequence;
 }
 
 bool VfmdDocument::addBytes(const char *data, int length)
 {
-    printf("TODO: addBytes\n");
+    int addedBytes = m_preprocessor->addBytes(data, length);
+    return (addedBytes > 0);
 }
 
+void VfmdDocument::end()
+{
+    m_preprocessor->end();
+    m_documentLineSequence->endSequence();
+}

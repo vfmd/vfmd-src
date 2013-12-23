@@ -2,11 +2,11 @@
 #define VFMDPREPROCESSOR_H
 
 #include <stdlib.h>
-#include "vfmdbytearray.h"
+#include "vfmdline.h"
 
 class VfmdPreprocessor {
 public:
-    typedef void (*LineCallbackFunc) (void *context, const VfmdByteArray &line);
+    typedef void (*LineCallbackFunc) (void *context, const VfmdLine &line);
 
     VfmdPreprocessor();
     ~VfmdPreprocessor();
@@ -15,7 +15,7 @@ public:
      * Should add at least 6 bytes at a time, so that
      * a Unicode code point in UTF-8 is not split across more than
      * two addBytes() calls. */
-    int addBytes(char *data, int length);
+    int addBytes(const char *data, int length);
     void end();
 
     void setLineCallback(LineCallbackFunc fn);
@@ -24,7 +24,7 @@ public:
 private:
     void ensureBufferAllocated();
 
-    VfmdByteArray m_line;
+    VfmdLine m_line;
     LineCallbackFunc m_lineCallback;
     void *m_lineCallbackContext;
 

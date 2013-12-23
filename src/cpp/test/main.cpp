@@ -1,22 +1,12 @@
-#include "vfmdbytearray.h"
-#include "vfmdpreprocessor.h"
 #include <stdio.h>
 #include <string.h>
+#include "vfmddocument.h"
 
 #define BUFFER_SIZE 1024
 
-void callback(void *context, const VfmdByteArray &line) {
-    printf("LINE: [");
-    for (int i = 0; i < line.size(); i++) {
-        printf("%c", (line.data())[i]);
-    }
-    printf("]\n");
-}
-
 int main(int argc, char *argv[])
 {
-    VfmdPreprocessor prep;
-    prep.setLineCallback(callback);
+    VfmdDocument document;
 
     FILE *inputFile = 0;
     if (argc >= 2) {
@@ -33,11 +23,10 @@ int main(int argc, char *argv[])
     char buffer[BUFFER_SIZE];
     while(!feof(inputFile)) {
         int bytesRead = fread(buffer, sizeof(char), BUFFER_SIZE, inputFile);
-        prep.addBytes(buffer, bytesRead);
+        document.addBytes(buffer, bytesRead);
     }
-    prep.end();
+    document.end();
 
     fclose(inputFile);
-
     return 0;
 }

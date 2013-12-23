@@ -10,7 +10,7 @@ class VfmdByteArray
 {
 public:
 
-    /* Create an empty byte array */
+    /* Create an empty and invalid byte array */
     VfmdByteArray();
 
     /* Create a byte array with a copy of 'length' bytes starting from 'data' */
@@ -18,6 +18,9 @@ public:
 
     /* Destructor */
     ~VfmdByteArray();
+
+    /* Uninitialized bytearrays are invalid */
+    bool isValid() const;
 
     /* Append a copy of 'length' bytes starting from 'data' */
     void append(const char *data, int length);
@@ -61,6 +64,9 @@ public:
 
     /* Get a copy of the data as a null-terminated string */
     const char *c_str() const;
+
+    /* Pretty-print the contained data */
+    void print(const char *prefix = 0) const;
 
 private:
     void ref();

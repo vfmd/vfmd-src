@@ -93,10 +93,10 @@ const unsigned char utf8_table4[] = {
             ba.appendBytes((0xc0 | (((c) >> 6) & 0x03)), (0x80 | ((c) & 0x3f))); \
         }
 
-int VfmdPreprocessor::addBytes(char *_data, int length)
+int VfmdPreprocessor::addBytes(const char *_data, int length)
 {
-    unsigned char *data = reinterpret_cast<unsigned char *>(_data);
-    register unsigned char *p = data;
+    const unsigned char *data = reinterpret_cast<const unsigned char *>(_data);
+    register const unsigned char *p = data;
 
     if (m_unfinishedCodePoint.bytesSeen >= 2 && m_unfinishedCodePoint.bytesRemaining > 0) {
 
