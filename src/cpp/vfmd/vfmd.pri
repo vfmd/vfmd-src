@@ -14,9 +14,11 @@ HEADERS += $$PWD/vfmdpreprocessor.h \
 BLK = $$PWD/blockelements
 
 SOURCES += $$BLK/vfmdblockelement.cpp \
-           $$BLK/paragraph.cpp
+           $$BLK/paragraph.cpp \
+           $$BLK/blockquote.cpp
 
 HEADERS += $$BLK/vfmdblockelement.h \
-           $$BLK/paragraph.h
+           $$BLK/paragraph.h \
+           $$BLK/blockquote.h
 
 INCLUDEPATH += $$PWD

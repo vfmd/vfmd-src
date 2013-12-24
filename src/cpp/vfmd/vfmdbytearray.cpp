@@ -167,6 +167,34 @@ size_t VfmdByteArray::size() const
     return (d->size - m_leftOffset - m_rightOffset);
 }
 
+bool VfmdByteArray::startsWith(const char *str) const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    for (unsigned int i = 0; i < sz; i++) {
+        const char c = str[i];
+        if (c == 0) {
+            return true;
+        }
+        if (data_ptr[i] != c) {
+            return false;
+        }
+    }
+    return false;
+}
+
+char VfmdByteArray::firstNonSpace() const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    for (unsigned int i = 0; i < sz; i++) {
+        if (data_ptr[i] != 0x20 /* space */) {
+            return data_ptr[i];
+        }
+    }
+    return 0;
+}
+
 void VfmdByteArray::reserve(size_t length)
 {
     if (d->allocatedSize < length) {

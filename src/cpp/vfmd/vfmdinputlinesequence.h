@@ -25,7 +25,7 @@ private:
     VfmdLine m_currentLine, m_nextLine;
     bool m_isAtEnd;
     VfmdBlockLineSequence *m_childLineSequence;
-    VfmdBlockSyntaxHandler *m_blockSyntaxHandlers[1];
+    VfmdBlockSyntaxHandler *m_blockSyntaxHandlers[2];
     int m_blockSyntaxHandlerCount;
 };
 

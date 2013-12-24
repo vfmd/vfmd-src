@@ -41,6 +41,10 @@ public:
     const char *data() const;
     size_t size() const;
 
+    /* Utility query functions */
+    bool startsWith(const char *str) const;
+    char firstNonSpace() const;
+
     /* Ensure there are atleast 'length' bytes of allocated space.
      * This can cause an internal realloc and/or data copy. */
     void reserve(size_t length);
