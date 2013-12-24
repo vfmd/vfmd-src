@@ -4,8 +4,7 @@
 #include "vfmdbytearray.h"
 
 /* Conceptually represents a line in a vfmd document.
- * Please don't add data with CR / CRLF to the line
- * (there are no checks to prevent that) */
+ * All lines must end with an LF character */
 
 class VfmdLine : public VfmdByteArray
 {

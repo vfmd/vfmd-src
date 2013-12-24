@@ -312,14 +312,11 @@ const char* VfmdByteArray::c_str() const
 
 void VfmdByteArray::print(const char *prefix) const {
     if (prefix) {
-        printf("%s: [", prefix);
-    } else {
-        printf("[");
+        printf("%s: ", prefix);
     }
     const char *data_ptr = data();
     size_t sz = size();
     for (unsigned int i = 0; i < sz; i++) {
         printf("%c", data_ptr[i]);
     }
-    printf("]\n");
 }
