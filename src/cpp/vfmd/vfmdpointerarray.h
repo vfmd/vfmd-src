@@ -89,6 +89,19 @@ public:
         m_size--;
     }
 
+    T* lastItem() const {
+        return m_data[m_size - 1];
+    }
+
+    void removeLastItem() {
+        m_size--;
+    }
+
+    T* takeLastItem() {
+        m_size--;
+        return m_data[m_size];
+    }
+
     void clear() {
         m_size = 0;
     }
