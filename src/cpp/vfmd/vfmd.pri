@@ -9,7 +9,8 @@ HEADERS += $$PWD/vfmdpreprocessor.h \
            $$PWD/vfmdbytearray.h \
            $$PWD/vfmdinputlinesequence.h \
            $$PWD/vfmdline.h \
-           $$PWD/vfmddocument.h
+           $$PWD/vfmddocument.h \
+           $$PWD/vfmdpointerarray.h
 
 BLK = $$PWD/blockelements
 
