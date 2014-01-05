@@ -4,6 +4,11 @@ VfmdLine::VfmdLine()
 {
 }
 
+VfmdLine::VfmdLine(const char *str)
+    : VfmdByteArray(str)
+{
+}
+
 VfmdLine::VfmdLine(const char *data, int length)
     : VfmdByteArray(data, length)
 {

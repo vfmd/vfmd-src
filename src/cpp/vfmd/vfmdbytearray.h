@@ -13,6 +13,9 @@ public:
     /* Create an empty and invalid byte array */
     VfmdByteArray();
 
+    /* Create a byte array with a copy of the null-terminated string 'str' */
+    VfmdByteArray(const char *str);
+
     /* Create a byte array with a copy of 'length' bytes starting from 'data' */
     VfmdByteArray(const char *data, int length);
 

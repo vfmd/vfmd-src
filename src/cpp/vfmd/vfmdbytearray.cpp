@@ -79,6 +79,11 @@ VfmdByteArray::VfmdByteArray()
 {
 }
 
+VfmdByteArray::VfmdByteArray(const char *str)
+    : d(new Private(str, strlen(str))), m_leftOffset(0), m_rightOffset(0)
+{
+}
+
 VfmdByteArray::VfmdByteArray(const char *data, int length)
     : d(new Private(data, length)), m_leftOffset(0), m_rightOffset(0)
 {

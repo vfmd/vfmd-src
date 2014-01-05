@@ -12,6 +12,9 @@ public:
     /* Create an empty and invalid line */
     VfmdLine();
 
+    /* Create a line with a copy of the null-terminated string 'str' */
+    VfmdLine(const char *str);
+
     /* Create a line with a copy of 'length' bytes starting from 'data' */
     VfmdLine(const char *data, int length);
 
