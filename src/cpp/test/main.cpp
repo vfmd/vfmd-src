@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include "vfmddocument.h"
+#include "vfmdelementregistry.h"
 
 #define BUFFER_SIZE 1024
 
 int main(int argc, char *argv[])
 {
-    VfmdDocument document;
+    VfmdElementRegistry *registry = VfmdElementRegistry::createRegistryWithDefaultElements();
+    VfmdDocument document(registry);
 
     FILE *inputFile = 0;
     if (argc >= 2) {
