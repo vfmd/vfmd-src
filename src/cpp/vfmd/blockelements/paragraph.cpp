@@ -15,9 +15,11 @@ ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent
 void ParagraphLineSequence::processLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
     UNUSED_PARAMETER(nextLine);
-    currentLine.print("PARA LINE");
+    m_lineArray.addLine(currentLine);
     if (currentLine.isBlankLine() || !nextLine.isValid()) {
-        printf("END OF PARA\n");
+        printf("PARAGRAPH (\n");
+        m_lineArray.print();
+        printf(")\n");
         m_isAtEnd = true;
     }
 }

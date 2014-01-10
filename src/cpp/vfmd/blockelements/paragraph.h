@@ -2,6 +2,7 @@
 #define PARAGRAPH_H
 
 #include "vfmdblockelement.h"
+#include "vfmdlinearray.h"
 
 class ParagraphSyntaxHandler : public VfmdBlockSyntaxHandler {
 public:
@@ -15,6 +16,7 @@ public:
     bool isAtEnd() const;
 private:
     bool m_isAtEnd;
+    VfmdLineArray m_lineArray;
 };
 
 #endif // PARAGRAPH_H
