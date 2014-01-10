@@ -7,7 +7,9 @@ SOURCES += $$PWD/vfmdpreprocessor.cpp \
            $$PWD/vfmdline.cpp \
            $$PWD/vfmddocument.cpp \
            $$PWD/vfmdelementregistry.cpp \
-           $$PWD/vfmdspantagstack.cpp
+           $$PWD/vfmdspantagstack.cpp \
+           $$PWD/vfmdlinearray.cpp \
+           $$PWD/vfmdlinearrayiterator.cpp
 
 HEADERS += $$PWD/vfmdpreprocessor.h \
            $$PWD/vfmdbytearray.h \
@@ -16,7 +18,9 @@ HEADERS += $$PWD/vfmdpreprocessor.h \
            $$PWD/vfmddocument.h \
            $$PWD/vfmdpointerarray.h \
            $$PWD/vfmdelementregistry.h \
-           $$PWD/vfmdspantagstack.h
+           $$PWD/vfmdspantagstack.h \
+           $$PWD/vfmdlinearray.h \
+           $$PWD/vfmdlinearrayiterator.h
 
 BLK = $$PWD/blockelements
 
