@@ -28,6 +28,9 @@ public:
     /* Append a copy of 'length' bytes starting from 'data' */
     void append(const char *data, int length);
 
+    /* Append a copy of 'other' */
+    void append(const VfmdByteArray &other);
+
     /* Append one or more bytes */
     void appendByte(char byte1);
     void appendBytes(char byte1, char byte2);
@@ -45,8 +48,22 @@ public:
     size_t size() const;
 
     /* Utility query functions */
+    char charAt(unsigned int pos) const;
+    char lastChar() const;
     bool startsWith(const char *str) const;
     char firstNonSpace() const;
+
+    /* Return the left 'count' bytes as a bytearray (without any data-replication) */
+    VfmdByteArray left(unsigned int count) const;
+
+    /* Return the right 'count' bytes as a bytearray (without any data-replication) */
+    VfmdByteArray right(unsigned int count) const;
+
+    /* Return the bytes starting from the 'n'th position till the end as a bytearray (without any data-replication) */
+    VfmdByteArray mid(unsigned int n) const;
+
+    /* Return the 'l' bytes starting from the 'n'th position as a bytearray (without any data-replication) */
+    VfmdByteArray mid(unsigned int n, unsigned int l) const;
 
     /* Ensure there are atleast 'length' bytes of allocated space.
      * This can cause an internal realloc and/or data copy. */

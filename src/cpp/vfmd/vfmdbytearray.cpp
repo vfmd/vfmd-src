@@ -105,6 +105,11 @@ void VfmdByteArray::append(const char *data, int length)
     d->append(data, length);
 }
 
+void VfmdByteArray::append(const VfmdByteArray &other)
+{
+    append(other.data(), other.size());
+}
+
 void VfmdByteArray::appendByte(char byte1)
 {
     copyOnWrite(1);
@@ -172,6 +177,16 @@ size_t VfmdByteArray::size() const
     return (d->size - m_leftOffset - m_rightOffset);
 }
 
+char VfmdByteArray::charAt(unsigned int pos) const
+{
+    return *(data() + pos);
+}
+
+char VfmdByteArray::lastChar() const
+{
+    return charAt(size() - 1);
+}
+
 bool VfmdByteArray::startsWith(const char *str) const
 {
     const char *data_ptr = data();
@@ -198,6 +213,35 @@ char VfmdByteArray::firstNonSpace() const
         }
     }
     return 0;
+}
+
+VfmdByteArray VfmdByteArray::left(unsigned int count) const
+{
+    VfmdByteArray ba = *this;
+    ba.chopRight(ba.size() - count);
+    return ba;
+}
+
+VfmdByteArray VfmdByteArray::right(unsigned int count) const
+{
+    VfmdByteArray ba = *this;
+    ba.chopLeft(ba.size() - count);
+    return ba;
+}
+
+VfmdByteArray VfmdByteArray::mid(unsigned int n) const
+{
+    VfmdByteArray ba = *this;
+    ba.chopLeft(n);
+    return ba;
+}
+
+VfmdByteArray VfmdByteArray::mid(unsigned int n, unsigned int l) const
+{
+    VfmdByteArray ba = *this;
+    ba.chopLeft(n);
+    ba.chopRight(ba.size() - l);
+    return ba;
 }
 
 void VfmdByteArray::reserve(size_t length)
