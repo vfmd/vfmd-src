@@ -41,23 +41,27 @@ public:
         m_size++;
     }
 
-    void prepend(T *item) {
+    void insert(T *item, unsigned int index) {
         if (m_size < m_allocatedSize) { // if there's sufficient space
-            // right-shift the data
-            for (int i = m_size - 1; i >= 0; i--) {
+            // right-shift the suceeding items
+            for (unsigned int i = m_size - 1; i >= index; i--) {
                 m_data[i+1] = m_data[i];
             }
-            // assign the first item
-            m_data[0] = item;
+            // assign the inserted item
+            m_data[index] = item;
             m_size++;
         } else {
             // allocate new space
             m_allocatedSize += m_chunkSize;
             T **dataCopy = static_cast<T**>(malloc(sizeof(T*) * m_allocatedSize));
-            // assign the first item
-            dataCopy[0] = item;
-            // copy the rest of the items
-            for (unsigned int i = 0; i < m_size; i++) {
+            // copy preceding items
+            for (unsigned int i = 0; i < index; i++) {
+                dataCopy[i] = m_data[i];
+            }
+            // assign the inserted item
+            dataCopy[index] = item;
+            // copy the suceeding items
+            for (unsigned int i = index; i < m_size; i++) {
                 dataCopy[i + 1] = m_data[i];
             }
             // reassign internals
@@ -65,6 +69,10 @@ public:
             m_data = dataCopy;
             m_size++;
         }
+    }
+
+    void prepend(T *item) {
+        insert(item, 0);
     }
 
     void remove(T *item) {
