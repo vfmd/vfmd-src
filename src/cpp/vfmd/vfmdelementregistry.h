@@ -5,6 +5,7 @@
 #include "vfmdbytearray.h"
 
 class VfmdSpanElementHandler;
+class VfmdBlockElementHandler;
 
 class VfmdElementRegistry
 {
@@ -18,6 +19,33 @@ public:
 
     VfmdElementRegistry();
     ~VfmdElementRegistry();
+
+    // Block elements
+
+    /* Add a block element handler to the registry at the end.
+     * The registry owns the added handler.
+     * If typeId is already registered, this method does nothing and returns false. */
+    bool appendBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler);
+
+    /* Add a block element handler to be invoked before an existing block element handler.
+     * The registry owns the added handler.
+     * If typeId is already registered, this method does nothing and returns false. */
+    bool insertBlockElementBeforeExistingBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler, int existingTypeId);
+
+    /* Returns the index of a block element given the typeId. Returns -1 on no match. */
+    int indexOfBlockElement(int typeId) const;
+
+    /* Check for existence of a block element */
+    bool containsBlockElement(int typeId) const;
+
+    /* Remove and free a block element handler in the registry */
+    void removeBlockElement(int typeId);
+
+    /* Querying block elements */
+    unsigned int blockElementsCount() const;
+    VfmdBlockElementHandler *blockElementHandler(unsigned int index) const;
+
+    // Span elements
 
     /* Add a span element handler to the registry at the end.
      * The registry owns the added handler.
@@ -58,6 +86,21 @@ public:
     void print() const;
 
 private:
+
+    // Block elements
+
+    void ensureBlockElementsAllocated();
+
+    struct BlockElementData {
+        BlockElementData(int t, VfmdBlockElementHandler *h) : typeId(t), blockElementHandler(h) { }
+        int typeId;
+        VfmdBlockElementHandler *blockElementHandler;
+    };
+
+    VfmdPointerArray<BlockElementData>* m_blockElements;
+
+    // Span elements
+
     struct SpanElementData {
         SpanElementData(int t, VfmdSpanElementHandler *h) : typeId(t), spanElementHandler(h) { }
         int typeId;
