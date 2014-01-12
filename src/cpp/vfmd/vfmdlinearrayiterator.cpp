@@ -25,6 +25,18 @@ char VfmdLineArrayIterator::nextByte() const
     return m_lineArray->lineAt(m_lineIndex)->charAt(m_byteIndex);
 }
 
+char VfmdLineArrayIterator::previousByte() const
+{
+    if (m_byteIndex > 0) {
+        // Return the previous byte in the same line
+        return m_lineArray->lineAt(m_lineIndex)->charAt(m_byteIndex - 1);
+    } else if (m_lineIndex > 0) {
+        // Return the last byte of the previous line
+        return m_lineArray->lineAt(m_lineIndex - 1)->lastChar();
+    }
+    return 0;
+}
+
 bool VfmdLineArrayIterator::isNextByteEscaped() const
 {
     return m_isNextByteEscaped;
@@ -92,12 +104,60 @@ VfmdByteArray* VfmdLineArrayIterator::bytesTill(const VfmdLineArrayIterator *oth
     return ba;
 }
 
-void VfmdLineArrayIterator::moveForwardOneByte()
+
+void VfmdLineArrayIterator::moveForward(unsigned int n)
 {
-    if (m_byteIndex < (m_lineArray->lineAt(m_lineIndex)->size() - 1)) {
-        moveTo(m_lineIndex, m_byteIndex + 1);
+    if (n < (unsigned int) numberOfBytesTillEndOfLine()) {
+        // Within the same line
+        moveTo(m_lineIndex, m_byteIndex + n);
     } else {
-        moveTo(m_lineIndex + 1, 0);
+        int lineIndex = m_lineIndex;
+        int byteIndex = m_byteIndex;
+        int lineLength = m_lineArray->lineAt(lineIndex)->size();
+        int delta = n;
+        while ((byteIndex + delta) >= lineLength) {
+            delta -= (lineLength - byteIndex);
+            lineIndex++;
+            byteIndex = 0;
+            if (lineIndex >= int(m_lineArray->lineCount())) {
+                lineLength = 0;
+                break;
+            }
+            lineLength = m_lineArray->lineAt(lineIndex)->size();
+        }
+        byteIndex += delta;
+        if (lineIndex >= int(m_lineArray->lineCount())) {
+            lineIndex = m_lineArray->lineCount();
+            byteIndex = 0;
+        }
+        moveTo(lineIndex, byteIndex);
+    }
+}
+
+void VfmdLineArrayIterator::moveBackward(unsigned int n)
+{
+    if (n <= m_byteIndex) {
+        // Within the same line
+        moveTo(m_lineIndex, m_byteIndex - n);
+    } else {
+        int lineIndex = (int) m_lineIndex;
+        int byteIndex = (int) m_byteIndex;
+        int delta = n;
+        while (delta > byteIndex) {
+            if (lineIndex < 0) {
+                break;
+            }
+            delta -= byteIndex;
+            lineIndex--;
+            byteIndex = m_lineArray->lineAt(lineIndex)->size() - 1;
+            delta--;
+        }
+        byteIndex -= delta;
+        if (lineIndex < 0) {
+            lineIndex = 0;
+            byteIndex = 0;
+        }
+        moveTo(lineIndex, byteIndex);
     }
 }
 
@@ -240,6 +300,11 @@ void VfmdLineArrayIterator::moveTo(unsigned int otherLineIndex, unsigned int oth
     }
     m_lineIndex = otherLineIndex;
     m_byteIndex = otherByteIndex;
+}
+
+bool VfmdLineArrayIterator::isAtBeginning() const
+{
+    return (m_lineIndex == 0 && m_byteIndex == 0);
 }
 
 bool VfmdLineArrayIterator::isAtEnd() const

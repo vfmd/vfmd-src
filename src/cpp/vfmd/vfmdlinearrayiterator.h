@@ -18,8 +18,11 @@ public:
 
     ~VfmdLineArrayIterator();
 
-    /* Returns the immediate next byte */
+    /* Returns the immediate next byte (the iterator's position is always between bytes) */
     char nextByte() const;
+
+    /* Returns the immediate previous byte (the iterator's position is always between bytes) */
+    char previousByte() const;
 
     /* Is the nextByte the first byte of an escaped character? */
     bool isNextByteEscaped() const;
@@ -33,12 +36,20 @@ public:
     VfmdByteArray *bytesTillEndOfLine() const;
     VfmdByteArray *bytesTill(const VfmdLineArrayIterator *other) const;
 
+    /* Moving the iterator across 'n' number of bytes */
+    void moveForward(unsigned int n);
+    void moveBackward(unsigned int n);
+
     /* Advancing the iterator */
-    void moveForwardOneByte();
     void moveForwardTillEndOfLine();
     void moveForwardOverBytesInString(const char *str);
     void moveForwardOverBytesNotInString(const char *str);
+
+    /* Moving the iterator to another iterator's position */
     void moveTo(const VfmdLineArrayIterator *other);
+
+    /* Is this iterator at the beginning / end of the bytestream? */
+    bool isAtBeginning() const;
     bool isAtEnd() const;
 
     /* Compare with other iterator objects */
