@@ -89,6 +89,12 @@ public:
         m_size--;
     }
 
+    T* takeItemAt(unsigned int index) {
+        T *item = itemAt(index);
+        removeItemAt(index);
+        return item;
+    }
+
     T* lastItem() const {
         return m_data[m_size - 1];
     }

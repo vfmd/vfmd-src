@@ -130,7 +130,9 @@ void VfmdElementRegistry::removeSpanElementFromPointerArray(int typeId, VfmdPoin
         for (unsigned int i = 0; i < array->size(); i++) {
             VfmdElementRegistry::SpanElementData *spanElementData = array->itemAt(i);
             if (typeId == spanElementData->typeId) {
-                array->removeItemAt(i);
+                VfmdSpanElementHandler *spanHandler = array->takeItemAt(i);
+                delete spanHandler;
+                return;
             }
         }
     }

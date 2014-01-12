@@ -44,8 +44,7 @@ public:
     /* Check for existence of a span element */
     bool containsSpanElement(int typeId) const;
 
-    /* Remove a span element handler from the registry
-     * The registry disowns the removed handler. */
+    /* Remove and free a span element handler in the registry */
     void removeSpanElement(int typeId);
 
     /* Querying span elements that are associated with a trigger byte */
