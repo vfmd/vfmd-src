@@ -7,6 +7,10 @@ VfmdBlockLineSequence *VfmdBlockElementHandler::createBlockLineSequence(const Vf
     return 0;
 }
 
+VfmdBlockElementHandler::~VfmdBlockElementHandler()
+{
+}
+
 VfmdBlockLineSequence::VfmdBlockLineSequence(const VfmdInputLineSequence *parent)
 {
     UNUSED_PARAMETER(parent);

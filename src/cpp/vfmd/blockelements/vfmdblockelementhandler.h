@@ -11,6 +11,7 @@ class VfmdInputLineSequence;
 class VfmdBlockElementHandler {
 public:
     virtual VfmdBlockLineSequence *createBlockLineSequence(const VfmdInputLineSequence *lineSequence);
+    virtual ~VfmdBlockElementHandler();
 };
 
 class VfmdBlockLineSequence {
