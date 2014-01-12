@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "blockquote.h"
+#include "blockquotehandler.h"
 #include "vfmdinputlinesequence.h"
 
-VfmdBlockLineSequence *BlockquoteSyntaxHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
+VfmdBlockLineSequence *BlockquoteHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
 {
     if (lineSequence->currentLine().startsWith("> ")) {
         return (new BlockquoteLineSequence(lineSequence));

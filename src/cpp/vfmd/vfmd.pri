@@ -26,13 +26,13 @@ HEADERS += $$PWD/vfmdpreprocessor.h \
 
 BLK = $$PWD/blockelements
 
-SOURCES += $$BLK/vfmdblockelement.cpp \
-           $$BLK/paragraph.cpp \
-           $$BLK/blockquote.cpp
+SOURCES += $$BLK/vfmdblockelementhandler.cpp \
+           $$BLK/paragraphhandler.cpp \
+           $$BLK/blockquotehandler.cpp
 
-HEADERS += $$BLK/vfmdblockelement.h \
-           $$BLK/paragraph.h \
-           $$BLK/blockquote.h
+HEADERS += $$BLK/vfmdblockelementhandler.h \
+           $$BLK/paragraphhandler.h \
+           $$BLK/blockquotehandler.h
 
 SPN = $$PWD/spanelements
 

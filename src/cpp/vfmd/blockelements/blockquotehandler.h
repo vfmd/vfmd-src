@@ -1,9 +1,9 @@
-#ifndef BLOCKQUOTE_H
-#define BLOCKQUOTE_H
+#ifndef BLOCKQUOTEHANDLER_H
+#define BLOCKQUOTEHANDLER_H
 
-#include "vfmdblockelement.h"
+#include "vfmdblockelementhandler.h"
 
-class BlockquoteSyntaxHandler : public VfmdBlockSyntaxHandler {
+class BlockquoteHandler : public VfmdBlockElementHandler {
 public:
     VfmdBlockLineSequence *createBlockLineSequence(const VfmdInputLineSequence *lineSequence);
 };
@@ -19,4 +19,4 @@ private:
     VfmdInputLineSequence *m_childSequence;
 };
 
-#endif // BLOCKQUOTE_H
+#endif // BLOCKQUOTEHANDLER_H

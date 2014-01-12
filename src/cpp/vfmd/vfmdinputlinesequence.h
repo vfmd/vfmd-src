@@ -3,7 +3,7 @@
 
 #include "vfmdline.h"
 
-class VfmdBlockSyntaxHandler;
+class VfmdBlockElementHandler;
 class VfmdBlockLineSequence;
 
 class VfmdInputLineSequence
@@ -25,7 +25,7 @@ private:
     VfmdLine m_currentLine, m_nextLine;
     bool m_isAtEnd;
     VfmdBlockLineSequence *m_childLineSequence;
-    VfmdBlockSyntaxHandler *m_blockSyntaxHandlers[2];
+    VfmdBlockElementHandler *m_blockElementHandlers[2];
     int m_blockSyntaxHandlerCount;
 };
 

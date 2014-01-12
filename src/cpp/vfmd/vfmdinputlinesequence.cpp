@@ -1,13 +1,13 @@
 #include <assert.h>
 #include "vfmdinputlinesequence.h"
-#include "blockelements/paragraph.h"
-#include "blockelements/blockquote.h"
+#include "blockelements/paragraphhandler.h"
+#include "blockelements/blockquotehandler.h"
 
 VfmdInputLineSequence::VfmdInputLineSequence()
     : m_childLineSequence(0)
 {
-    m_blockSyntaxHandlers[0] = new BlockquoteSyntaxHandler;
-    m_blockSyntaxHandlers[1] = new ParagraphSyntaxHandler;
+    m_blockElementHandlers[0] = new BlockquoteHandler;
+    m_blockElementHandlers[1] = new ParagraphHandler;
     m_blockSyntaxHandlerCount = 2;
     m_isAtEnd = false;
 }
@@ -47,7 +47,7 @@ void VfmdInputLineSequence::processLineInChildSequence()
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
         for (int i = 0; i < m_blockSyntaxHandlerCount; i++) {
-            VfmdBlockLineSequence *blockLineSequence = m_blockSyntaxHandlers[i]->createBlockLineSequence(this);
+            VfmdBlockLineSequence *blockLineSequence = m_blockElementHandlers[i]->createBlockLineSequence(this);
             if (blockLineSequence) {
                 m_childLineSequence = blockLineSequence;
                 break;

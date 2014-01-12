@@ -1,10 +1,10 @@
-#ifndef PARAGRAPH_H
-#define PARAGRAPH_H
+#ifndef PARAGRAPHHANDLER_H
+#define PARAGRAPHHANDLER_H
 
-#include "vfmdblockelement.h"
+#include "vfmdblockelementhandler.h"
 #include "vfmdlinearray.h"
 
-class ParagraphSyntaxHandler : public VfmdBlockSyntaxHandler {
+class ParagraphHandler : public VfmdBlockElementHandler {
 public:
     VfmdBlockLineSequence *createBlockLineSequence(const VfmdInputLineSequence *lineSequence);
 };
@@ -19,4 +19,4 @@ private:
     VfmdLineArray m_lineArray;
 };
 
-#endif // PARAGRAPH_H
+#endif // PARAGRAPHHANDLER_H

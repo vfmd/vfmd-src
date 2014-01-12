@@ -1,5 +1,5 @@
-#ifndef VFMDBLOCKELEMENT_H
-#define VFMDBLOCKELEMENT_H
+#ifndef VFMDBLOCKELEMENTHANDLER_H
+#define VFMDBLOCKELEMENTHANDLER_H
 
 #include "vfmdline.h"
 
@@ -8,7 +8,7 @@
 class VfmdBlockLineSequence;
 class VfmdInputLineSequence;
 
-class VfmdBlockSyntaxHandler {
+class VfmdBlockElementHandler {
 public:
     virtual VfmdBlockLineSequence *createBlockLineSequence(const VfmdInputLineSequence *lineSequence);
 };
@@ -21,4 +21,4 @@ public:
     virtual bool isAtEnd() const;
 };
 
-#endif // VFMDBLOCKELEMENT_H
+#endif // VFMDBLOCKELEMENTHANDLER_H

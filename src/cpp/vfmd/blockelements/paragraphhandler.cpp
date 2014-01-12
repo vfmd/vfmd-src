@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "paragraph.h"
+#include "paragraphhandler.h"
 #include "vfmdinputlinesequence.h"
 
-VfmdBlockLineSequence *ParagraphSyntaxHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
+VfmdBlockLineSequence *ParagraphHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
 {
     return (new ParagraphLineSequence(lineSequence));
 }

@@ -1,7 +1,7 @@
-#include "vfmdblockelement.h"
+#include "vfmdblockelementhandler.h"
 #include "vfmdinputlinesequence.h"
 
-VfmdBlockLineSequence *VfmdBlockSyntaxHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
+VfmdBlockLineSequence *VfmdBlockElementHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
 {
     UNUSED_PARAMETER(lineSequence);
     return 0;
