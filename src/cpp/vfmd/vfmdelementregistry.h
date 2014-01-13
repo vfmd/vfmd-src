@@ -10,13 +10,6 @@ class VfmdBlockElementHandler;
 class VfmdElementRegistry
 {
 public:
-    enum SpanElementType {
-        EMPHASIS_SPAN_ELEMENT,
-        LINK_SPAN_ELEMENT,
-        USER_SPAN_ELEMENT = 100,
-        MAX_USER_SPAN_ELEMENT = 255
-    };
-
     VfmdElementRegistry();
     ~VfmdElementRegistry();
 
@@ -84,6 +77,10 @@ public:
     VfmdSpanElementHandler *spanElementForTriggerByte(char byte, unsigned int index) const;
 
     void print() const;
+
+    // Default vfmd elements
+
+    static VfmdElementRegistry* createRegistryWithDefaultElements();
 
 private:
 
