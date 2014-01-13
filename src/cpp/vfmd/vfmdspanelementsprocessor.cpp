@@ -10,7 +10,7 @@ static void closeTextFragmentIfOpen(VfmdLineArrayIterator **textFragmentStart, V
 {
     if ((*textFragmentStart) != 0) {
         VfmdByteArray *textFragment = (*textFragmentStart)->bytesTill(iterator);
-        textFragment->print("Text fragment");
+        printf("TEXTFRAG("); textFragment->print(); printf(")\n");
         delete textFragment;
         delete (*textFragmentStart);
         (*textFragmentStart) = 0;
@@ -22,10 +22,10 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
     VfmdLineArrayIterator *endOfTag = iterator->copy();
     spanHandler->processSpanTag(endOfTag, stack);
     if (endOfTag->isAfter(iterator)) { // span tag identified
-        VfmdByteArray *spanTagText = iterator->bytesTill(endOfTag);
-        spanTagText->print("Span tag");
-        delete spanTagText;
         closeTextFragmentIfOpen(textFragmentStart, iterator);
+        VfmdByteArray *spanTagText = iterator->bytesTill(endOfTag);
+        printf("SPANTAG("); spanTagText->print(); printf(")\n");
+        delete spanTagText;
         iterator->moveTo(endOfTag);
         delete endOfTag;
         return true;
@@ -73,6 +73,7 @@ void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArr
                 textFragmentStart = iterator->copy();
             }
             assert(textFragmentStart != 0);
+            iterator->moveForward(1);
         }
     }
 

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "paragraphhandler.h"
-#include "vfmdinputlinesequence.h"
+#include "vfmdspanelementsprocessor.h"
 
 VfmdBlockLineSequence *ParagraphHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
 {
@@ -21,6 +21,9 @@ void ParagraphLineSequence::processLine(const VfmdLine &currentLine, const VfmdL
         m_lineArray.print();
         printf(")\n");
         m_isAtEnd = true;
+    }
+    if (m_isAtEnd) {
+        VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
     }
 }
 
