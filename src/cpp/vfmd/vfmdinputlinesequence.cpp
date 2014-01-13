@@ -1,14 +1,12 @@
 #include <assert.h>
 #include "vfmdinputlinesequence.h"
-#include "blockelements/paragraphhandler.h"
-#include "blockelements/blockquotehandler.h"
+#include "vfmdelementregistry.h"
+#include "blockelements/vfmdblockelementhandler.h"
 
-VfmdInputLineSequence::VfmdInputLineSequence()
-    : m_childLineSequence(0)
+VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry)
+    : m_registry(registry)
+    , m_childLineSequence(0)
 {
-    m_blockElementHandlers[0] = new BlockquoteHandler;
-    m_blockElementHandlers[1] = new ParagraphHandler;
-    m_blockSyntaxHandlerCount = 2;
     m_isAtEnd = false;
 }
 
@@ -46,8 +44,9 @@ void VfmdInputLineSequence::processLineInChildSequence()
 {
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
-        for (int i = 0; i < m_blockSyntaxHandlerCount; i++) {
-            VfmdBlockLineSequence *blockLineSequence = m_blockElementHandlers[i]->createBlockLineSequence(this);
+        for (unsigned int i = 0; i < m_registry->blockElementsCount(); i++) {
+            VfmdBlockElementHandler *blockHandler = m_registry->blockElementHandler(i);
+            VfmdBlockLineSequence *blockLineSequence = blockHandler->createBlockLineSequence(this);
             if (blockLineSequence) {
                 m_childLineSequence = blockLineSequence;
                 break;
@@ -76,4 +75,9 @@ VfmdLine VfmdInputLineSequence::currentLine() const
 VfmdLine VfmdInputLineSequence::nextLine() const
 {
     return m_nextLine;
+}
+
+const VfmdElementRegistry *VfmdInputLineSequence::registry() const
+{
+    return m_registry;
 }

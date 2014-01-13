@@ -5,11 +5,12 @@
 
 class VfmdBlockElementHandler;
 class VfmdBlockLineSequence;
+class VfmdElementRegistry;
 
 class VfmdInputLineSequence
 {
 public:
-    VfmdInputLineSequence();
+    VfmdInputLineSequence(const VfmdElementRegistry *registry);
 
     void addLine(const VfmdLine &line);
     void endSequence();
@@ -19,14 +20,15 @@ public:
     VfmdLine currentLine() const;
     VfmdLine nextLine() const;
 
+    const VfmdElementRegistry *registry() const;
+
 private:
     void processLineInChildSequence();
 
     VfmdLine m_currentLine, m_nextLine;
     bool m_isAtEnd;
+    const VfmdElementRegistry *m_registry;
     VfmdBlockLineSequence *m_childLineSequence;
-    VfmdBlockElementHandler *m_blockElementHandlers[2];
-    int m_blockSyntaxHandlerCount;
 };
 
 #endif // VFMDINPUTLINESEQUENCE_H

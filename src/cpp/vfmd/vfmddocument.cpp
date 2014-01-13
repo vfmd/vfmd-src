@@ -9,10 +9,10 @@ void preprocessorLineCallback(void *context, const VfmdLine &line) {
     documentLineSequence->addLine(line);
 }
 
-VfmdDocument::VfmdDocument()
+VfmdDocument::VfmdDocument(const VfmdElementRegistry *registry)
 {
     m_preprocessor = new VfmdPreprocessor;
-    m_documentLineSequence = new VfmdInputLineSequence;
+    m_documentLineSequence = new VfmdInputLineSequence(registry);
     m_preprocessor->setLineCallback(preprocessorLineCallback);
     m_preprocessor->setLineCallbackContext(m_documentLineSequence);
 }

@@ -7,6 +7,7 @@
 
 class VfmdBlockLineSequence;
 class VfmdInputLineSequence;
+class VfmdElementRegistry;
 
 class VfmdBlockElementHandler {
 public:
@@ -20,6 +21,10 @@ public:
     virtual ~VfmdBlockLineSequence();
     virtual void processLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isAtEnd() const;
+    const VfmdInputLineSequence *parentLineSequence() const;
+    const VfmdElementRegistry *registry() const;
+private:
+    const VfmdInputLineSequence *m_parentLineSequence;
 };
 
 #endif // VFMDBLOCKELEMENTHANDLER_H

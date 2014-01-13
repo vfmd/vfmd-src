@@ -1,9 +1,10 @@
+class VfmdElementRegistry;
 class VfmdPreprocessor;
 class VfmdInputLineSequence;
 
 class VfmdDocument {
 public:
-    VfmdDocument();
+    VfmdDocument(const VfmdElementRegistry *registry);
     ~VfmdDocument();
 
     bool addBytes(const char *data, int length);

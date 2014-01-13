@@ -13,7 +13,7 @@ VfmdBlockLineSequence *BlockquoteHandler::createBlockLineSequence(const VfmdInpu
 BlockquoteLineSequence::BlockquoteLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent), m_isAtEnd(false)
 {
-    m_childSequence = new VfmdInputLineSequence;
+    m_childSequence = new VfmdInputLineSequence(registry());
     printf("BEGIN BQ\n");
 }
 

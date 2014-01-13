@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "vfmdblockelementhandler.h"
 #include "vfmdinputlinesequence.h"
 
@@ -12,8 +13,8 @@ VfmdBlockElementHandler::~VfmdBlockElementHandler()
 }
 
 VfmdBlockLineSequence::VfmdBlockLineSequence(const VfmdInputLineSequence *parent)
+    : m_parentLineSequence(parent)
 {
-    UNUSED_PARAMETER(parent);
 }
 
 VfmdBlockLineSequence::~VfmdBlockLineSequence()
@@ -30,4 +31,15 @@ void VfmdBlockLineSequence::processLine(const VfmdLine &currentLine, const VfmdL
 bool VfmdBlockLineSequence::isAtEnd() const
 {
     return false;
+}
+
+const VfmdInputLineSequence *VfmdBlockLineSequence::parentLineSequence() const
+{
+    return m_parentLineSequence;
+}
+
+const VfmdElementRegistry *VfmdBlockLineSequence::registry() const
+{
+    assert(m_parentLineSequence != 0);
+    return m_parentLineSequence->registry();
 }
