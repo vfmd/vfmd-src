@@ -36,8 +36,10 @@ HEADERS += $$BLK/vfmdblockelementhandler.h \
 
 SPN = $$PWD/spanelements
 
-SOURCES += $$SPN/vfmdspanelementhandler.cpp
+SOURCES += $$SPN/vfmdspanelementhandler.cpp \
+           $$SPN/emphasishandler.cpp
 
-HEADERS += $$SPN/vfmdspanelementhandler.h
+HEADERS += $$SPN/vfmdspanelementhandler.h \
+           $$SPN/emphasishandler.h
 
 INCLUDEPATH += $$PWD
