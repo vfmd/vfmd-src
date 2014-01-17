@@ -1,30 +1,30 @@
 
 CONFIG += c++11
 
-SOURCES += $$PWD/vfmdpreprocessor.cpp \
-           $$PWD/vfmdbytearray.cpp \
-           $$PWD/vfmdinputlinesequence.cpp \
+SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/vfmdline.cpp \
-           $$PWD/vfmddocument.cpp \
-           $$PWD/vfmdelementregistry.cpp \
            $$PWD/vfmdspantagstack.cpp \
            $$PWD/vfmdlinearray.cpp \
            $$PWD/vfmdlinearrayiterator.cpp \
-           $$PWD/vfmdspanelementsprocessor.cpp \
-           $$PWD/VfmdDefaultElementRegistry.cpp
+           $$PWD/vfmddocument.cpp \
+           $$PWD/vfmdelementregistry.cpp \
+           $$PWD/vfmdinputlinesequence.cpp \
+           $$PWD/core/vfmdpreprocessor.cpp \
+           $$PWD/core/vfmdspanelementsprocessor.cpp \
+           $$PWD/core/vfmddefaultelementregistry.cpp
 
-HEADERS += $$PWD/vfmdpreprocessor.h \
-           $$PWD/vfmdbytearray.h \
-           $$PWD/vfmdinputlinesequence.h \
+HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/vfmdline.h \
-           $$PWD/vfmddocument.h \
-           $$PWD/vfmdpointerarray.h \
-           $$PWD/vfmdelementregistry.h \
            $$PWD/vfmdspantagstack.h \
            $$PWD/vfmdlinearray.h \
            $$PWD/vfmdlinearrayiterator.h \
-           $$PWD/vfmdspanelementsprocessor.h \
-           $$PWD/vfmdconstants.h
+           $$PWD/vfmddocument.h \
+           $$PWD/vfmdelementregistry.h \
+           $$PWD/vfmdinputlinesequence.h \
+           $$PWD/vfmdconstants.h \
+           $$PWD/core/vfmdpreprocessor.h \
+           $$PWD/core/vfmdspanelementsprocessor.h \
+           $$PWD/core/vfmdpointerarray.h \
 
 BLK = $$PWD/blockelements
 
@@ -44,4 +44,4 @@ SOURCES += $$SPN/vfmdspanelementhandler.cpp \
 HEADERS += $$SPN/vfmdspanelementhandler.h \
            $$SPN/emphasishandler.h
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD $$PWD/core

@@ -1,6 +1,6 @@
-TARGET = vfmd
+TARGET = vfmd-example
 OBJECTS_DIR = .obj
 mac: CONFIG -= app_bundle
-include(../vfmd/vfmd.pri)
+include(../src/vfmd.pri)
 
 SOURCES += main.cpp
