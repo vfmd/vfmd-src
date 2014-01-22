@@ -14,17 +14,12 @@ void VfmdInputLineSequence::addLine(const VfmdLine &line) {
     if (!line.isValid()) {
         return;
     }
-    // Store the line locally
-    if (!m_currentLine.isValid()) {
-        m_currentLine = line;
-    } else if (!m_nextLine.isValid()) {
+
+    if (!m_nextLine.isValid()) {
         m_nextLine = line;
     } else {
         m_currentLine = m_nextLine;
         m_nextLine = line;
-    }
-
-    if (m_nextLine.isValid()) {
         processLineInChildSequence();
     }
 }
