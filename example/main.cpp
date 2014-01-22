@@ -2,6 +2,7 @@
 #include <string.h>
 #include "vfmddocument.h"
 #include "vfmdelementregistry.h"
+#include "vfmdelementtreenode.h"
 
 #define BUFFER_SIZE 1024
 
@@ -27,8 +28,11 @@ int main(int argc, char *argv[])
         int bytesRead = fread(buffer, sizeof(char), BUFFER_SIZE, inputFile);
         document.addBytes(buffer, bytesRead);
     }
-    document.end();
-
     fclose(inputFile);
+
+    VfmdElementTreeNode *parseTree = document.end();
+    parseTree->printSubtreeSequence();
+    VfmdElementTreeNode::freeSubtreeSequence(parseTree);
+
     return 0;
 }
