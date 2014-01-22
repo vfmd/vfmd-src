@@ -6,12 +6,15 @@
 
 class ParagraphHandler : public VfmdBlockElementHandler {
 public:
-    void createChildSequence(VfmdInputLineSequence *lineSequence);
+    ParagraphHandler() { }
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence);
+    virtual ~ParagraphHandler() { }
 };
 
 class ParagraphLineSequence : public VfmdBlockLineSequence {
 public:
     ParagraphLineSequence(const VfmdInputLineSequence *parent);
+    virtual ~ParagraphLineSequence();
     virtual void processBlockLine(const VfmdLine &currentLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual void endBlock();

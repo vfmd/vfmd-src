@@ -11,8 +11,9 @@ class VfmdElementRegistry;
 
 class VfmdBlockElementHandler {
 public:
+    VfmdBlockElementHandler() { }
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence);
-    virtual ~VfmdBlockElementHandler();
+    virtual ~VfmdBlockElementHandler() { }
 };
 
 class VfmdBlockLineSequence {

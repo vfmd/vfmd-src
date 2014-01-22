@@ -14,6 +14,10 @@ ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent
 {
 }
 
+ParagraphLineSequence::~ParagraphLineSequence()
+{
+}
+
 void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine)
 {
     m_lineArray.addLine(currentLine);

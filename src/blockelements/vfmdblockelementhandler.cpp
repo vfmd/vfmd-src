@@ -7,10 +7,6 @@ void VfmdBlockElementHandler::createChildSequence(VfmdInputLineSequence *lineSeq
     UNUSED_PARAMETER(lineSequence);
 }
 
-VfmdBlockElementHandler::~VfmdBlockElementHandler()
-{
-}
-
 VfmdBlockLineSequence::VfmdBlockLineSequence(const VfmdInputLineSequence *parent)
     : m_parentLineSequence(parent)
 {
