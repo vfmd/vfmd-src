@@ -20,16 +20,22 @@ VfmdBlockLineSequence::~VfmdBlockLineSequence()
 {
 }
 
-void VfmdBlockLineSequence::processLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void VfmdBlockLineSequence::processBlockLine(const VfmdLine &currentLine)
 {
     /* Base implementation does nothing */
     UNUSED_PARAMETER(currentLine);
-    UNUSED_PARAMETER(nextLine);
 }
 
-bool VfmdBlockLineSequence::isAtEnd() const
+bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
 {
+    UNUSED_PARAMETER(currentLine);
+    UNUSED_PARAMETER(nextLine);
     return false;
+}
+
+void VfmdBlockLineSequence::endBlock()
+{
+    /* Base implementation does nothing */
 }
 
 const VfmdInputLineSequence *VfmdBlockLineSequence::parentLineSequence() const

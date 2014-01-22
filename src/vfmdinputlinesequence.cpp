@@ -52,10 +52,11 @@ void VfmdInputLineSequence::processLineInChildSequence()
     assert(hasChildSequence());
 
     // Pass the current line on to the child sequence
-    m_childLineSequence->processLine(m_currentLine, m_nextLine);
+    m_childLineSequence->processBlockLine(m_currentLine);
 
     // Check if the child sequence is done
-    if (isAtEnd() || m_childLineSequence->isAtEnd()) {
+    if (isAtEnd() || m_childLineSequence->isEndOfBlock(m_currentLine, m_nextLine)) {
+        m_childLineSequence->endBlock();
         // integrate m_childLineSequence->parseTree();
         delete m_childLineSequence;
         m_childLineSequence = 0;

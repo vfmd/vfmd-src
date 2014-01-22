@@ -19,8 +19,9 @@ class VfmdBlockLineSequence {
 public:
     VfmdBlockLineSequence(const VfmdInputLineSequence *parentLineSequence);
     virtual ~VfmdBlockLineSequence();
-    virtual void processLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isAtEnd() const;
+    virtual void processBlockLine(const VfmdLine &currentLine);
+    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void endBlock();
     const VfmdInputLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
 private:

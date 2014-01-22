@@ -12,10 +12,10 @@ class BlockquoteLineSequence : public VfmdBlockLineSequence {
 public:
     BlockquoteLineSequence(const VfmdInputLineSequence *parent);
     ~BlockquoteLineSequence();
-    void processLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    bool isAtEnd() const;
+    virtual void processBlockLine(const VfmdLine &currentLine);
+    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void endBlock();
 private:
-    bool m_isAtEnd;
     VfmdInputLineSequence *m_childSequence;
 };
 

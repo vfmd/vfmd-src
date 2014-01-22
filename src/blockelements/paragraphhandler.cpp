@@ -10,26 +10,24 @@ void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 }
 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
-    : VfmdBlockLineSequence(parent), m_isAtEnd(false)
+    : VfmdBlockLineSequence(parent)
 {
 }
 
-void ParagraphLineSequence::processLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine)
 {
-    UNUSED_PARAMETER(nextLine);
     m_lineArray.addLine(currentLine);
-    if (currentLine.isBlankLine() || !nextLine.isValid()) {
-        printf("PARAGRAPH (\n");
-        m_lineArray.print();
-        printf(")\n");
-        m_isAtEnd = true;
-    }
-    if (m_isAtEnd) {
-        VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
-    }
 }
 
-bool ParagraphLineSequence::isAtEnd() const
+bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
 {
-    return m_isAtEnd;
+    return (currentLine.isBlankLine() || !nextLine.isValid());
+}
+
+void ParagraphLineSequence::endBlock()
+{
+    printf("PARAGRAPH (\n");
+    m_lineArray.print();
+    printf(")\n");
+    VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
 }

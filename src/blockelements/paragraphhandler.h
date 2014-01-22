@@ -12,10 +12,10 @@ public:
 class ParagraphLineSequence : public VfmdBlockLineSequence {
 public:
     ParagraphLineSequence(const VfmdInputLineSequence *parent);
-    void processLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    bool isAtEnd() const;
+    virtual void processBlockLine(const VfmdLine &currentLine);
+    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void endBlock();
 private:
-    bool m_isAtEnd;
     VfmdLineArray m_lineArray;
 };
 

@@ -11,7 +11,7 @@ void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 }
 
 BlockquoteLineSequence::BlockquoteLineSequence(const VfmdInputLineSequence *parent)
-    : VfmdBlockLineSequence(parent), m_isAtEnd(false)
+    : VfmdBlockLineSequence(parent)
 {
     m_childSequence = new VfmdInputLineSequence(registry());
     printf("BEGIN BQ\n");
@@ -22,40 +22,39 @@ BlockquoteLineSequence::~BlockquoteLineSequence()
     delete m_childSequence;
 }
 
-void BlockquoteLineSequence::processLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine)
 {
-    UNUSED_PARAMETER(nextLine);
     VfmdLine processedLine = currentLine;
     if (processedLine.startsWith("> ")) {
         processedLine.chopLeft(2);
     }
     m_childSequence->addLine(processedLine);
+}
 
+bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+{
     if (!nextLine.isValid()) {
-        m_isAtEnd = true;
+        return true;
     } else {
         if (currentLine.isBlankLine()) {
             if (nextLine.isBlankLine()) {
-                m_isAtEnd = true;
+                return true;
             }
             if (nextLine.startsWith("    ")) {
-                m_isAtEnd = true;
+                return true;
             }
             if (nextLine.firstNonSpace() != '>') {
-                m_isAtEnd = true;
+                return true;
             }
         } else {
             // TODO: Match with horizontal rule regexp
         }
     }
-
-    if (m_isAtEnd) {
-        m_childSequence->endSequence();
-        printf("END BQ\n");
-    }
+    return false;
 }
 
-bool BlockquoteLineSequence::isAtEnd() const
+void BlockquoteLineSequence::endBlock()
 {
-    return m_isAtEnd;
+    m_childSequence->endSequence();
+    printf("END BQ\n");
 }
