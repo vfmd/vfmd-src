@@ -6,7 +6,7 @@
 
 class ParagraphHandler : public VfmdBlockElementHandler {
 public:
-    VfmdBlockLineSequence *createBlockLineSequence(const VfmdInputLineSequence *lineSequence);
+    void createChildSequence(VfmdInputLineSequence *lineSequence);
 };
 
 class ParagraphLineSequence : public VfmdBlockLineSequence {

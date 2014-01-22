@@ -41,15 +41,15 @@ void VfmdInputLineSequence::processLineInChildSequence()
     if (!m_childLineSequence) {
         for (unsigned int i = 0; i < m_registry->blockElementsCount(); i++) {
             VfmdBlockElementHandler *blockHandler = m_registry->blockElementHandler(i);
-            VfmdBlockLineSequence *blockLineSequence = blockHandler->createBlockLineSequence(this);
-            if (blockLineSequence) {
-                m_childLineSequence = blockLineSequence;
+            blockHandler->createChildSequence(this);
+            if (hasChildSequence()) {
+                // the block handler has created and set a child sequence
                 break;
             }
         }
     }
 
-    assert(m_childLineSequence != 0);
+    assert(hasChildSequence());
 
     // Pass the current line on to the child sequence
     m_childLineSequence->processLine(m_currentLine, m_nextLine);
@@ -75,4 +75,16 @@ VfmdLine VfmdInputLineSequence::nextLine() const
 const VfmdElementRegistry *VfmdInputLineSequence::registry() const
 {
     return m_registry;
+}
+
+bool VfmdInputLineSequence::hasChildSequence() const
+{
+    return (m_childLineSequence != 0);
+}
+
+void VfmdInputLineSequence::setChildSequence(VfmdBlockLineSequence *lineSequence)
+{
+    if (m_childLineSequence == 0) {
+        m_childLineSequence = lineSequence;
+    }
 }

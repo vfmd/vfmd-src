@@ -22,6 +22,15 @@ public:
 
     const VfmdElementRegistry *registry() const;
 
+    bool hasChildSequence() const;
+
+    // setChildSequence():
+    // Sets a VfmdBlockLineSequence as the child of this sequence.
+    // The VfmdInputLineSequence owns the child sequence object.
+    // This method should be called only from a 'createChildSequence()' method
+    // in a class derived from 'VfmdBlockElementHandler'
+    void setChildSequence(VfmdBlockLineSequence *lineSequence);
+
 private:
     void processLineInChildSequence();
 

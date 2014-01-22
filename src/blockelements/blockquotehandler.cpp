@@ -2,12 +2,12 @@
 #include "blockquotehandler.h"
 #include "vfmdinputlinesequence.h"
 
-VfmdBlockLineSequence *BlockquoteHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
+void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
     if (lineSequence->currentLine().startsWith("> ")) {
-        return (new BlockquoteLineSequence(lineSequence));
+        BlockquoteLineSequence *blockquoteLineSequence = new BlockquoteLineSequence(lineSequence);
+        lineSequence->setChildSequence(blockquoteLineSequence);
     }
-    return 0;
 }
 
 BlockquoteLineSequence::BlockquoteLineSequence(const VfmdInputLineSequence *parent)

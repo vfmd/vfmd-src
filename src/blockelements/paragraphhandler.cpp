@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include "paragraphhandler.h"
 #include "vfmdspanelementsprocessor.h"
+#include "vfmdinputlinesequence.h"
 
-VfmdBlockLineSequence *ParagraphHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
+void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
-    return (new ParagraphLineSequence(lineSequence));
+    ParagraphLineSequence *paragraphLineSequence = new ParagraphLineSequence(lineSequence);
+    lineSequence->setChildSequence(paragraphLineSequence);
 }
 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)

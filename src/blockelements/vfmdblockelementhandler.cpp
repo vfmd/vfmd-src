@@ -2,10 +2,9 @@
 #include "vfmdblockelementhandler.h"
 #include "vfmdinputlinesequence.h"
 
-VfmdBlockLineSequence *VfmdBlockElementHandler::createBlockLineSequence(const VfmdInputLineSequence *lineSequence)
+void VfmdBlockElementHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
     UNUSED_PARAMETER(lineSequence);
-    return 0;
 }
 
 VfmdBlockElementHandler::~VfmdBlockElementHandler()

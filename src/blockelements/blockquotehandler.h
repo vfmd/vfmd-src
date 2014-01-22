@@ -5,7 +5,7 @@
 
 class BlockquoteHandler : public VfmdBlockElementHandler {
 public:
-    VfmdBlockLineSequence *createBlockLineSequence(const VfmdInputLineSequence *lineSequence);
+    void createChildSequence(VfmdInputLineSequence *lineSequence);
 };
 
 class BlockquoteLineSequence : public VfmdBlockLineSequence {
