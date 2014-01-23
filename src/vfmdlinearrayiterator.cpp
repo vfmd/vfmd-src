@@ -226,18 +226,26 @@ bool advanceOverNonMatchingBytes(void *ctx, const VfmdByteArray &ba)
     }
 }
 
-void VfmdLineArrayIterator::moveForwardOverBytesInString(const char *str)
+bool VfmdLineArrayIterator::moveForwardOverBytesInString(const char *str)
 {
     ForeachLineSegmentsStringMatchingContext context(m_lineIndex, m_byteIndex, str);
     foreachLineSegmentsTill(m_lineArray->end(), &context, &advanceOverMatchingBytes);
+    if (m_lineIndex == context.lineIndex && m_byteIndex == context.byteIndex) {
+        return false;
+    }
     moveTo(context.lineIndex, context.byteIndex);
+    return true;
 }
 
-void VfmdLineArrayIterator::moveForwardOverBytesNotInString(const char *str)
+bool VfmdLineArrayIterator::moveForwardOverBytesNotInString(const char *str)
 {
     ForeachLineSegmentsStringMatchingContext context(m_lineIndex, m_byteIndex, str);
     foreachLineSegmentsTill(m_lineArray->end(), &context, &advanceOverNonMatchingBytes);
+    if (m_lineIndex == context.lineIndex && m_byteIndex == context.byteIndex) {
+        return false;
+    }
     moveTo(context.lineIndex, context.byteIndex);
+    return true;
 }
 
 bool VfmdLineArrayIterator::moveForwardOverRegexp(const VfmdRegexp &regexp)
@@ -245,13 +253,15 @@ bool VfmdLineArrayIterator::moveForwardOverRegexp(const VfmdRegexp &regexp)
     return regexp.moveIteratorForward(this);
 }
 
-void VfmdLineArrayIterator::moveTo(const VfmdLineArrayIterator *other)
+bool VfmdLineArrayIterator::moveTo(const VfmdLineArrayIterator *other)
 {
     if (m_lineArray == other->m_lineArray) {
         m_lineIndex = other->m_lineIndex;
         m_byteIndex = other->m_byteIndex;
         m_isNextByteEscaped = other->m_isNextByteEscaped;
+        return true;
     }
+    return false;
 }
 
 static bool isEscapedAtEndOfString(bool startIsEscaped, const char *str, unsigned int len)

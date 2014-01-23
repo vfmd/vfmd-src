@@ -43,12 +43,12 @@ public:
 
     /* Advancing the iterator */
     void moveForwardTillEndOfLine();
-    void moveForwardOverBytesInString(const char *str);
-    void moveForwardOverBytesNotInString(const char *str);
+    bool moveForwardOverBytesInString(const char *str);
+    bool moveForwardOverBytesNotInString(const char *str);
     bool moveForwardOverRegexp(const VfmdRegexp &regexp);
 
     /* Moving the iterator to another iterator's position */
-    void moveTo(const VfmdLineArrayIterator *other);
+    bool moveTo(const VfmdLineArrayIterator *other);
 
     /* Is this iterator at the beginning / end of the bytestream? */
     bool isAtBeginning() const;
