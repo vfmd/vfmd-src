@@ -12,8 +12,12 @@ public:
         // TODO: Check that there are no backrefs using pcre_fullinfo
         const char *errorMsg = 0;
         int errorOffsetInString = 0;
+        int options = PCRE_UTF8;
+#ifndef VFMD_DEBUG
+        options = (options | PCRE_NO_UTF8_CHECK);
+#endif
         pcreRegexp = pcre_compile(patternStr,
-                                  (PCRE_UTF8 | PCRE_NO_UTF8_CHECK),
+                                  options,
                                   &errorMsg, &errorOffsetInString,
                                   0 /* use default character tables */);
         if (pcreRegexp) {
@@ -73,10 +77,14 @@ int VfmdRegexp::indexIn(const VfmdByteArray &ba, int offset)
 
     copyOnWrite();
     d->subjectBa = ba;
+    int options = 0;
+#ifndef VFMD_DEBUG
+        options = (options | PCRE_NO_UTF8_CHECK);
+#endif
     int matchCode = pcre_exec(d->pcreRegexp,
                               0 /*pcre_study data*/,
                               ba.data(), ba.size(), offset,
-                              PCRE_NO_UTF8_CHECK,
+                              options,
                               d->captureData, (MAX_CAPTURE_COUNT * 3));
     int capturedTextCount = 0;
     if (matchCode > 0) {

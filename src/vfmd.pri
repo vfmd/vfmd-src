@@ -47,3 +47,5 @@ HEADERS += $$SPN/vfmdspanelementhandler.h \
            $$SPN/emphasishandler.h
 
 INCLUDEPATH += $$PWD $$PWD/core
+
+DEFINES += VFMD_DEBUG
