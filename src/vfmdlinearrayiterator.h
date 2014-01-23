@@ -1,6 +1,8 @@
 #ifndef VFMDLINEARRAYITERATOR_H
 #define VFMDLINEARRAYITERATOR_H
 
+#include "vfmdregexp.h"
+
 class VfmdLineArray;
 class VfmdByteArray;
 
@@ -43,6 +45,7 @@ public:
     void moveForwardTillEndOfLine();
     void moveForwardOverBytesInString(const char *str);
     void moveForwardOverBytesNotInString(const char *str);
+    bool moveForwardOverRegexp(const VfmdRegexp &regexp);
 
     /* Moving the iterator to another iterator's position */
     void moveTo(const VfmdLineArrayIterator *other);

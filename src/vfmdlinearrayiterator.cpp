@@ -240,6 +240,11 @@ void VfmdLineArrayIterator::moveForwardOverBytesNotInString(const char *str)
     moveTo(context.lineIndex, context.byteIndex);
 }
 
+bool VfmdLineArrayIterator::moveForwardOverRegexp(const VfmdRegexp &regexp)
+{
+    return regexp.moveIteratorForward(this);
+}
+
 void VfmdLineArrayIterator::moveTo(const VfmdLineArrayIterator *other)
 {
     if (m_lineArray == other->m_lineArray) {
