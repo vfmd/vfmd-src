@@ -248,6 +248,32 @@ bool VfmdLineArrayIterator::moveForwardOverBytesNotInString(const char *str)
     return true;
 }
 
+bool VfmdLineArrayIterator::moveForwardOverByteSequence(const char *str, int len)
+{
+    if (len == 0) {
+        len = strlen(str);
+    }
+    bool matched = true;
+    VfmdLineArrayIterator *iter = this->copy();
+    for (int i = 0; i < len; i++) {
+        if (iter->isAtEnd()) {
+            matched = false;
+            break;
+        }
+        char c = iter->nextByte();
+        iter->moveForward(1);
+        if (c != str[len]) {
+            matched = false;
+            break;
+        }
+    }
+    if (matched) {
+        this->moveTo(iter);
+    }
+    delete iter;
+    return matched;
+}
+
 bool VfmdLineArrayIterator::moveForwardOverRegexp(const VfmdRegexp &regexp)
 {
     return regexp.moveIteratorForward(this);

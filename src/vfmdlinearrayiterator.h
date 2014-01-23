@@ -45,6 +45,7 @@ public:
     void moveForwardTillEndOfLine();
     bool moveForwardOverBytesInString(const char *str);
     bool moveForwardOverBytesNotInString(const char *str);
+    bool moveForwardOverByteSequence(const char *str, int len = 0 /* zero implies null-terminated string */);
     bool moveForwardOverRegexp(const VfmdRegexp &regexp);
 
     /* Moving the iterator to another iterator's position */
