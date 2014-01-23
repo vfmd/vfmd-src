@@ -3,6 +3,8 @@
 
 #include "vfmdbytearray.h"
 
+class VfmdLineArrayIterator;
+
 class VfmdRegexp
 {
 public:
@@ -16,6 +18,13 @@ public:
 
     int captureCount() const; // Max 40 captures
     VfmdByteArray capturedText(int index = 0) const;
+
+    /* moveIteratorForward():
+       If this regexp matches the text that the
+       iterator points to, move the iterator over the matching
+       text. The match must start at the current position
+       of the iterator. No subpattern matches are captured. */
+    bool moveIteratorForward(VfmdLineArrayIterator *iterator) const;
 
     // Copying regexps
     VfmdRegexp(const VfmdRegexp &other);

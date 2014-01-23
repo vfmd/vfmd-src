@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "pcre.h"
 #include "vfmdregexp.h"
+#include "vfmdlinearrayiterator.h"
 
 #define MAX_CAPTURE_COUNT 40
 
@@ -123,6 +124,65 @@ VfmdByteArray VfmdRegexp::capturedText(int index) const
         return d->subjectBa.mid(fromPos, toPos - fromPos);
     }
     return VfmdByteArray();
+}
+
+bool VfmdRegexp::moveIteratorForward(VfmdLineArrayIterator *iterator) const
+{
+    if (!isValid()) {
+        return false;
+    }
+
+    VfmdLineArrayIterator *iter = iterator->copy();
+    int options = (PCRE_ANCHORED | PCRE_NOTEMPTY);
+#ifndef VFMD_DEBUG
+        options = (options | PCRE_NO_UTF8_CHECK);
+#endif
+    int captureData[2];
+    int workspace[64];
+    while (!iter->isAtEnd()) {
+        VfmdByteArray fragment = iter->bytesTillEndOfLine();
+        int optionsForDfaMatch = options;
+        if (!iter->isAtLastLine()) {
+            optionsForDfaMatch = (optionsForDfaMatch | PCRE_PARTIAL_HARD);
+        }
+        if (!iter->isEqualTo(iterator)) {
+            optionsForDfaMatch = (optionsForDfaMatch | PCRE_DFA_RESTART);
+        }
+        int matchCode = pcre_dfa_exec(d->pcreRegexp,
+                                      0 /*pcre_study data*/,
+                                      fragment.data(), fragment.size(), 0 /* offset */,
+                                      optionsForDfaMatch,
+                                      captureData, 2,
+                                      workspace, 64);
+        if (matchCode < 0) {
+            if (matchCode == PCRE_ERROR_PARTIAL) {
+                // Part of the regexp matched. Continue iterating.
+                assert(!iter->isAtEnd());
+                iter->moveForwardTillEndOfLine();
+                continue;
+            } else if (matchCode == PCRE_ERROR_NOMATCH) {
+                // Definitely failed to match.
+                delete iter;
+                return false;
+            } else {
+                // Some other error
+                printf("VfmdRegexp: DFA matching failed with PCRE error code: %d.\n", matchCode);
+                delete iter;
+                return false;
+            }
+        } else {
+            // Finished matching
+            assert(captureData[0] == 0); // because of PCRE_ANCHORED
+            int matchingLength = captureData[1];
+            iter->moveForward((unsigned int) matchingLength);
+            iterator->moveTo(iter);
+            delete iter;
+            return true;
+        }
+    }
+    // Control should never reach here
+    delete iter;
+    return false;
 }
 
 // Implicit sharing stuff follows
