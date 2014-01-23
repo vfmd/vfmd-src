@@ -353,8 +353,15 @@ void VfmdByteArray::squeeze()
 const char* VfmdByteArray::c_str() const
 {
     size_t len = size();
+    if (lastChar() == '\n') {
+        len++;
+    }
     char *str = static_cast<char *>(malloc(len + 1));
     memcpy(str, data(), len);
+    if (lastChar() == '\n') {
+        str[len - 2] = '\\';
+        str[len - 1] = 'n';
+    }
     str[len] = '\0';
     return str;
 }
