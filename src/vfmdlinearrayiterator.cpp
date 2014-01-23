@@ -47,9 +47,9 @@ int VfmdLineArrayIterator::numberOfBytesTillEndOfLine() const
      return (m_lineArray->lineAt(m_lineIndex)->size() - m_byteIndex);
 }
 
-VfmdByteArray *VfmdLineArrayIterator::bytesTillEndOfLine() const
+VfmdByteArray VfmdLineArrayIterator::bytesTillEndOfLine() const
 {
-    return new VfmdByteArray(m_lineArray->lineAt(m_lineIndex)->mid(m_byteIndex));
+    return m_lineArray->lineAt(m_lineIndex)->mid(m_byteIndex);
 }
 
 void VfmdLineArrayIterator::foreachLineSegmentsTill(const VfmdLineArrayIterator *other, void *ctx, bool (*fn)(void *ctx, const VfmdByteArray &ba)) const
@@ -96,11 +96,11 @@ static bool concatByteArrays(void *ctx, const VfmdByteArray &ba)
     return true;
 }
 
-VfmdByteArray* VfmdLineArrayIterator::bytesTill(const VfmdLineArrayIterator *other) const
+VfmdByteArray VfmdLineArrayIterator::bytesTill(const VfmdLineArrayIterator *other) const
 {
-    VfmdByteArray *ba = new VfmdByteArray;
-    ba->reserve(numberOfBytesTill(other));
-    foreachLineSegmentsTill(other, (void *) ba, &concatByteArrays);
+    VfmdByteArray ba;
+    ba.reserve(numberOfBytesTill(other));
+    foreachLineSegmentsTill(other, (void *) &ba, &concatByteArrays);
     return ba;
 }
 

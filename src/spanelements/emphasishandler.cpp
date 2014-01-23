@@ -43,10 +43,9 @@ void EmphasisHandler::processSpanTag(VfmdLineArrayIterator *iterator, VfmdSpanTa
             }
         } else {
             // No emph tag is open, so this is a text fragment
-            VfmdByteArray *ba = startOfTag->bytesTill(iterator);
-            ba->print("Text frag:");
+            VfmdByteArray ba = startOfTag->bytesTill(iterator);
+            ba.print("Text frag:");
             printf("\n");
-            delete ba;
         }
     } else {
         // Not an emph tag. Move the iterator back to the original position.

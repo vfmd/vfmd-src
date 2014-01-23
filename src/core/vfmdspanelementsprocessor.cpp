@@ -9,9 +9,8 @@
 static void closeTextFragmentIfOpen(VfmdLineArrayIterator **textFragmentStart, VfmdLineArrayIterator *iterator)
 {
     if ((*textFragmentStart) != 0) {
-        VfmdByteArray *textFragment = (*textFragmentStart)->bytesTill(iterator);
-        printf("TEXTFRAG("); textFragment->print(); printf(")\n");
-        delete textFragment;
+        VfmdByteArray textFragment = (*textFragmentStart)->bytesTill(iterator);
+        printf("TEXTFRAG("); textFragment.print(); printf(")\n");
         delete (*textFragmentStart);
         (*textFragmentStart) = 0;
     }
@@ -23,9 +22,8 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
     spanHandler->processSpanTag(endOfTag, stack);
     if (endOfTag->isAfter(iterator)) { // span tag identified
         closeTextFragmentIfOpen(textFragmentStart, iterator);
-        VfmdByteArray *spanTagText = iterator->bytesTill(endOfTag);
-        printf("SPANTAG("); spanTagText->print(); printf(")\n");
-        delete spanTagText;
+        VfmdByteArray spanTagText = iterator->bytesTill(endOfTag);
+        printf("SPANTAG("); spanTagText.print(); printf(")\n");
         iterator->moveTo(endOfTag);
         delete endOfTag;
         return true;

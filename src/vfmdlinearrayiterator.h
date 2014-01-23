@@ -31,10 +31,9 @@ public:
     int numberOfBytesTillEndOfLine() const;
     int numberOfBytesTill(const VfmdLineArrayIterator *other) const;
 
-    /* Querying bytes. Return values are newly allocated bytearrays.
-     * The caller is responsible for freeing the returned bytearrays. */
-    VfmdByteArray *bytesTillEndOfLine() const;
-    VfmdByteArray *bytesTill(const VfmdLineArrayIterator *other) const;
+    /* Querying bytes */
+    VfmdByteArray bytesTillEndOfLine() const;
+    VfmdByteArray bytesTill(const VfmdLineArrayIterator *other) const;
 
     /* Moving the iterator across 'n' number of bytes */
     void moveForward(unsigned int n);
