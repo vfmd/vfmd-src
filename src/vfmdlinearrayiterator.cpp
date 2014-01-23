@@ -312,6 +312,11 @@ bool VfmdLineArrayIterator::isAtEnd() const
     return (m_lineIndex >= m_lineArray->lineCount());
 }
 
+bool VfmdLineArrayIterator::isAtLastLine() const
+{
+    return (m_lineIndex >= (m_lineArray->lineCount() - 1));
+}
+
 bool VfmdLineArrayIterator::isEqualTo(const VfmdLineArrayIterator *other) const
 {
     return ((m_lineArray == other->m_lineArray) &&

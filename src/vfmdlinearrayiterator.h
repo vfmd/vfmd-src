@@ -50,6 +50,7 @@ public:
     /* Is this iterator at the beginning / end of the bytestream? */
     bool isAtBeginning() const;
     bool isAtEnd() const;
+    bool isAtLastLine() const;
 
     /* Compare with other iterator objects */
     bool isEqualTo(const VfmdLineArrayIterator *other) const;
