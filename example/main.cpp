@@ -3,13 +3,14 @@
 #include "vfmddocument.h"
 #include "vfmdelementregistry.h"
 #include "vfmdelementtreenode.h"
+#include "vfmdscopedpointer.h"
 
 #define BUFFER_SIZE 1024
 
 int main(int argc, char *argv[])
 {
-    VfmdElementRegistry *registry = VfmdElementRegistry::createRegistryWithDefaultElements();
-    VfmdDocument document(registry);
+    VfmdScopedPointer<VfmdElementRegistry> registry(VfmdElementRegistry::createRegistryWithDefaultElements());
+    VfmdDocument document(registry.data());
 
     FILE *inputFile = 0;
     if (argc >= 2) {
