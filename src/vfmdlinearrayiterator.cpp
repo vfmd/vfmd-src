@@ -2,6 +2,7 @@
 #include "vfmdlinearrayiterator.h"
 #include "vfmdlinearray.h"
 #include "vfmdline.h"
+#include "vfmdscopedpointer.h"
 
 VfmdLineArrayIterator::VfmdLineArrayIterator(const VfmdLineArray *lineArray, unsigned int lineIndex, unsigned int byteIndex, bool isNextByteEscaped)
     : m_lineArray(lineArray)
@@ -229,7 +230,8 @@ bool advanceOverNonMatchingBytes(void *ctx, const VfmdByteArray &ba)
 bool VfmdLineArrayIterator::moveForwardOverBytesInString(const char *str)
 {
     ForeachLineSegmentsStringMatchingContext context(m_lineIndex, m_byteIndex, str);
-    foreachLineSegmentsTill(m_lineArray->end(), &context, &advanceOverMatchingBytes);
+    VfmdScopedPointer<VfmdLineArrayIterator> endOfArray(m_lineArray->end());
+    foreachLineSegmentsTill(endOfArray.data(), &context, &advanceOverMatchingBytes);
     if (m_lineIndex == context.lineIndex && m_byteIndex == context.byteIndex) {
         return false;
     }
@@ -240,7 +242,8 @@ bool VfmdLineArrayIterator::moveForwardOverBytesInString(const char *str)
 bool VfmdLineArrayIterator::moveForwardOverBytesNotInString(const char *str)
 {
     ForeachLineSegmentsStringMatchingContext context(m_lineIndex, m_byteIndex, str);
-    foreachLineSegmentsTill(m_lineArray->end(), &context, &advanceOverNonMatchingBytes);
+    VfmdScopedPointer<VfmdLineArrayIterator> endOfArray(m_lineArray->end());
+    foreachLineSegmentsTill(endOfArray.data(), &context, &advanceOverNonMatchingBytes);
     if (m_lineIndex == context.lineIndex && m_byteIndex == context.byteIndex) {
         return false;
     }

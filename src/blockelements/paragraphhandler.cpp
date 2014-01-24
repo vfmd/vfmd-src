@@ -3,6 +3,7 @@
 #include "vfmdspanelementsprocessor.h"
 #include "vfmdinputlinesequence.h"
 #include "textspantreenode.h"
+#include "vfmdscopedpointer.h"
 
 void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
@@ -35,9 +36,10 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
     // VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
     // TODO: Process span elements
-    VfmdLineArrayIterator *start = m_lineArray.begin();
-    VfmdLineArrayIterator *end = m_lineArray.end();
-    VfmdByteArray paragraphText = start->bytesTill(end);
+    VfmdScopedPointer<VfmdLineArrayIterator> start(m_lineArray.begin());
+    VfmdScopedPointer<VfmdLineArrayIterator> end(m_lineArray.end());
+
+    VfmdByteArray paragraphText = start->bytesTill(end.data());
 
     VfmdElementTreeNode *textNode = new TextSpanTreeNode(paragraphText);
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();

@@ -4,19 +4,19 @@
 #include "vfmdlinearrayiterator.h"
 #include "vfmdelementregistry.h"
 #include "vfmdspantagstack.h"
+#include "vfmdscopedpointer.h"
 #include "spanelements/vfmdspanelementhandler.h"
 
-static void closeTextFragmentIfOpen(VfmdLineArrayIterator **textFragmentStart, VfmdLineArrayIterator *iterator)
+static void closeTextFragmentIfOpen(VfmdScopedPointer<VfmdLineArrayIterator> *textFragmentStart, VfmdLineArrayIterator *iterator)
 {
-    if ((*textFragmentStart) != 0) {
+    if (!textFragmentStart->isNull()) {
         VfmdByteArray textFragment = (*textFragmentStart)->bytesTill(iterator);
         printf("TEXTFRAG("); textFragment.print(); printf(")\n");
-        delete (*textFragmentStart);
-        (*textFragmentStart) = 0;
+        textFragmentStart->free();
     }
 }
 
-static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHandler, VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack, VfmdLineArrayIterator **textFragmentStart)
+static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHandler, VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack, VfmdScopedPointer<VfmdLineArrayIterator> *textFragmentStart)
 {
     VfmdLineArrayIterator *endOfTag = iterator->copy();
     spanHandler->processSpanTag(endOfTag, stack);
@@ -35,8 +35,8 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
 void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArray, const VfmdElementRegistry *registry)
 {
     VfmdSpanTagStack stack;
-    VfmdLineArrayIterator *iterator = lineArray->begin();
-    VfmdLineArrayIterator *textFragmentStart = 0;
+    VfmdScopedPointer<VfmdLineArrayIterator> iterator(lineArray->begin());
+    VfmdScopedPointer<VfmdLineArrayIterator> textFragmentStart(0);
 
     while (!iterator->isAtEnd()) {
         char currentByte = iterator->nextByte();
@@ -46,7 +46,7 @@ void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArr
         int n = registry->spanElementCountForTriggerByte(currentByte);
         for (int i = 0; i < n; i++) {
             VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
-            isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, iterator, &stack, &textFragmentStart);
+            isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, iterator.data(), &stack, &textFragmentStart);
             if (isTagIdentifiedAtCurrentPos) {
                 break;
             }
@@ -57,7 +57,7 @@ void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArr
             int n = registry->spanElementsWithoutTriggerByteCount();
             for (int i = 0; i < n; i++) {
                 VfmdSpanElementHandler *spanHandler = registry->spanElementWithoutTriggerByte(i);
-                isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, iterator, &stack, &textFragmentStart);
+                isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, iterator.data(), &stack, &textFragmentStart);
                 if (isTagIdentifiedAtCurrentPos) {
                     break;
                 }
@@ -66,14 +66,14 @@ void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArr
 
         // All span element handlers rejected this position => text fragment
         if (!isTagIdentifiedAtCurrentPos) {
-            if (!textFragmentStart) { // If no text fragment is open
+            if (textFragmentStart.isNull()) { // If no text fragment is open
                 // Open a text fragment
-                textFragmentStart = iterator->copy();
+                textFragmentStart.reset(iterator->copy());
             }
-            assert(textFragmentStart != 0);
+            assert(!textFragmentStart.isNull());
             iterator->moveForward(1);
         }
     }
 
-    closeTextFragmentIfOpen(&textFragmentStart, iterator);
+    closeTextFragmentIfOpen(&textFragmentStart, iterator.data());
 }
