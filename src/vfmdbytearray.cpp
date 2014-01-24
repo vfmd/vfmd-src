@@ -366,13 +366,25 @@ const char* VfmdByteArray::c_str() const
     return str;
 }
 
-void VfmdByteArray::print(const char *prefix) const {
-    if (prefix) {
-        printf("%s: ", prefix);
-    }
+void VfmdByteArray::print(const VfmdByteArray &padding, bool quoted) const {
     const char *data_ptr = data();
-    size_t sz = size();
-    for (unsigned int i = 0; i < sz; i++) {
-        printf("%c", data_ptr[i]);
+    if (data_ptr) {
+        size_t sz = size();
+        padding.print();
+        if (quoted) {
+            printf("\"");
+        }
+        for (unsigned int i = 0; i < sz; i++) {
+            printf("%c", data_ptr[i]);
+            if (data_ptr[i] == '\n') {
+                padding.print();
+                if (quoted && (i < (sz - 1))) {
+                    printf(" ");
+                }
+            }
+        }
+        if (quoted) {
+            printf("\"");
+        }
     }
 }

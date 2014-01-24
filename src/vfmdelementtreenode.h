@@ -31,6 +31,9 @@ public:
     VfmdElementTreeNode *nextNode() const;
     VfmdElementTreeNode *firstChildNode() const;
 
+    void printSubtreeSequence(const VfmdByteArray &padding = VfmdByteArray()) const;
+    void printSubtree(const VfmdByteArray &padding) const;
+
     // Methods to reimplement in a subclass
     virtual ElementClassification elementClassification() const { return UNDEFINED; }
     virtual int elementType() const { return -1; }

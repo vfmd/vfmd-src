@@ -1,5 +1,7 @@
 #include <assert.h>
+#include <stdio.h>
 #include "vfmdelementtreenode.h"
+#include "textspantreenode.h"
 
 VfmdElementTreeNode::VfmdElementTreeNode()
     : m_nextSibling(0)
@@ -103,4 +105,46 @@ void VfmdElementTreeNode::appendEquivalentTextToTextSpanNode(TextSpanTreeNode *n
 {
     UNUSED_ARG(node);
     /* Base implementation does nothing */
+}
+
+void VfmdElementTreeNode::printSubtreeSequence(const VfmdByteArray &padding) const
+{
+    for (const VfmdElementTreeNode *node = this;
+         node != 0;
+         node = node->nextNode()) {
+        node->printSubtree(padding);
+    }
+    if (!hasChildren()) {
+        padding.print(); printf("\n");
+    }
+}
+
+void VfmdElementTreeNode::printSubtree(const VfmdByteArray &padding) const
+{
+    const char *classification = "";
+    switch (elementClassification()) {
+    case UNDEFINED: classification = "UNDEFINED"; break;
+    case BLOCK:     classification = "BLOCK"; break;
+    case SPAN:      classification = "SPAN"; break;
+    case TEXTSPAN:  classification = "TEXTSPAN"; break;
+    }
+    padding.print();
+    printf("+- %s/%s\n", classification, elementTypeString());
+    VfmdByteArray subsequentPadding = padding;
+    if (hasNext()) {
+        subsequentPadding.append("|  ");
+    } else {
+        subsequentPadding.append("   ");
+    }
+    if (elementClassification() == TEXTSPAN && elementType() == VfmdConstants::TEXTSPAN_ELEMENT) {
+        const TextSpanTreeNode *textSpanNode = dynamic_cast<const TextSpanTreeNode *>(this);
+        if (textSpanNode) {
+            textSpanNode->text().print(subsequentPadding, true);
+            printf("\n");
+        }
+    }
+    if (hasChildren()) {
+        subsequentPadding.print(); printf("|\n");
+        firstChildNode()->printSubtreeSequence(subsequentPadding);
+    }
 }
