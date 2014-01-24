@@ -148,3 +148,14 @@ void VfmdElementTreeNode::printSubtree(const VfmdByteArray &padding) const
         firstChildNode()->printSubtreeSequence(subsequentPadding);
     }
 }
+
+void VfmdElementTreeNode::freeSubtreeSequence(VfmdElementTreeNode *subtree)
+{
+    const VfmdElementTreeNode *node = subtree;
+    while (node != 0) {
+        const VfmdElementTreeNode *next = node->nextNode();
+        freeSubtreeSequence(node->firstChildNode());
+        delete node;
+        node = next;
+    }
+}

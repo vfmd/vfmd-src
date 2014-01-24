@@ -19,7 +19,7 @@ public:
     };
 
     VfmdElementTreeNode();
-    ~VfmdElementTreeNode();
+    virtual ~VfmdElementTreeNode();
 
     void addAsLastSiblingNode(VfmdElementTreeNode *node);
     void addAsLastChildNode(VfmdElementTreeNode *node);
@@ -42,6 +42,9 @@ public:
     // appendEquivalentTextToTextSpanNode() is
     // only applicable for opening-tag span nodes
     virtual void appendEquivalentTextToTextSpanNode(TextSpanTreeNode *node);
+
+public:
+    static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 
 private:
     void insertAsNextNode(VfmdElementTreeNode *node);
