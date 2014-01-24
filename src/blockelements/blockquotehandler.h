@@ -8,6 +8,7 @@ public:
     BlockquoteHandler() { }
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence);
     virtual ~BlockquoteHandler() { }
+    virtual const char *description() const { return "blockquote"; }
 };
 
 class BlockquoteLineSequence : public VfmdBlockLineSequence {

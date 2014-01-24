@@ -270,29 +270,33 @@ VfmdSpanElementHandler *VfmdElementRegistry::spanElementForTriggerByte(char byte
     return (spanElements? spanElements->itemAt(index)->spanElementHandler : 0);
 }
 
+void printSpanElementData(VfmdElementRegistry::SpanElementData *e)
+{
+    printf("%s (id: %d)  ", e->spanElementHandler->description(), e->typeId);
+}
+
+void printBlockElementData(VfmdElementRegistry::BlockElementData *e)
+{
+    printf("  %s (id: %d)\n", e->blockElementHandler->description(), e->typeId);
+}
+
 void VfmdElementRegistry::print() const
 {
-#if defined(__clang__) && __has_feature(cxx_lambdas)
-    printf("VfmdElementRegistry:\n");
+    printf("Block element handlers:\n");
+    m_blockElements->map(printBlockElementData);
+    printf("Span element handlers:\n");
     for (unsigned int byte = 0; byte < 256; byte++) {
         VfmdPointerArray<VfmdElementRegistry::SpanElementData>* spanElements = m_spanElementsByTriggerByte[(unsigned char) byte];
         if (spanElements) {
             printf("  Triggerbyte '%c': ", byte);
-            spanElements->map([](VfmdElementRegistry::SpanElementData *e) {
-                              printf("%s(%d) ", e->spanElementHandler->description(), e->typeId);
-                              });
+            spanElements->map(printSpanElementData);
             printf("\n");
         }
     }
     if (m_spanElementsWithoutTriggerByte && m_spanElementsWithoutTriggerByte->size() > 0) {
         printf("  No Triggerbyte : ");
-        m_spanElementsWithoutTriggerByte->map([](VfmdElementRegistry::SpanElementData *e) {
-                                              printf("%s(%d) ", e->spanElementHandler->description(), e->typeId);
-                                              });
+        m_spanElementsWithoutTriggerByte->map(printSpanElementData);
         printf("\n");
     }
     printf("\n");
-#else
-    printf("Printing the VfmdElementRegistry requires compiling with clang/C++11\n");
-#endif
 }

@@ -9,6 +9,7 @@ public:
     ParagraphHandler() { }
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence);
     virtual ~ParagraphHandler() { }
+    virtual const char *description() const { return "paragraph"; }
 };
 
 class ParagraphLineSequence : public VfmdBlockLineSequence {

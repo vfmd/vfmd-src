@@ -112,6 +112,9 @@ private:
     VfmdPointerArray<SpanElementData>* m_spanElementsWithoutTriggerByte;
     VfmdPointerArray<SpanElementData>* m_spanElementsByTriggerByte[256];
     VfmdByteArray* m_triggerBytesById[256];
+
+    friend void printSpanElementData(VfmdElementRegistry::SpanElementData *e);
+    friend void printBlockElementData(VfmdElementRegistry::BlockElementData *e);
 };
 
 #endif // VFMDSPANELEMENTREGISTRY_H
