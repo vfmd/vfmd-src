@@ -14,7 +14,6 @@ BlockquoteLineSequence::BlockquoteLineSequence(const VfmdInputLineSequence *pare
     : VfmdBlockLineSequence(parent)
 {
     m_childSequence = new VfmdInputLineSequence(registry());
-    printf("BEGIN BQ\n");
 }
 
 BlockquoteLineSequence::~BlockquoteLineSequence()
@@ -53,8 +52,18 @@ bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfm
     return false;
 }
 
-void BlockquoteLineSequence::endBlock()
+VfmdElementTreeNode* BlockquoteLineSequence::endBlock()
 {
-    m_childSequence->endSequence();
-    printf("END BQ\n");
+    VfmdElementTreeNode *blockquoteNode = new BlockquoteTreeNode();
+    VfmdElementTreeNode *childSubTree = m_childSequence->endSequence();
+    blockquoteNode->setChildSubtree(childSubTree);
+    return blockquoteNode;
+}
+
+BlockquoteTreeNode::BlockquoteTreeNode()
+{
+}
+
+BlockquoteTreeNode::~BlockquoteTreeNode()
+{
 }

@@ -1,11 +1,13 @@
 #include <assert.h>
 #include "vfmdinputlinesequence.h"
 #include "vfmdelementregistry.h"
+#include "vfmdelementtreenode.h"
 #include "blockelements/vfmdblockelementhandler.h"
 
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry)
     : m_registry(registry)
     , m_childLineSequence(0)
+    , m_parseTree(0)
 {
     m_isAtEnd = false;
 }
@@ -24,11 +26,13 @@ void VfmdInputLineSequence::addLine(const VfmdLine &line) {
     }
 }
 
-void VfmdInputLineSequence::endSequence() {
+VfmdElementTreeNode* VfmdInputLineSequence::endSequence()
+{
     m_currentLine = m_nextLine;
     m_nextLine = VfmdLine();
     m_isAtEnd = true;
     processLineInChildSequence();
+    return m_parseTree;
 }
 
 bool VfmdInputLineSequence::isAtEnd() const {
@@ -56,8 +60,14 @@ void VfmdInputLineSequence::processLineInChildSequence()
 
     // Check if the child sequence is done
     if (isAtEnd() || m_childLineSequence->isEndOfBlock(m_currentLine, m_nextLine)) {
-        m_childLineSequence->endBlock();
-        // integrate m_childLineSequence->parseTree();
+        VfmdElementTreeNode *parseTree = m_childLineSequence->endBlock();
+        if (parseTree) {
+            if (m_parseTree) {
+                m_parseTree->addAsLastSiblingNode(parseTree);
+            } else {
+                m_parseTree = parseTree;
+            }
+        }
         delete m_childLineSequence;
         m_childLineSequence = 0;
     }

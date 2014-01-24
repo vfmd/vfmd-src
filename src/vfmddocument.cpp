@@ -29,8 +29,9 @@ bool VfmdDocument::addBytes(const char *data, int length)
     return (addedBytes > 0);
 }
 
-void VfmdDocument::end()
+VfmdElementTreeNode* VfmdDocument::end()
 {
     m_preprocessor->end();
-    m_documentLineSequence->endSequence();
+    VfmdElementTreeNode *parseTree = m_documentLineSequence->endSequence();
+    return parseTree;
 }

@@ -6,6 +6,7 @@
 class VfmdBlockElementHandler;
 class VfmdBlockLineSequence;
 class VfmdElementRegistry;
+class VfmdElementTreeNode;
 
 class VfmdInputLineSequence
 {
@@ -13,7 +14,7 @@ public:
     VfmdInputLineSequence(const VfmdElementRegistry *registry);
 
     void addLine(const VfmdLine &line);
-    void endSequence();
+    VfmdElementTreeNode* endSequence();
 
     bool isAtEnd() const;
 
@@ -38,6 +39,7 @@ private:
     bool m_isAtEnd;
     const VfmdElementRegistry *m_registry;
     VfmdBlockLineSequence *m_childLineSequence;
+    VfmdElementTreeNode *m_parseTree;
 };
 
 #endif // VFMDINPUTLINESEQUENCE_H

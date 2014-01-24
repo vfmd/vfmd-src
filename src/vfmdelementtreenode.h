@@ -1,20 +1,44 @@
 #ifndef VFMDELEMENTTREENODE_H
 #define VFMDELEMENTTREENODE_H
 
+#include "vfmdbytearray.h"
+#include "vfmdconstants.h"
+
+#define UNUSED_ARG(x) (void)x;
+
+class TextSpanTreeNode;
+
 class VfmdElementTreeNode
 {
 public:
+    enum ElementClassification {
+        UNDEFINED = -1,
+        BLOCK,
+        SPAN,
+        TEXTSPAN
+    };
+
     VfmdElementTreeNode();
     ~VfmdElementTreeNode();
 
     void addAsLastSiblingNode(VfmdElementTreeNode *node);
     void addAsLastChildNode(VfmdElementTreeNode *node);
+    void setChildSubtree(VfmdElementTreeNode *node);
 
     bool hasNext() const;
     bool hasChildren() const;
 
     VfmdElementTreeNode *nextNode() const;
     VfmdElementTreeNode *firstChildNode() const;
+
+    // Methods to reimplement in a subclass
+    virtual ElementClassification elementClassification() const { return UNDEFINED; }
+    virtual int elementType() const { return -1; }
+    virtual const char *elementTypeString() const { return ""; }
+
+    // appendEquivalentTextToTextSpanNode() is
+    // only applicable for opening-tag span nodes
+    virtual void appendEquivalentTextToTextSpanNode(TextSpanTreeNode *node);
 
 private:
     void insertAsNextNode(VfmdElementTreeNode *node);

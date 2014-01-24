@@ -1,6 +1,7 @@
 class VfmdElementRegistry;
 class VfmdPreprocessor;
 class VfmdInputLineSequence;
+class VfmdElementTreeNode;
 
 class VfmdDocument {
 public:
@@ -8,7 +9,7 @@ public:
     ~VfmdDocument();
 
     bool addBytes(const char *data, int length);
-    void end();
+    VfmdElementTreeNode* end();
 
 private:
     VfmdPreprocessor *m_preprocessor;

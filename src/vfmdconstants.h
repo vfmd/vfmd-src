@@ -12,6 +12,7 @@ enum VfmdBlockElementType {
 };
 
 enum VfmdSpanElementType {
+    TEXTSPAN_ELEMENT,
     EMPHASIS_ELEMENT,
     LINK_ELEMENT,
     USER_SPAN_ELEMENT = 100,

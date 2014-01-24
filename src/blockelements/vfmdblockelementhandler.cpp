@@ -29,9 +29,10 @@ bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
     return false;
 }
 
-void VfmdBlockLineSequence::endBlock()
+VfmdElementTreeNode* VfmdBlockLineSequence::endBlock()
 {
     /* Base implementation does nothing */
+    return 0;
 }
 
 const VfmdInputLineSequence *VfmdBlockLineSequence::parentLineSequence() const

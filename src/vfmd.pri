@@ -11,6 +11,7 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/vfmdinputlinesequence.cpp \
            $$PWD/vfmdregexp.cpp \
            $$PWD/vfmdelementtreenode.cpp \
+           $$PWD/textspantreenode.cpp \
            $$PWD/core/vfmdpreprocessor.cpp \
            $$PWD/core/vfmdspanelementsprocessor.cpp \
            $$PWD/core/vfmddefaultelementregistry.cpp
@@ -26,6 +27,7 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/vfmdregexp.h \
            $$PWD/vfmdconstants.h \
            $$PWD/vfmdelementtreenode.h \
+           $$PWD/textspantreenode.h \
            $$PWD/core/vfmdpreprocessor.h \
            $$PWD/core/vfmdspanelementsprocessor.h \
            $$PWD/core/vfmdpointerarray.h

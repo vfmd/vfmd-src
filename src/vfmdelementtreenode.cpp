@@ -35,6 +35,12 @@ void VfmdElementTreeNode::addAsLastChildNode(VfmdElementTreeNode *node)
     }
 }
 
+void VfmdElementTreeNode::setChildSubtree(VfmdElementTreeNode *node)
+{
+    assert(m_firstChild == 0);
+    m_firstChild = node;
+}
+
 bool VfmdElementTreeNode::hasNext() const
 {
     return (m_nextSibling != 0);
@@ -91,4 +97,10 @@ VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode() const
         nextSibling = nextSibling->m_nextSibling;
     }
     return lastSibling;
+}
+
+void VfmdElementTreeNode::appendEquivalentTextToTextSpanNode(TextSpanTreeNode *node)
+{
+    UNUSED_ARG(node);
+    /* Base implementation does nothing */
 }

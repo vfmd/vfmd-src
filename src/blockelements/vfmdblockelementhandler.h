@@ -2,6 +2,7 @@
 #define VFMDBLOCKELEMENTHANDLER_H
 
 #include "vfmdline.h"
+#include "vfmdelementtreenode.h"
 
 #define UNUSED_PARAMETER(x) (void)x;
 
@@ -22,7 +23,7 @@ public:
     virtual ~VfmdBlockLineSequence();
     virtual void processBlockLine(const VfmdLine &currentLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
-    virtual void endBlock();
+    virtual VfmdElementTreeNode* endBlock();
     const VfmdInputLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
 private:

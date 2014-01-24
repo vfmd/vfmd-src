@@ -16,9 +16,20 @@ public:
     virtual ~BlockquoteLineSequence();
     virtual void processBlockLine(const VfmdLine &currentLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
-    virtual void endBlock();
+    virtual VfmdElementTreeNode* endBlock();
 private:
     VfmdInputLineSequence *m_childSequence;
+};
+
+class BlockquoteTreeNode : public VfmdElementTreeNode {
+public:
+    BlockquoteTreeNode();
+    ~BlockquoteTreeNode();
+
+    // Reimplemented
+    virtual ElementClassification elementClassification() const { return BLOCK; }
+    virtual int elementType() const { return VfmdConstants::BLOCKQUOTE_ELEMENT; }
+    virtual const char *elementTypeString() const { return "blockquote"; }
 };
 
 #endif // BLOCKQUOTEHANDLER_H

@@ -2,6 +2,7 @@
 #include "paragraphhandler.h"
 #include "vfmdspanelementsprocessor.h"
 #include "vfmdinputlinesequence.h"
+#include "textspantreenode.h"
 
 void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
@@ -28,10 +29,27 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
     return (currentLine.isBlankLine() || !nextLine.isValid());
 }
 
-void ParagraphLineSequence::endBlock()
+#include "vfmdlinearrayiterator.h"
+
+VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
-    printf("PARAGRAPH (\n");
-    m_lineArray.print();
-    printf(")\n");
-    VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
+    // VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
+    // TODO: Process span elements
+    VfmdLineArrayIterator *start = m_lineArray.begin();
+    VfmdLineArrayIterator *end = m_lineArray.end();
+    VfmdByteArray paragraphText = start->bytesTill(end);
+
+    VfmdElementTreeNode *textNode = new TextSpanTreeNode(paragraphText);
+    VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
+    paragraphNode->setChildSubtree(textNode);
+
+    return paragraphNode;
+}
+
+ParagraphTreeNode::ParagraphTreeNode()
+{
+}
+
+ParagraphTreeNode::~ParagraphTreeNode()
+{
 }
