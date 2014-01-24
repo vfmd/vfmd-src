@@ -49,6 +49,12 @@ VfmdElementRegistry::~VfmdElementRegistry()
         }
         delete triggerBytes;
     }
+
+    // Free span element handler arrays
+    for (int triggerByte = 0; triggerByte < 256; triggerByte++) {
+        delete m_spanElementsByTriggerByte[(unsigned char) triggerByte];
+    }
+    delete m_spanElementsWithoutTriggerByte;
 }
 
 // Block elements
