@@ -2,6 +2,7 @@
 #define VFMDSPANELEMENTHANDLER_H
 
 #include "vfmdbytearray.h"
+#include "vfmdconstants.h"
 
 class VfmdLineArrayIterator;
 class VfmdSpanTagStack;
@@ -23,6 +24,22 @@ public:
 
     /* A short text describing this syntax (eg. "emphasis", "strikethrough") */
     virtual const char *description() const;
+};
+
+class VfmdOpeningSpanTagStackNode
+{
+public:
+    VfmdOpeningSpanTagStackNode() { }
+
+    virtual ~VfmdOpeningSpanTagStackNode() { }
+
+    virtual int type() const { return VfmdConstants::UNDEFINED_STACK_NODE; }
+
+    virtual void appendEquivalentTextToByteArray(VfmdByteArray *ba) {
+        UNUSED_PARAMETER(ba);
+    }
+
+    virtual void print() const { }
 };
 
 #endif // VFMDSPANELEMENTHANDLER_H

@@ -25,12 +25,17 @@ void EmphasisHandler::processSpanTag(VfmdLineArrayIterator *iterator, VfmdSpanTa
     bool rightFlankedBySpace = (iterator->nextByte() == ' ');
     if (leftFlankedBySpace) {
         // Can only be an opening emphasis tag
-        stack->push(new VfmdSpanTagStackNode(VfmdSpanTagStackNode::ASTERISK_EMPHASIS, '*', numberOfAsterisks));
+        stack->push(new OpeningEmphasisTagStackNode('*', numberOfAsterisks));
         printf("Opening emphasis: %c x %d\n", '*', numberOfAsterisks);
     } else if (rightFlankedBySpace) {
-        VfmdSpanTagStackNode *topMostEmphNode = stack->topmostNodeOfType(VfmdSpanTagStackNode::ASTERISK_EMPHASIS);
+        // Check if it can be a closing emphasis tag
+        OpeningEmphasisTagStackNode *topMostEmphNode = 0;
+        VfmdOpeningSpanTagStackNode *topMostRelevantNode = stack->topmostNodeOfType(VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE);
+        if (topMostRelevantNode) {
+            topMostEmphNode = dynamic_cast<OpeningEmphasisTagStackNode *>(topMostRelevantNode);
+        }
         if (topMostEmphNode) {
-            stack->popNodesAbove(topMostEmphNode);
+            stack->popNodesAbove(topMostRelevantNode);
             if (topMostEmphNode->character == '*') {
                 if (topMostEmphNode->repetitionCount == numberOfAsterisks) {
                     printf("Closing emphasis: %c x %d\n", topMostEmphNode->character, topMostEmphNode->repetitionCount);
@@ -52,4 +57,42 @@ void EmphasisHandler::processSpanTag(VfmdLineArrayIterator *iterator, VfmdSpanTa
         iterator->moveTo(startOfTag);
     }
     delete startOfTag;
+}
+
+OpeningEmphasisTagStackNode::OpeningEmphasisTagStackNode(char c, int n)
+    : VfmdOpeningSpanTagStackNode()
+    , character(c)
+    , repetitionCount(n)
+{
+    assert(c == '*' || c == '_');
+}
+
+OpeningEmphasisTagStackNode::~OpeningEmphasisTagStackNode()
+{
+}
+
+int OpeningEmphasisTagStackNode::type() const
+{
+    if (character == '*') {
+        return VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE;
+    } else if (character == '_') {
+        return VfmdConstants::UNDERSCORE_EMPHASIS_STACK_NODE;
+    }
+    return VfmdConstants::UNDEFINED_STACK_NODE;
+}
+
+void OpeningEmphasisTagStackNode::appendEquivalentTextToByteArray(VfmdByteArray *ba)
+{
+    for (unsigned int i = 0; i < repetitionCount; i++) {
+        ba->appendByte(character);
+    }
+}
+
+void OpeningEmphasisTagStackNode::print() const
+{
+    printf("emphasis (\"");
+    for (unsigned int i = 0; i < repetitionCount; i++) {
+        printf("%c", character);
+    }
+    printf("\")");
 }

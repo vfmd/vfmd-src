@@ -19,6 +19,13 @@ enum VfmdSpanElementType {
     MAX_USER_SPAN_ELEMENT = 255
 };
 
+enum VfmdOpeningSpanTagStackNodeType {
+    UNDEFINED_STACK_NODE,
+    ASTERISK_EMPHASIS_STACK_NODE,
+    UNDERSCORE_EMPHASIS_STACK_NODE,
+    USER_STACK_NODE = 100
+};
+
 };
 
 #endif // VFMDCONSTANTS_H

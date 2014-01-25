@@ -2,22 +2,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include "vfmdspantagstack.h"
+#include "spanelements/vfmdspanelementhandler.h"
 
 #define ALLOC_CHUNK_SIZE (32)
 
-VfmdSpanTagStackNode::VfmdSpanTagStackNode(VfmdSpanTagStackNode::Type t, char c)
-    : type(t), character(c), repetitionCount(1)
-{
-}
-
-VfmdSpanTagStackNode::VfmdSpanTagStackNode(VfmdSpanTagStackNode::Type t, char c, unsigned int n)
-    : type(t), character(c), repetitionCount(n)
-{
-}
-
 VfmdSpanTagStack::VfmdSpanTagStack()
 {
-    m_nodes = new VfmdPointerArray<VfmdSpanTagStackNode>(ALLOC_CHUNK_SIZE);
+    m_nodes = new VfmdPointerArray<VfmdOpeningSpanTagStackNode>(ALLOC_CHUNK_SIZE);
 }
 
 VfmdSpanTagStack::~VfmdSpanTagStack()
@@ -28,7 +19,7 @@ VfmdSpanTagStack::~VfmdSpanTagStack()
     delete m_nodes;
 }
 
-void VfmdSpanTagStack::push(VfmdSpanTagStackNode *node)
+void VfmdSpanTagStack::push(VfmdOpeningSpanTagStackNode *node)
 {
     if (node == 0) {
         return;
@@ -36,7 +27,7 @@ void VfmdSpanTagStack::push(VfmdSpanTagStackNode *node)
     m_nodes->append(node);
 }
 
-VfmdSpanTagStackNode *VfmdSpanTagStack::pop()
+VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::pop()
 {
     if (m_nodes->size() == 0) {
         return 0;
@@ -44,10 +35,10 @@ VfmdSpanTagStackNode *VfmdSpanTagStack::pop()
     return m_nodes->takeLastItem();
 }
 
-void VfmdSpanTagStack::popNodesAbove(VfmdSpanTagStackNode *node)
+void VfmdSpanTagStack::popNodesAbove(VfmdOpeningSpanTagStackNode *node)
 {
     while (m_nodes->size() > 0) {
-        VfmdSpanTagStackNode *topNode = m_nodes->lastItem();
+        VfmdOpeningSpanTagStackNode *topNode = m_nodes->lastItem();
         if (node == topNode) {
             break;
         }
@@ -56,7 +47,7 @@ void VfmdSpanTagStack::popNodesAbove(VfmdSpanTagStackNode *node)
     }
 }
 
-VfmdSpanTagStackNode *VfmdSpanTagStack::topNode() const
+VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topNode() const
 {
     if (m_nodes->size() == 0) {
         return 0;
@@ -64,12 +55,12 @@ VfmdSpanTagStackNode *VfmdSpanTagStack::topNode() const
     return m_nodes->lastItem();
 }
 
-VfmdSpanTagStackNode *VfmdSpanTagStack::topmostNodeOfType(VfmdSpanTagStackNode::Type t) const
+VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topmostNodeOfType(VfmdConstants::VfmdOpeningSpanTagStackNodeType t) const
 {
     int i = m_nodes->size() - 1;
     while (i >= 0) {
-        VfmdSpanTagStackNode *node = m_nodes->itemAt(i);
-        if (node->type == t) {
+        VfmdOpeningSpanTagStackNode *node = m_nodes->itemAt(i);
+        if (node->type() == t) {
             return node;
         }
         i--;
@@ -82,8 +73,10 @@ void VfmdSpanTagStack::print() const
     printf("STACK: (%d nodes)\n", m_nodes->size());
     int i = m_nodes->size() - 1;
     while (i >= 0) {
-        VfmdSpanTagStackNode *node = m_nodes->itemAt(i);
-        printf("  [%d] node: { %d, '%c' x %d }\n", i, node->type, node->character, node->repetitionCount);
+        VfmdOpeningSpanTagStackNode *node = m_nodes->itemAt(i);
+        printf("  [%d] node: ", i);
+        node->print();
+        printf("\n");
         i--;
     }
     printf("\n");
