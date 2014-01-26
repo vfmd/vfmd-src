@@ -15,7 +15,8 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
     registry->appendBlockElement(VfmdConstants::PARAGRAPH_ELEMENT, new ParagraphHandler);
 
     // Span elements
-    registry->appendSpanElement(VfmdConstants::EMPHASIS_ELEMENT, new EmphasisHandler, "*");
+    registry->appendSpanElement(VfmdConstants::EMPHASIS_ELEMENT, new EmphasisHandler,
+                                "*", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
 
     return registry;
 }

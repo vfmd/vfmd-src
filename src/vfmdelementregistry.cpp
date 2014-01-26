@@ -31,8 +31,8 @@ VfmdElementRegistry::~VfmdElementRegistry()
             // This is a not valid typeId. Nothing to free.
             continue;
         }
-        int triggerBytesCount = triggerBytes->size();
         VfmdPointerArray<SpanElementData>* spanElementsArray = m_spanElementsByTriggerByte[(unsigned char) triggerBytes->charAt(0)];
+        int triggerBytesCount = triggerBytes->size();
         for (int i = 0; i < triggerBytesCount; i++) {
             VfmdElementRegistry::SpanElementData *spanElementData = spanElementsArray->itemAt(i);
             if (typeId == spanElementData->typeId) {
@@ -126,40 +126,46 @@ void VfmdElementRegistry::ensureSpanElementsForTriggerByteAllocated(char byte)
     }
 }
 
-bool VfmdElementRegistry::appendSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler, const VfmdByteArray &triggerBytes)
+bool VfmdElementRegistry::appendSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
+                                            const VfmdByteArray &triggerBytes, int triggerOptions)
 {
     if (m_triggerBytesById[typeId] != 0) {
         return false;
     }
-    if (triggerBytes.isValid() && triggerBytes.size() > 0) {
-        m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
-        VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler);
-        for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
-            char byte = triggerBytes.charAt(byteIndex);
-            ensureSpanElementsForTriggerByteAllocated(byte);
-            m_spanElementsByTriggerByte[(unsigned char) byte]->append(spanElementData);
-        }
-        return true;
+
+    if (triggerBytes.size() == 0) {
+        return false;
     }
-    return false;
+
+    m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
+    VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler, triggerOptions);
+    for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
+        char byte = triggerBytes.charAt(byteIndex);
+        ensureSpanElementsForTriggerByteAllocated(byte);
+        m_spanElementsByTriggerByte[(unsigned char) byte]->append(spanElementData);
+    }
+    return true;
 }
 
-bool VfmdElementRegistry::prependSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler, const VfmdByteArray &triggerBytes)
+bool VfmdElementRegistry::prependSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
+                                             const VfmdByteArray &triggerBytes, int triggerOptions)
 {
     if (m_triggerBytesById[typeId] != 0) {
         return false;
     }
-    if (triggerBytes.size() > 0) {
-        m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
-        VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler);
-        for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
-            char byte = triggerBytes.charAt(byteIndex);
-            ensureSpanElementsForTriggerByteAllocated(byte);
-            m_spanElementsByTriggerByte[(unsigned char) byte]->prepend(spanElementData);
-        }
-        return true;
+
+    if (triggerBytes.size() == 0) {
+        return false;
     }
-    return false;
+
+    m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
+    VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler, triggerOptions);
+    for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
+        char byte = triggerBytes.charAt(byteIndex);
+        ensureSpanElementsForTriggerByteAllocated(byte);
+        m_spanElementsByTriggerByte[(unsigned char) byte]->prepend(spanElementData);
+    }
+    return true;
 }
 
 bool VfmdElementRegistry::doesSpanElementExistInPointerArray(int typeId, VfmdPointerArray<VfmdElementRegistry::SpanElementData> *array) const
@@ -220,9 +226,19 @@ VfmdSpanElementHandler *VfmdElementRegistry::spanElementForTriggerByte(char byte
     return (spanElements? spanElements->itemAt(index)->spanElementHandler : 0);
 }
 
+int VfmdElementRegistry::triggerOptionsForTriggerByte(char byte, unsigned int index) const
+{
+    VfmdPointerArray<VfmdElementRegistry::SpanElementData>* spanElements = m_spanElementsByTriggerByte[(unsigned char) byte];
+    return (spanElements? spanElements->itemAt(index)->triggerOptions : 0);
+}
+
 void printSpanElementData(VfmdElementRegistry::SpanElementData *e)
 {
-    printf("%s (id: %d)  ", e->spanElementHandler->description(), e->typeId);
+    if (e->triggerOptions) {
+        printf("%s (id: %d, options: 0x%x)  ", e->spanElementHandler->description(), e->typeId, e->triggerOptions);
+    } else {
+        printf("%s (id: %d)  ", e->spanElementHandler->description(), e->typeId);
+    }
 }
 
 void printBlockElementData(VfmdElementRegistry::BlockElementData *e)

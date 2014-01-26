@@ -40,17 +40,33 @@ public:
 
     // Span elements
 
-    /* Add a span element handler that should be invoked only when one of the triggerBytes are encountered.
+    enum TriggerOptionsForPositionOfInvocation {
+
+        /* TRIGGER_AT_TRIGGER_BYTE:
+         * Invoke the handler when the current byte is a trigger byte.
+         * This is the default option. */
+        TRIGGER_AT_TRIGGER_BYTE = 0,
+
+        /* TRIGGER_BEFORE_TRIGGER_BYTE:
+         * Invoke the handler when a trigger byte is at or ahead of
+         * the current byte and there are no handlers to invoke
+         * between the current byte and the next trigger byte. */
+        TRIGGER_BEFORE_TRIGGER_BYTE = 1
+    };
+
+    /* Add a span element handler that should be invoked only when one of the triggerBytes is encountered.
      * Multiple span element handlers can be registered for a particular triggerByte.
      * The registry owns the added handler.
      * If typeId is already registered, this method does nothing and returns false. */
-    bool appendSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler, const VfmdByteArray &triggerBytes);
+    bool appendSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
+                           const VfmdByteArray &triggerBytes, int triggerOptions = 0);
 
-    /* Add a span element handler that should be invoked only when one of the triggerBytes are encountered, so
+    /* Add a span element handler that should be invoked only when one of the triggerBytes is encountered, so
      * that this handler is called before any other handler that may be present for the triggerByte.
      * The registry owns the added handler.
      * If typeId is already registered, this method does nothing and returns false. */
-    bool prependSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler, const VfmdByteArray &triggerBytes);
+    bool prependSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
+                            const VfmdByteArray &triggerBytes, int triggerOptions = 0);
 
     /* Check for existence of a span element */
     bool containsSpanElement(int typeId) const;
@@ -58,9 +74,10 @@ public:
     /* Remove and free a span element handler in the registry */
     void removeSpanElement(int typeId);
 
-    /* Querying span elements that are not associated with a trigger byte */
+    /* Querying span elements */
     int spanElementCountForTriggerByte(char byte) const;
     VfmdSpanElementHandler *spanElementForTriggerByte(char byte, unsigned int index) const;
+    int triggerOptionsForTriggerByte(char byte, unsigned int index) const;
 
     void print() const;
 
@@ -85,9 +102,11 @@ private:
     // Span elements
 
     struct SpanElementData {
-        SpanElementData(int t, VfmdSpanElementHandler *h) : typeId(t), spanElementHandler(h) { }
+        SpanElementData(int t, VfmdSpanElementHandler *h, int to)
+            : typeId(t), spanElementHandler(h), triggerOptions(to) { }
         int typeId;
         VfmdSpanElementHandler *spanElementHandler;
+        int triggerOptions;
     };
 
     void ensureSpanElementsForTriggerByteAllocated(char c);

@@ -10,7 +10,7 @@ public:
 
     virtual ~EmphasisHandler();
 
-    virtual void processSpanTag(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const;
+    virtual void identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const;
 
     virtual const char *description() const { return "emphasis"; }
 };

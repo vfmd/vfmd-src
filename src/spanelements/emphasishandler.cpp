@@ -11,9 +11,8 @@ EmphasisHandler::~EmphasisHandler()
 {
 }
 
-void EmphasisHandler::processSpanTag(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const
+void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const
 {
-    UNUSED_PARAMETER(stack);
     VfmdLineArrayIterator *startOfTag = iterator->copy();
     char nextByte = iterator->nextByte();
     if (nextByte != '*') {
