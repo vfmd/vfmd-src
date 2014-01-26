@@ -52,17 +52,7 @@ void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArr
             }
         }
 
-        // Ask the generic span element handlers
-        if (!isTagIdentifiedAtCurrentPos) {
-            int n = registry->spanElementsWithoutTriggerByteCount();
-            for (int i = 0; i < n; i++) {
-                VfmdSpanElementHandler *spanHandler = registry->spanElementWithoutTriggerByte(i);
-                isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, iterator.data(), &stack, &textFragmentStart);
-                if (isTagIdentifiedAtCurrentPos) {
-                    break;
-                }
-            }
-        }
+        // TODO: Handle auto-link-type span element handlers
 
         // All span element handlers rejected this position => text fragment
         if (!isTagIdentifiedAtCurrentPos) {
