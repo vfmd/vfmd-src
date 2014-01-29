@@ -43,12 +43,12 @@ void VfmdLineArray::print() const
     }
 }
 
-VfmdLineArrayIterator* VfmdLineArray::begin() const
+VfmdLineArrayIterator VfmdLineArray::begin() const
 {
-    return new VfmdLineArrayIterator(this, 0, 0);
+    return VfmdLineArrayIterator(this, 0, 0);
 }
 
-VfmdLineArrayIterator* VfmdLineArray::end() const
+VfmdLineArrayIterator VfmdLineArray::end() const
 {
-    return new VfmdLineArrayIterator(this, lineCount(), 0);
+    return VfmdLineArrayIterator(this, lineCount(), 0);
 }

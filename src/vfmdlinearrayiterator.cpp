@@ -4,6 +4,19 @@
 #include "vfmdline.h"
 #include "vfmdscopedpointer.h"
 
+VfmdLineArrayIterator::VfmdLineArrayIterator()
+    : m_lineArray(0)
+    , m_lineIndex(0)
+    , m_byteIndex(0)
+    , m_isNextByteEscaped(false)
+{
+}
+
+bool VfmdLineArrayIterator::isValid() const
+{
+    return (m_lineArray != 0);
+}
+
 VfmdLineArrayIterator::VfmdLineArrayIterator(const VfmdLineArray *lineArray, unsigned int lineIndex, unsigned int byteIndex, bool isNextByteEscaped)
     : m_lineArray(lineArray)
     , m_lineIndex(lineIndex)
@@ -53,28 +66,26 @@ VfmdByteArray VfmdLineArrayIterator::bytesTillEndOfLine() const
     return m_lineArray->lineAt(m_lineIndex)->mid(m_byteIndex);
 }
 
-void VfmdLineArrayIterator::foreachLineSegmentsTill(const VfmdLineArrayIterator *other, void *ctx, bool (*fn)(void *ctx, const VfmdByteArray &ba)) const
+void VfmdLineArrayIterator::foreachLineSegmentsTill(const VfmdLineArrayIterator &other, void *ctx, bool (*fn)(void *ctx, const VfmdByteArray &ba)) const
 {
-    if (isBefore(other)) {
-        VfmdLineArrayIterator *iter = copy();
+    if (isBefore(&other)) {
+        VfmdLineArrayIterator iter = (*this);
         VfmdByteArray ba;
-        while ((iter->m_lineIndex < other->m_lineIndex) &&
-               (iter->m_lineIndex < m_lineArray->lineCount())) {
-            ba = m_lineArray->lineAt(iter->m_lineIndex)->mid(iter->m_byteIndex);
+        while ((iter.m_lineIndex < other.m_lineIndex) &&
+               (iter.m_lineIndex < m_lineArray->lineCount())) {
+            ba = m_lineArray->lineAt(iter.m_lineIndex)->mid(iter.m_byteIndex);
             bool proceed = (*fn)(ctx, ba);
             if (!proceed) {
-                delete iter;
                 return;
             }
-            iter->m_lineIndex++;
-            iter->m_byteIndex = 0;
+            iter.m_lineIndex++;
+            iter.m_byteIndex = 0;
         }
-        if (iter->m_lineIndex < m_lineArray->lineCount()) {
-            assert(iter->m_lineIndex == other->m_lineIndex);
-            ba = m_lineArray->lineAt(iter->m_lineIndex)->mid(iter->m_byteIndex, other->m_byteIndex - iter->m_byteIndex);
+        if (iter.m_lineIndex < m_lineArray->lineCount()) {
+            assert(iter.m_lineIndex == other.m_lineIndex);
+            ba = m_lineArray->lineAt(iter.m_lineIndex)->mid(iter.m_byteIndex, other.m_byteIndex - iter.m_byteIndex);
             (*fn)(ctx, ba);
         }
-        delete iter;
     }
 }
 
@@ -84,7 +95,7 @@ static bool addByteArrayLengths(void *ctx, const VfmdByteArray &ba)
     return true;
 }
 
-int VfmdLineArrayIterator::numberOfBytesTill(const VfmdLineArrayIterator *other) const
+int VfmdLineArrayIterator::numberOfBytesTill(const VfmdLineArrayIterator &other) const
 {
     int distance = 0;
     foreachLineSegmentsTill(other, (void *) &distance, &addByteArrayLengths);
@@ -97,7 +108,7 @@ static bool concatByteArrays(void *ctx, const VfmdByteArray &ba)
     return true;
 }
 
-VfmdByteArray VfmdLineArrayIterator::bytesTill(const VfmdLineArrayIterator *other) const
+VfmdByteArray VfmdLineArrayIterator::bytesTill(const VfmdLineArrayIterator &other) const
 {
     VfmdByteArray ba;
     ba.reserve(numberOfBytesTill(other));
@@ -230,8 +241,7 @@ bool advanceOverNonMatchingBytes(void *ctx, const VfmdByteArray &ba)
 bool VfmdLineArrayIterator::moveForwardOverBytesInString(const char *str)
 {
     ForeachLineSegmentsStringMatchingContext context(m_lineIndex, m_byteIndex, str);
-    VfmdScopedPointer<VfmdLineArrayIterator> endOfArray(m_lineArray->end());
-    foreachLineSegmentsTill(endOfArray.data(), &context, &advanceOverMatchingBytes);
+    foreachLineSegmentsTill(m_lineArray->end(), &context, &advanceOverMatchingBytes);
     if (m_lineIndex == context.lineIndex && m_byteIndex == context.byteIndex) {
         return false;
     }
@@ -242,8 +252,7 @@ bool VfmdLineArrayIterator::moveForwardOverBytesInString(const char *str)
 bool VfmdLineArrayIterator::moveForwardOverBytesNotInString(const char *str)
 {
     ForeachLineSegmentsStringMatchingContext context(m_lineIndex, m_byteIndex, str);
-    VfmdScopedPointer<VfmdLineArrayIterator> endOfArray(m_lineArray->end());
-    foreachLineSegmentsTill(endOfArray.data(), &context, &advanceOverNonMatchingBytes);
+    foreachLineSegmentsTill(m_lineArray->end(), &context, &advanceOverNonMatchingBytes);
     if (m_lineIndex == context.lineIndex && m_byteIndex == context.byteIndex) {
         return false;
     }
@@ -257,23 +266,22 @@ bool VfmdLineArrayIterator::moveForwardOverByteSequence(const char *str, int len
         len = strlen(str);
     }
     bool matched = true;
-    VfmdLineArrayIterator *iter = this->copy();
+    VfmdLineArrayIterator iter = (*this);
     for (int i = 0; i < len; i++) {
-        if (iter->isAtEnd()) {
+        if (iter.isAtEnd()) {
             matched = false;
             break;
         }
-        char c = iter->nextByte();
-        iter->moveForward(1);
+        char c = iter.nextByte();
+        iter.moveForward(1);
         if (c != str[len]) {
             matched = false;
             break;
         }
     }
     if (matched) {
-        this->moveTo(iter);
+        moveTo(iter);
     }
-    delete iter;
     return matched;
 }
 
@@ -282,12 +290,12 @@ bool VfmdLineArrayIterator::moveForwardOverRegexp(const VfmdRegexp &regexp)
     return regexp.moveIteratorForward(this);
 }
 
-bool VfmdLineArrayIterator::moveTo(const VfmdLineArrayIterator *other)
+bool VfmdLineArrayIterator::moveTo(const VfmdLineArrayIterator &other)
 {
-    if (m_lineArray == other->m_lineArray) {
-        m_lineIndex = other->m_lineIndex;
-        m_byteIndex = other->m_byteIndex;
-        m_isNextByteEscaped = other->m_isNextByteEscaped;
+    if (m_lineArray == other.m_lineArray) {
+        m_lineIndex = other.m_lineIndex;
+        m_byteIndex = other.m_byteIndex;
+        m_isNextByteEscaped = other.m_isNextByteEscaped;
         return true;
     }
     return false;
@@ -393,4 +401,14 @@ bool VfmdLineArrayIterator::operator <(const VfmdLineArrayIterator &other) const
 bool VfmdLineArrayIterator::operator >(const VfmdLineArrayIterator &other) const
 {
     return isAfter(&other);
+}
+
+bool VfmdLineArrayIterator::operator <=(const VfmdLineArrayIterator &other) const
+{
+    return (isBefore(&other) || isEqualTo(&other));
+}
+
+bool VfmdLineArrayIterator::operator >=(const VfmdLineArrayIterator &other) const
+{
+    return (isAfter(&other) || isEqualTo(&other));
 }

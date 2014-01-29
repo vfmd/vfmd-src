@@ -36,10 +36,10 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
     // VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
     // TODO: Process span elements
-    VfmdScopedPointer<VfmdLineArrayIterator> start(m_lineArray.begin());
-    VfmdScopedPointer<VfmdLineArrayIterator> end(m_lineArray.end());
+    VfmdLineArrayIterator start = m_lineArray.begin();
+    VfmdLineArrayIterator end = m_lineArray.end();
 
-    VfmdByteArray paragraphText = start->bytesTill(end.data());
+    VfmdByteArray paragraphText = start.bytesTill(end);
 
     VfmdElementTreeNode *textNode = new TextSpanTreeNode(paragraphText);
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();

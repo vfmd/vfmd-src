@@ -21,12 +21,11 @@ public:
 
     void print() const;
 
-    /* Iterators for going over the line array.
-     * If you modify the line array, the iterators become invalid,
-     * and you need to call begin() or end() afresh.
-     * The caller is responsible for freeing the returned iterators. */
-    VfmdLineArrayIterator *begin() const;
-    VfmdLineArrayIterator *end() const;
+    /* Traverse the line array using an iterator.
+     * If you modify the line array, the iterator becomes invalid,
+     * and you need to call begin() or end() afresh. */
+    VfmdLineArrayIterator begin() const;
+    VfmdLineArrayIterator end() const;
 
 private:
     VfmdPointerArray<VfmdLine> *m_lines;

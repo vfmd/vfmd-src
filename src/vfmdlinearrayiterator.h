@@ -15,6 +15,11 @@ class VfmdByteArray;
 class VfmdLineArrayIterator
 {
 public:
+    /* Creates an invalid iterator */
+    VfmdLineArrayIterator();
+
+    bool isValid() const;
+
     /* Returns a newly allocated copy of this iterator */
     VfmdLineArrayIterator *copy() const;
 
@@ -31,11 +36,11 @@ public:
 
     /* Querying byte count */
     int numberOfBytesTillEndOfLine() const;
-    int numberOfBytesTill(const VfmdLineArrayIterator *other) const;
+    int numberOfBytesTill(const VfmdLineArrayIterator &other) const;
 
     /* Querying bytes */
     VfmdByteArray bytesTillEndOfLine() const;
-    VfmdByteArray bytesTill(const VfmdLineArrayIterator *other) const;
+    VfmdByteArray bytesTill(const VfmdLineArrayIterator &other) const;
 
     /* Moving the iterator across 'n' number of bytes */
     void moveForward(unsigned int n);
@@ -49,7 +54,7 @@ public:
     bool moveForwardOverRegexp(const VfmdRegexp &regexp);
 
     /* Moving the iterator to another iterator's position */
-    bool moveTo(const VfmdLineArrayIterator *other);
+    bool moveTo(const VfmdLineArrayIterator &other);
 
     /* Is this iterator at the beginning / end of the bytestream? */
     bool isAtBeginning() const;
@@ -63,12 +68,13 @@ public:
     bool operator ==(const VfmdLineArrayIterator &other) const;
     bool operator <(const VfmdLineArrayIterator &other) const;
     bool operator >(const VfmdLineArrayIterator &other) const;
-
+    bool operator <=(const VfmdLineArrayIterator &other) const;
+    bool operator >=(const VfmdLineArrayIterator &other) const;
 private:
     VfmdLineArrayIterator(const VfmdLineArray *lineArray, unsigned int lineIndex, unsigned int byteIndex, bool isNextByteEscaped = false);
 
     void moveTo(unsigned int lineIndex, unsigned int byteIndex);
-    void foreachLineSegmentsTill(const VfmdLineArrayIterator *other, void *ctx, bool (*fn)(void *ctx, const VfmdByteArray &ba)) const;
+    void foreachLineSegmentsTill(const VfmdLineArrayIterator &other, void *ctx, bool (*fn)(void *ctx, const VfmdByteArray &ba)) const;
 
     struct ForeachLineSegmentsStringMatchingContext {
         ForeachLineSegmentsStringMatchingContext(unsigned int li, unsigned int bi, const char *s)

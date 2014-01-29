@@ -7,20 +7,20 @@
 #include "vfmdscopedpointer.h"
 #include "spanelements/vfmdspanelementhandler.h"
 
-static void closeTextFragmentIfOpen(VfmdScopedPointer<VfmdLineArrayIterator> *textFragmentStart, VfmdLineArrayIterator *iterator)
+static void closeTextFragmentIfOpen(VfmdLineArrayIterator *textFragmentStart, const VfmdLineArrayIterator &iterator)
 {
-    if (!textFragmentStart->isNull()) {
-        if ((*textFragmentStart)->isBefore(iterator)) {
-            VfmdByteArray textFragment = (*textFragmentStart)->bytesTill(iterator);
+    if (textFragmentStart->isValid()) {
+        if (textFragmentStart->isBefore(&iterator)) {
+            VfmdByteArray textFragment = textFragmentStart->bytesTill(iterator);
             printf("TEXTFRAG("); textFragment.print(); printf(")\n");
         }
-        textFragmentStart->free();
+        (*textFragmentStart) = VfmdLineArrayIterator(); // invalid iterator
     }
 }
 
 static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHandler, int triggerOptions,
                                                 VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack,
-                                                VfmdScopedPointer<VfmdLineArrayIterator> *textFragmentStart)
+                                                VfmdLineArrayIterator *textFragmentStart)
 {
     bool shouldInvokeEvenIfEscaped = ((triggerOptions & VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED) ==
                                       VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED);
@@ -34,45 +34,50 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
 
     if (shouldInvokeBeforeTriggerByte) {
 
-        VfmdScopedPointer<VfmdLineArrayIterator> fromIter(0);
-        if (textFragmentStart->isNull()) {
-            fromIter.reset(iterator->copy());
+        VfmdLineArrayIterator fromIter;
+        if (textFragmentStart->isValid()) {
+            fromIter = (*textFragmentStart);
         } else {
-            fromIter.reset((*textFragmentStart)->copy());
+            fromIter = (*iterator);
         }
-        VfmdScopedPointer<VfmdLineArrayIterator> toIter(iterator->copy());
-        if (!toIter->isAtEnd()) {
-            toIter->moveForward(1); // move past the trigger byte
+        VfmdLineArrayIterator toIter = (*iterator);
+        if (!toIter.isAtEnd()) {
+            toIter.moveForward(1); // move past the trigger byte
         }
-        bool identified = spanHandler->identifySpanTagStartingBetween(fromIter.data(), toIter.data(), stack);
-        assert(!(*textFragmentStart)->isAfter(fromIter.data()));
-        assert(!iterator->isAfter(toIter.data()));
-        assert(fromIter->isBefore(toIter.data()));
-        if (
-                ((*textFragmentStart)->isAfter(fromIter.data())) ||
-                (iterator->isAfter(toIter.data())) ||
-                (!fromIter->isBefore(toIter.data()))
-                ) {
+        bool identified = spanHandler->identifySpanTagStartingBetween(&fromIter, &toIter, stack);
+
+        assert((*textFragmentStart) <= fromIter);
+        assert((*iterator)          <= toIter);
+        assert(fromIter             <= toIter);
+
+        if (  ((*textFragmentStart) <= fromIter) ||
+              ((*iterator)          <= toIter)   ||
+              (fromIter             <= toIter)) {
             return false;
         }
+
         if (identified) {
-            closeTextFragmentIfOpen(textFragmentStart, fromIter.data());
-            VfmdByteArray spanTagText = fromIter->bytesTill(toIter.data());
+            assert(fromIter < toIter);
+            if (fromIter >= toIter) {
+                return false;
+            }
+            closeTextFragmentIfOpen(textFragmentStart, fromIter);
+            VfmdByteArray spanTagText = fromIter.bytesTill(toIter);
             printf("SPANTAG("); spanTagText.print(); printf(")\n");
-            iterator->moveTo(toIter.data());
+            iterator->moveTo(toIter);
             return true;
         }
 
     } else if (shouldInvokeAtTriggerByte) {
 
-        VfmdScopedPointer<VfmdLineArrayIterator> endOfTag(iterator->copy());
-        spanHandler->identifySpanTagStartingAt(endOfTag.data(), stack);
-        bool identified = endOfTag->isAfter(iterator);
+        VfmdLineArrayIterator endOfTag = (*iterator);
+        spanHandler->identifySpanTagStartingAt(&endOfTag, stack);
+        bool identified = endOfTag.isAfter(iterator);
         if (identified) {
-            closeTextFragmentIfOpen(textFragmentStart, iterator);
-            VfmdByteArray spanTagText = iterator->bytesTill(endOfTag.data());
+            closeTextFragmentIfOpen(textFragmentStart, (*iterator));
+            VfmdByteArray spanTagText = iterator->bytesTill(endOfTag);
             printf("SPANTAG("); spanTagText.print(); printf(")\n");
-            iterator->moveTo(endOfTag.data());
+            iterator->moveTo(endOfTag);
             return true;
         }
 
@@ -84,11 +89,12 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
 void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArray, const VfmdElementRegistry *registry)
 {
     VfmdSpanTagStack stack;
-    VfmdScopedPointer<VfmdLineArrayIterator> iterator(lineArray->begin());
-    VfmdScopedPointer<VfmdLineArrayIterator> textFragmentStart(0);
+    VfmdLineArrayIterator iterator = lineArray->begin();
+    VfmdLineArrayIterator textFragmentStart;
+    assert(textFragmentStart.isValid() == false); // initially invalid
 
-    while (!iterator->isAtEnd()) {
-        char currentByte = iterator->nextByte();
+    while (!iterator.isAtEnd()) {
+        char currentByte = iterator.nextByte();
         bool isTagIdentifiedAtCurrentPos = false;
 
         // Ask the span element handlers pertaining to this trigger byte
@@ -97,7 +103,7 @@ void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArr
             VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
             int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
             isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, triggerOptions,
-                                                                              iterator.data(), &stack, &textFragmentStart);
+                                                                              &iterator, &stack, &textFragmentStart);
             if (isTagIdentifiedAtCurrentPos) {
                 break;
             }
@@ -105,14 +111,14 @@ void VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArr
 
         // All span element handlers rejected this position => text fragment
         if (!isTagIdentifiedAtCurrentPos) {
-            if (textFragmentStart.isNull()) { // If no text fragment is open
+            if (!textFragmentStart.isValid()) { // If no text fragment is open
                 // Open a text fragment
-                textFragmentStart.reset(iterator->copy());
+                textFragmentStart = iterator;
             }
-            assert(!textFragmentStart.isNull());
-            iterator->moveForward(1);
+            assert(textFragmentStart.isValid());
+            iterator.moveForward(1);
         }
     }
 
-    closeTextFragmentIfOpen(&textFragmentStart, iterator.data());
+    closeTextFragmentIfOpen(&textFragmentStart, iterator);
 }
