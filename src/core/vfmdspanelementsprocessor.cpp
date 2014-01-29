@@ -22,6 +22,11 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
                                                 VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack,
                                                 VfmdScopedPointer<VfmdLineArrayIterator> *textFragmentStart)
 {
+    bool shouldInvokeEvenIfEscaped = ((triggerOptions & VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED) ==
+                                      VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED);
+    if (!shouldInvokeEvenIfEscaped && iterator->isNextByteEscaped()) {
+        return false;
+    }
     bool shouldInvokeBeforeTriggerByte = ((triggerOptions & VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE) ==
                                           VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE);
     bool shouldInvokeAtTriggerByte = ((triggerOptions & VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE) ==

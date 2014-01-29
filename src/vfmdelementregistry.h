@@ -54,6 +54,18 @@ public:
         TRIGGER_BEFORE_TRIGGER_BYTE = 1
     };
 
+    enum TriggerOptionsForEscaping {
+
+        /* TRIGGER_ONLY_IF_UNESCAPED:
+         * Invoke the handler only if the trigger byte is unescaped.
+         * This is the default option. */
+        TRIGGER_ONLY_IF_UNESCAPED = 0,
+
+        /* TRIGGER_EVEN_IF_ESCAPED:
+         * Invoke the handler even if the trigger byte is escaped. */
+        TRIGGER_EVEN_IF_ESCAPED = 8
+    };
+
     /* Add a span element handler that should be invoked only when one of the triggerBytes is encountered.
      * Multiple span element handlers can be registered for a particular triggerByte.
      * The registry owns the added handler.
