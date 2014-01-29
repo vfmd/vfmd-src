@@ -182,6 +182,31 @@ bool VfmdRegexp::moveIteratorForward(VfmdLineArrayIterator *iterator) const
     return false;
 }
 
+bool VfmdRegexp::locateWithinLineBetweenIterators(VfmdLineArrayIterator *fromIterator,
+                                                  VfmdLineArrayIterator *toIterator)
+{
+    if (fromIterator->isBefore(toIterator)) {
+        VfmdLineArrayIterator iter = (*fromIterator);
+        while (iter.isBefore(toIterator)) {
+            int matchedByteIndex = indexIn(iter.bytesTillEndOfLine());
+            if (matchedByteIndex >= 0) { // We've got a match
+                VfmdLineArrayIterator matchPosition = iter;
+                matchPosition.moveForward(matchedByteIndex);
+                if (matchPosition.isBefore(toIterator)) {
+                    fromIterator->moveTo(matchPosition);
+                    matchPosition.moveForward(capturedText(0).size());
+                    toIterator->moveTo(matchPosition);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            iter.moveForwardTillEndOfLine();
+        }
+    }
+    return false;
+}
+
 // Implicit sharing stuff follows
 
 VfmdRegexp::VfmdRegexp(const VfmdRegexp &other)
