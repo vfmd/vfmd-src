@@ -13,6 +13,9 @@ public:
 
     ~VfmdSpanTagStack();
 
+    unsigned int stackSize() const;
+    VfmdOpeningSpanTagStackNode *nodeAt(unsigned int index) const;
+
     /* Push a node onto the stack. The stack takes ownership of the object. */
     void push(VfmdOpeningSpanTagStackNode *node);
 

@@ -21,6 +21,16 @@ VfmdSpanTagStack::~VfmdSpanTagStack()
     delete m_nodes;
 }
 
+unsigned int VfmdSpanTagStack::stackSize() const
+{
+    return m_nodes->size();
+}
+
+VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::nodeAt(unsigned int index) const
+{
+    return m_nodes->itemAt(index);
+}
+
 void VfmdSpanTagStack::push(VfmdOpeningSpanTagStackNode *node)
 {
     if (node == 0) {
