@@ -22,11 +22,26 @@ public:
 
     virtual ~OpeningEmphasisTagStackNode();
     virtual int type() const;
-    virtual void appendEquivalentTextToByteArray(VfmdByteArray *ba);
+    virtual void populateEquivalentText(VfmdByteArray *ba) const;
     virtual void print() const;
 
     char character;
     unsigned int repetitionCount;
+};
+
+class EmphasisTreeNode : public VfmdElementTreeNode {
+public:
+    EmphasisTreeNode(char c, int r) : m_char(c), m_repetitionCount(r) { }
+    ~EmphasisTreeNode() { }
+
+    // Reimplemented
+    virtual ElementClassification elementClassification() const { return SPAN; }
+    virtual int elementType() const { return VfmdConstants::EMPHASIS_ELEMENT; }
+    virtual const char *elementTypeString() const { return "emphasis"; }
+
+private:
+    char m_char;
+    int m_repetitionCount;
 };
 
 #endif // EMPHASISHANDLER_H

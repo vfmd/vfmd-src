@@ -12,6 +12,14 @@ EmphasisHandler::~EmphasisHandler()
 {
 }
 
+static int vfmd_min(int a, int b)
+{
+    if (a < b) {
+        return a;
+    }
+    return b;
+}
+
 void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const
 {
     VfmdLineArrayIterator startOfTag = (*iterator);
@@ -26,39 +34,53 @@ void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator,
     if (leftFlankedBySpace) {
         // Can only be an opening emphasis tag
         stack->push(new OpeningEmphasisTagStackNode('*', numberOfAsterisks));
-        printf("Opening emphasis: %c x %d\n", '*', numberOfAsterisks);
+        return;
     } else if (rightFlankedBySpace) {
-        // Check if it can be a closing emphasis tag
-        // TODO
-        /*
-        OpeningEmphasisTagStackNode *topMostEmphNode = 0;
-        VfmdOpeningSpanTagStackNode *topMostRelevantNode = stack->topmostNodeOfType(VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE);
-        if (topMostRelevantNode) {
-            topMostEmphNode = dynamic_cast<OpeningEmphasisTagStackNode *>(topMostRelevantNode);
-        }
-        if (topMostEmphNode) {
-            stack->popNodesAboveAsTextFragments(topMostRelevantNode);
-            if (topMostEmphNode->character == '*') {
-                if (topMostEmphNode->repetitionCount == numberOfAsterisks) {
-                    printf("Closing emphasis: %c x %d\n", topMostEmphNode->character, topMostEmphNode->repetitionCount);
-                } else if (topMostEmphNode->repetitionCount > numberOfAsterisks) {
-                    printf("Closing emphasis: %c x %d\n", topMostEmphNode->character, numberOfAsterisks);
-                    topMostEmphNode->repetitionCount -= numberOfAsterisks;
-                } else if (topMostEmphNode->repetitionCount < numberOfAsterisks) {
-                    printf("Closing emphasis: %c x %d\n", topMostEmphNode->character, numberOfAsterisks);
+        // Can be closing emphasis tags or text fragments, depending on what's on the stack
+        unsigned int remainingTagStringLength = numberOfAsterisks;
+        while (remainingTagStringLength > 0) {
+            int topMostMatchingNodeIndex = stack->indexOfTopmostNodeOfType(VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE);
+            if (topMostMatchingNodeIndex >= 0) {
+                // A closing emphasis tag
+                OpeningEmphasisTagStackNode *emphStackNode = dynamic_cast<OpeningEmphasisTagStackNode *>(stack->nodeAt(topMostMatchingNodeIndex));
+                assert(emphStackNode != 0);
+                assert(emphStackNode->character == '*');
+                stack->popNodesAboveIndexAsTextFragments(topMostMatchingNodeIndex);
+                EmphasisTreeNode *emphNode = new EmphasisTreeNode(emphStackNode->character,
+                                                                  vfmd_min(remainingTagStringLength, emphStackNode->repetitionCount));
+                emphNode->adoptContainedElements(emphStackNode);
+
+                if (emphStackNode->repetitionCount > remainingTagStringLength) {
+                    // The open emph is not fully closed. Retain the node in the stack.
+                    emphStackNode->repetitionCount -= remainingTagStringLength;
+                    remainingTagStringLength = 0;
+                } else {
+                    // The open emph is fully closed. Remove from the stack.
+                    remainingTagStringLength -= emphStackNode->repetitionCount;
+                    VfmdOpeningSpanTagStackNode *poppedNode = stack->pop();
+                    assert(poppedNode != 0);
+                    assert(poppedNode->type() == VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE);
+                    delete poppedNode;
                 }
+
+                stack->topNode()->appendToContainedElements(emphNode);
+
+            } else {
+                // A text fragment
+                VfmdByteArray ba;
+                ba.reserve(remainingTagStringLength);
+                while (remainingTagStringLength--) {
+                    ba.appendByte('*');
+                }
+                stack->topNode()->appendToContainedElements(ba);
+                break;
             }
-        } else {
-            // No emph tag is open, so this is a text fragment
-            VfmdByteArray ba = startOfTag.bytesTill(*iterator);
-            ba.print("Text frag:");
-            printf("\n");
         }
-        */
-    } else {
-        // Not an emph tag. Move the iterator back to the original position.
-        iterator->moveTo(startOfTag);
+        return;
     }
+
+    // Not an emph tag. Move the iterator back to the original position.
+    iterator->moveTo(startOfTag);
 }
 
 OpeningEmphasisTagStackNode::OpeningEmphasisTagStackNode(char c, int n)
@@ -83,8 +105,10 @@ int OpeningEmphasisTagStackNode::type() const
     return VfmdConstants::UNDEFINED_STACK_NODE;
 }
 
-void OpeningEmphasisTagStackNode::appendEquivalentTextToByteArray(VfmdByteArray *ba)
+void OpeningEmphasisTagStackNode::populateEquivalentText(VfmdByteArray *ba) const
 {
+    ba->clear();
+    ba->reserve(repetitionCount);
     for (unsigned int i = 0; i < repetitionCount; i++) {
         ba->appendByte(character);
     }
