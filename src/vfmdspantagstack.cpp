@@ -48,15 +48,55 @@ VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::pop()
     return m_nodes->takeLastItem();
 }
 
-void VfmdSpanTagStack::popNodesAbove(VfmdOpeningSpanTagStackNode *node)
+bool VfmdSpanTagStack::popNodesAboveAsTextFragments(VfmdOpeningSpanTagStackNode *fenceNode)
 {
-    while (m_nodes->size() > 0) {
-        VfmdOpeningSpanTagStackNode *topNode = m_nodes->lastItem();
-        if (node == topNode) {
+    // Find the index of fenceNode
+    unsigned int count = stackSize();
+    int indexOfFenceNode = -1;
+    for (int i = count - 1;
+         i >= 0;
+         i++) {
+        VfmdOpeningSpanTagStackNode *node = nodeAt(i);
+        if (node == fenceNode) {
+            indexOfFenceNode = i;
             break;
         }
-        m_nodes->removeLastItem();
-        delete topNode;
+    }
+
+    if (indexOfFenceNode < 0) {
+        return false;
+    }
+
+    // Pop nodes above the index of fenceNode
+    popNodesAboveIndexAsTextFragments(indexOfFenceNode);
+
+    assert(topNode() == fenceNode);
+    return true;
+}
+
+void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(unsigned int index)
+{
+    unsigned int count = stackSize();
+    if (index >= (count - 1)) {
+        return;
+    }
+
+    VfmdOpeningSpanTagStackNode *fenceNode = nodeAt(index);
+
+    // Convert to-be-popped nodes to text fragments
+    for (int i = index + 1;
+         i < (int) count;
+         i++) {
+        VfmdOpeningSpanTagStackNode *node = nodeAt(i);
+        fenceNode->appendToContainedElements(node);
+    }
+
+    // Pop nodes and free them
+    for (int i = count - 1;
+         i > (int) index;
+         i--) {
+        VfmdOpeningSpanTagStackNode *node = m_nodes->takeItemAt(i);
+        delete node;
     }
 }
 

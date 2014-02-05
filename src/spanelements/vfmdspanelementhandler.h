@@ -64,7 +64,7 @@ public:
 
     virtual int type() const { return VfmdConstants::UNDEFINED_STACK_NODE; }
 
-    virtual void appendEquivalentTextToByteArray(VfmdByteArray *ba) {
+    virtual void populateEquivalentText(VfmdByteArray *ba) const {
         UNUSED_ARG(ba);
     }
 
@@ -72,6 +72,7 @@ public:
 
     void appendToContainedElements(VfmdElementTreeNode *elementsToAppend);
     void appendToContainedElements(const VfmdByteArray &textToAppend);
+    void appendToContainedElements(VfmdOpeningSpanTagStackNode *node);
 
 private:
     VfmdElementTreeNode *m_containedElements;

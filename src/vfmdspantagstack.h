@@ -22,10 +22,14 @@ public:
     /* Pops a node off the stack. The stack disowns the object. */
     VfmdOpeningSpanTagStackNode *pop();
 
-    /* Pops and frees all objects above 'node' in the stack,
-     * making 'node' the topNode.
-     * If 'node' is not in the stack, this empties the stack. */
-    void popNodesAbove(VfmdOpeningSpanTagStackNode *node);
+    /* Pops all nodes above fenceNode in the stack, thereby
+     * making fenceNode the top node in the stack. The popped
+     * nodes (converted to text) and their contained elements
+     * become fencedNode's contained elements.
+     *
+     * If fenceNode is not in the stack, this method does nothing
+     * and returns false. */
+    bool popNodesAboveAsTextFragments(VfmdOpeningSpanTagStackNode *fenceNode);
 
     /* Returns the top node in the stack.
      * Returns null if the stack is empty. */
@@ -37,6 +41,8 @@ public:
     void print() const;
 
 private:
+    void popNodesAboveIndexAsTextFragments(unsigned int index);
+
     VfmdPointerArray<VfmdOpeningSpanTagStackNode> *m_nodes;
 };
 

@@ -35,7 +35,7 @@ void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator,
             topMostEmphNode = dynamic_cast<OpeningEmphasisTagStackNode *>(topMostRelevantNode);
         }
         if (topMostEmphNode) {
-            stack->popNodesAbove(topMostRelevantNode);
+            stack->popNodesAboveAsTextFragments(topMostRelevantNode);
             if (topMostEmphNode->character == '*') {
                 if (topMostEmphNode->repetitionCount == numberOfAsterisks) {
                     printf("Closing emphasis: %c x %d\n", topMostEmphNode->character, topMostEmphNode->repetitionCount);

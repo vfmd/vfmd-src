@@ -48,3 +48,12 @@ void VfmdOpeningSpanTagStackNode::appendToContainedElements(const VfmdByteArray 
         m_containedElements = new TextSpanTreeNode(textToAppend);
     }
 }
+
+void VfmdOpeningSpanTagStackNode::appendToContainedElements(VfmdOpeningSpanTagStackNode *otherNode)
+{
+    VfmdByteArray equivalentText;
+    otherNode->populateEquivalentText(&equivalentText);
+    appendToContainedElements(equivalentText);
+    appendToContainedElements(otherNode->m_containedElements);
+    otherNode->m_containedElements = 0;
+}
