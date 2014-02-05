@@ -6,6 +6,7 @@
 
 class VfmdLineArrayIterator;
 class VfmdSpanTagStack;
+class VfmdElementTreeNode;
 
 #define UNUSED_PARAMETER(x) (void)x;
 
@@ -57,7 +58,7 @@ public:
 class VfmdOpeningSpanTagStackNode
 {
 public:
-    VfmdOpeningSpanTagStackNode() { }
+    VfmdOpeningSpanTagStackNode() : m_containedElements(0) { }
 
     virtual ~VfmdOpeningSpanTagStackNode() { }
 
@@ -68,6 +69,12 @@ public:
     }
 
     virtual void print() const { }
+
+    void appendToContainedElements(VfmdElementTreeNode *elementsToAppend);
+    void appendToContainedElements(const VfmdByteArray &textToAppend);
+
+private:
+    VfmdElementTreeNode *m_containedElements;
 };
 
 #endif // VFMDSPANELEMENTHANDLER_H

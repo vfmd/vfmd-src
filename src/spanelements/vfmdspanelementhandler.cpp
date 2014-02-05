@@ -1,4 +1,6 @@
 #include "vfmdspanelementhandler.h"
+#include "vfmdelementtreenode.h"
+#include "textspantreenode.h"
 
 VfmdSpanElementHandler::VfmdSpanElementHandler()
 {
@@ -27,4 +29,22 @@ bool VfmdSpanElementHandler::identifySpanTagStartingBetween(VfmdLineArrayIterato
 const char *VfmdSpanElementHandler::description() const
 {
     return "generic-span";
+}
+
+void VfmdOpeningSpanTagStackNode::appendToContainedElements(VfmdElementTreeNode *elementsToAppend)
+{
+    if (m_containedElements) {
+        m_containedElements->appendSiblings(elementsToAppend);
+    } else {
+        m_containedElements = elementsToAppend;
+    }
+}
+
+void VfmdOpeningSpanTagStackNode::appendToContainedElements(const VfmdByteArray &textToAppend)
+{
+    if (m_containedElements) {
+        m_containedElements->appendText(textToAppend);
+    } else {
+        m_containedElements = new TextSpanTreeNode(textToAppend);
+    }
 }
