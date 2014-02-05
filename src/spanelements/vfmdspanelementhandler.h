@@ -3,6 +3,7 @@
 
 #include "vfmdbytearray.h"
 #include "vfmdconstants.h"
+#include "vfmdelementtreenode.h"
 
 class VfmdLineArrayIterator;
 class VfmdSpanTagStack;
@@ -78,6 +79,7 @@ private:
     VfmdElementTreeNode *m_containedElements;
 
     friend class VfmdElementTreeNode;
+    friend class VfmdSpanTagStack;
 };
 
 #endif // VFMDSPANELEMENTHANDLER_H

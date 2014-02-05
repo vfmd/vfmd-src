@@ -122,6 +122,19 @@ VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topmostNodeOfType(VfmdConstants::
     return 0;
 }
 
+VfmdElementTreeNode *VfmdSpanTagStack::collapse()
+{
+    assert(stackSize() >= 1);
+    assert(nodeAt(0)->type() == VfmdConstants::BASE_STACK_NODE);
+    popNodesAboveIndexAsTextFragments(0);
+    BaseStackNode *baseNode = dynamic_cast<BaseStackNode *>(nodeAt(0));
+    assert(baseNode);
+    if (baseNode) {
+        return baseNode->m_containedElements;
+    }
+    return 0;
+}
+
 void VfmdSpanTagStack::print() const
 {
     printf("STACK: (%d nodes)\n", m_nodes->size());

@@ -38,6 +38,8 @@ public:
     /* Returns the topmost node in the stack of type 't'. */
     VfmdOpeningSpanTagStackNode *topmostNodeOfType(VfmdConstants::VfmdOpeningSpanTagStackNodeType type) const;
 
+    VfmdElementTreeNode *collapse();
+
     void print() const;
 
 private:
