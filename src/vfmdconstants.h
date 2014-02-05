@@ -20,7 +20,8 @@ enum VfmdSpanElementType {
 };
 
 enum VfmdOpeningSpanTagStackNodeType {
-    UNDEFINED_STACK_NODE,
+    UNDEFINED_STACK_NODE = -1,
+    BASE_STACK_NODE = 0,
     ASTERISK_EMPHASIS_STACK_NODE,
     UNDERSCORE_EMPHASIS_STACK_NODE,
     USER_STACK_NODE = 100

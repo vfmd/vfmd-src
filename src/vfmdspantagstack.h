@@ -3,8 +3,8 @@
 
 #include "vfmdpointerarray.h"
 #include "vfmdconstants.h"
-
-class VfmdOpeningSpanTagStackNode;
+#include "vfmdelementtreenode.h"
+#include "spanelements/vfmdspanelementhandler.h"
 
 class VfmdSpanTagStack
 {
@@ -35,6 +35,16 @@ public:
 
 private:
     VfmdPointerArray<VfmdOpeningSpanTagStackNode> *m_nodes;
+};
+
+class BaseStackNode : public VfmdOpeningSpanTagStackNode
+{
+public:
+    BaseStackNode() { }
+    virtual ~BaseStackNode() { }
+    virtual int type() const { return VfmdConstants::BASE_STACK_NODE; }
+    virtual void appendEquivalentTextToByteArray(VfmdByteArray *ba) { UNUSED_ARG(ba); }
+    virtual void print() const { printf("base of stack"); }
 };
 
 #endif // VFMDSPANTAGSTACK_H

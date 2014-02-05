@@ -9,6 +9,8 @@
 VfmdSpanTagStack::VfmdSpanTagStack()
 {
     m_nodes = new VfmdPointerArray<VfmdOpeningSpanTagStackNode>(ALLOC_CHUNK_SIZE);
+    BaseStackNode *baseNode = new BaseStackNode;
+    push(baseNode);
 }
 
 VfmdSpanTagStack::~VfmdSpanTagStack()
@@ -29,7 +31,8 @@ void VfmdSpanTagStack::push(VfmdOpeningSpanTagStackNode *node)
 
 VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::pop()
 {
-    if (m_nodes->size() == 0) {
+    if (m_nodes->size() <= 1) {
+        // Cannot pop the base node
         return 0;
     }
     return m_nodes->takeLastItem();
@@ -49,6 +52,7 @@ void VfmdSpanTagStack::popNodesAbove(VfmdOpeningSpanTagStackNode *node)
 
 VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topNode() const
 {
+    assert(m_nodes->size() > 0);
     if (m_nodes->size() == 0) {
         return 0;
     }
