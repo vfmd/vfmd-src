@@ -48,36 +48,10 @@ VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::pop()
     return m_nodes->takeLastItem();
 }
 
-bool VfmdSpanTagStack::popNodesAboveAsTextFragments(VfmdOpeningSpanTagStackNode *fenceNode)
-{
-    // Find the index of fenceNode
-    unsigned int count = stackSize();
-    int indexOfFenceNode = -1;
-    for (int i = count - 1;
-         i >= 0;
-         i++) {
-        VfmdOpeningSpanTagStackNode *node = nodeAt(i);
-        if (node == fenceNode) {
-            indexOfFenceNode = i;
-            break;
-        }
-    }
-
-    if (indexOfFenceNode < 0) {
-        return false;
-    }
-
-    // Pop nodes above the index of fenceNode
-    popNodesAboveIndexAsTextFragments(indexOfFenceNode);
-
-    assert(topNode() == fenceNode);
-    return true;
-}
-
-void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(unsigned int index)
+void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(int index)
 {
     unsigned int count = stackSize();
-    if (index >= (count - 1)) {
+    if ((index < 0) || (index >= (int) (count - 1))) {
         return;
     }
 
@@ -98,6 +72,8 @@ void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(unsigned int index)
         VfmdOpeningSpanTagStackNode *node = m_nodes->takeItemAt(i);
         delete node;
     }
+
+    assert(index == (int) (stackSize() - 1));
 }
 
 VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topNode() const
@@ -109,17 +85,17 @@ VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topNode() const
     return m_nodes->lastItem();
 }
 
-VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topmostNodeOfType(VfmdConstants::VfmdOpeningSpanTagStackNodeType t) const
+int VfmdSpanTagStack::indexOfTopmostNodeOfType(VfmdConstants::VfmdOpeningSpanTagStackNodeType t) const
 {
     int i = m_nodes->size() - 1;
     while (i >= 0) {
         VfmdOpeningSpanTagStackNode *node = m_nodes->itemAt(i);
         if (node->type() == t) {
-            return node;
+            return i;
         }
         i--;
     }
-    return 0;
+    return -1;
 }
 
 VfmdElementTreeNode *VfmdSpanTagStack::collapse()

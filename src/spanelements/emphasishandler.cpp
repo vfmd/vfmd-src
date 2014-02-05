@@ -29,6 +29,8 @@ void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator,
         printf("Opening emphasis: %c x %d\n", '*', numberOfAsterisks);
     } else if (rightFlankedBySpace) {
         // Check if it can be a closing emphasis tag
+        // TODO
+        /*
         OpeningEmphasisTagStackNode *topMostEmphNode = 0;
         VfmdOpeningSpanTagStackNode *topMostRelevantNode = stack->topmostNodeOfType(VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE);
         if (topMostRelevantNode) {
@@ -52,6 +54,7 @@ void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator,
             ba.print("Text frag:");
             printf("\n");
         }
+        */
     } else {
         // Not an emph tag. Move the iterator back to the original position.
         iterator->moveTo(startOfTag);

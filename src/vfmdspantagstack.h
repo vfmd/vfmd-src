@@ -22,28 +22,24 @@ public:
     /* Pops a node off the stack. The stack disowns the object. */
     VfmdOpeningSpanTagStackNode *pop();
 
-    /* Pops all nodes above fenceNode in the stack, thereby
-     * making fenceNode the top node in the stack. The popped
+    /* Pops all nodes with index above 'n' in the stack, thereby
+     * making the 'n'th node the top node in the stack. The popped
      * nodes (converted to text) and their contained elements
-     * become fencedNode's contained elements.
-     *
-     * If fenceNode is not in the stack, this method does nothing
-     * and returns false. */
-    bool popNodesAboveAsTextFragments(VfmdOpeningSpanTagStackNode *fenceNode);
+     * become the contained elements of the 'n'th node. */
+    void popNodesAboveIndexAsTextFragments(int n);
 
     /* Returns the top node in the stack.
      * Returns null if the stack is empty. */
     VfmdOpeningSpanTagStackNode *topNode() const;
 
-    /* Returns the topmost node in the stack of type 't'. */
-    VfmdOpeningSpanTagStackNode *topmostNodeOfType(VfmdConstants::VfmdOpeningSpanTagStackNodeType type) const;
+    /* Returns the index of the topmost node in the stack of type 't'. */
+    int indexOfTopmostNodeOfType(VfmdConstants::VfmdOpeningSpanTagStackNodeType type) const;
 
     VfmdElementTreeNode *collapse();
 
     void print() const;
 
 private:
-    void popNodesAboveIndexAsTextFragments(unsigned int index);
 
     VfmdPointerArray<VfmdOpeningSpanTagStackNode> *m_nodes;
 };
