@@ -30,21 +30,11 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
     return (currentLine.isBlankLine() || !nextLine.isValid());
 }
 
-#include "vfmdlinearrayiterator.h"
-
 VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
-    // VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
-    // TODO: Process span elements
-    VfmdLineArrayIterator start = m_lineArray.begin();
-    VfmdLineArrayIterator end = m_lineArray.end();
-
-    VfmdByteArray paragraphText = start.bytesTill(end);
-
-    VfmdElementTreeNode *textNode = new TextSpanTreeNode(paragraphText);
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
-    paragraphNode->appendChildren(textNode);
-
+    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
+    paragraphNode->appendChildren(spanParseTree);
     return paragraphNode;
 }
 
