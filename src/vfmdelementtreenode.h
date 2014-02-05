@@ -21,9 +21,9 @@ public:
     VfmdElementTreeNode();
     virtual ~VfmdElementTreeNode();
 
-    void addAsLastSiblingNode(VfmdElementTreeNode *node);
-    void addAsLastChildNode(VfmdElementTreeNode *node);
-    void setChildSubtree(VfmdElementTreeNode *node);
+    void appendSiblings(VfmdElementTreeNode *node);
+    void appendChildren(VfmdElementTreeNode *node);
+    void appendText(const VfmdByteArray &ba);
 
     bool hasNext() const;
     bool hasChildren() const;
@@ -39,18 +39,13 @@ public:
     virtual int elementType() const { return -1; }
     virtual const char *elementTypeString() const { return ""; }
 
-    // appendEquivalentTextToTextSpanNode() is
-    // only applicable for opening-tag span nodes
-    virtual void appendEquivalentTextToTextSpanNode(TextSpanTreeNode *node);
-
 public:
     static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 
 private:
-    void insertAsNextNode(VfmdElementTreeNode *node);
-    void insertAsFirstChild(VfmdElementTreeNode *node);
+    bool setNextNodeIfNotSet(VfmdElementTreeNode *node);
 
-    VfmdElementTreeNode *lastSiblingNode() const;
+    VfmdElementTreeNode *lastSiblingNode();
 
     VfmdElementTreeNode *m_nextSibling, *m_lastSibling;
     VfmdElementTreeNode *m_firstChild;

@@ -14,33 +14,60 @@ VfmdElementTreeNode::~VfmdElementTreeNode()
 {
 }
 
-void VfmdElementTreeNode::addAsLastSiblingNode(VfmdElementTreeNode *node)
+void VfmdElementTreeNode::appendSiblings(VfmdElementTreeNode *subtree)
 {
-    if (m_nextSibling == 0) {
-        // This is the end node
-        insertAsNextNode(node);
+    VfmdElementTreeNode *lastNode = lastSiblingNode();
+    if ((subtree->elementClassification() == VfmdElementTreeNode::TEXTSPAN) &&
+        (lastNode->elementClassification() == VfmdElementTreeNode::TEXTSPAN)) {
+        // Do not allow two text nodes side-by-side.
+        // Merge them into a single text node.
+        TextSpanTreeNode *textNode = dynamic_cast<TextSpanTreeNode *>(subtree);
+        TextSpanTreeNode *textLastNode = dynamic_cast<TextSpanTreeNode *>(lastNode);
+        assert(textNode != 0);
+        assert(textLastNode != 0);
+        textLastNode->appendText(textNode->text());
+        bool ok = textLastNode->setNextNodeIfNotSet(subtree->nextNode());
+        assert(ok);
+        m_lastSibling = subtree->lastSiblingNode();
+        delete subtree;
     } else {
-        // This is not the end node
-        lastSiblingNode()->insertAsNextNode(node);
+        bool ok = lastNode->setNextNodeIfNotSet(subtree);
+        assert(ok);
+        m_lastSibling = subtree->lastSiblingNode();
     }
-    m_lastSibling = node;
 }
 
-void VfmdElementTreeNode::addAsLastChildNode(VfmdElementTreeNode *node)
+void VfmdElementTreeNode::appendChildren(VfmdElementTreeNode *subtree)
 {
     if (m_firstChild == 0) {
-        // No children yet
-        insertAsFirstChild(node);
+        m_firstChild = subtree;
     } else {
-        // There are children
-        m_firstChild->addAsLastSiblingNode(node);
+        m_firstChild->appendSiblings(subtree);
     }
 }
 
-void VfmdElementTreeNode::setChildSubtree(VfmdElementTreeNode *node)
+void VfmdElementTreeNode::appendText(const VfmdByteArray &ba)
 {
-    assert(m_firstChild == 0);
-    m_firstChild = node;
+    VfmdElementTreeNode *lastNode = lastSiblingNode();
+    if (lastNode->elementClassification() == VfmdElementTreeNode::TEXTSPAN) {
+        TextSpanTreeNode *textLastNode = dynamic_cast<TextSpanTreeNode *>(lastNode);
+        assert(textLastNode != 0);
+        textLastNode->appendText(ba);
+    } else {
+        TextSpanTreeNode *textNode = new TextSpanTreeNode(ba);
+        bool ok = lastNode->setNextNodeIfNotSet(textNode);
+        assert(ok);
+        m_lastSibling = textNode;
+    }
+}
+
+bool VfmdElementTreeNode::setNextNodeIfNotSet(VfmdElementTreeNode *node)
+{
+    if (m_nextSibling == 0) {
+        m_nextSibling = node;
+        return true;
+    }
+    return false;
 }
 
 bool VfmdElementTreeNode::hasNext() const
@@ -63,24 +90,10 @@ VfmdElementTreeNode* VfmdElementTreeNode::firstChildNode() const
     return m_firstChild;
 }
 
-void VfmdElementTreeNode::insertAsNextNode(VfmdElementTreeNode *node)
-{
-    assert(node->m_nextSibling == 0);
-    node->m_nextSibling = m_nextSibling;
-    m_nextSibling = node;
-}
-
-void VfmdElementTreeNode::insertAsFirstChild(VfmdElementTreeNode *node)
-{
-    assert(node->m_nextSibling == 0);
-    node->m_nextSibling = m_firstChild;
-    m_firstChild = node;
-}
-
-VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode() const
+VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode()
 {
     if (m_nextSibling == 0) {
-        return 0;
+        return this;
     }
 
     if (m_lastSibling != 0) {
@@ -98,13 +111,8 @@ VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode() const
         lastSibling = nextSibling;
         nextSibling = nextSibling->m_nextSibling;
     }
+    m_lastSibling = lastSibling;
     return lastSibling;
-}
-
-void VfmdElementTreeNode::appendEquivalentTextToTextSpanNode(TextSpanTreeNode *node)
-{
-    UNUSED_ARG(node);
-    /* Base implementation does nothing */
 }
 
 void VfmdElementTreeNode::printSubtreeSequence(const VfmdByteArray &padding) const

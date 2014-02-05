@@ -63,7 +63,7 @@ void VfmdInputLineSequence::processLineInChildSequence()
         VfmdElementTreeNode *parseTree = m_childLineSequence->endBlock();
         if (parseTree) {
             if (m_parseTree) {
-                m_parseTree->addAsLastSiblingNode(parseTree);
+                m_parseTree->appendSiblings(parseTree);
             } else {
                 m_parseTree = parseTree;
             }

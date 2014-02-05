@@ -43,7 +43,7 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 
     VfmdElementTreeNode *textNode = new TextSpanTreeNode(paragraphText);
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
-    paragraphNode->setChildSubtree(textNode);
+    paragraphNode->appendChildren(textNode);
 
     return paragraphNode;
 }

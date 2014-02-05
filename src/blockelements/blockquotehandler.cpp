@@ -56,7 +56,7 @@ VfmdElementTreeNode* BlockquoteLineSequence::endBlock()
 {
     VfmdElementTreeNode *blockquoteNode = new BlockquoteTreeNode();
     VfmdElementTreeNode *childSubTree = m_childSequence->endSequence();
-    blockquoteNode->setChildSubtree(childSubTree);
+    blockquoteNode->appendChildren(childSubTree);
     return blockquoteNode;
 }
 
