@@ -12,17 +12,17 @@ VfmdSpanElementHandler::~VfmdSpanElementHandler()
 
 void VfmdSpanElementHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const
 {
-    UNUSED_PARAMETER(iterator);
-    UNUSED_PARAMETER(stack);
+    UNUSED_ARG(iterator);
+    UNUSED_ARG(stack);
 }
 
 bool VfmdSpanElementHandler::identifySpanTagStartingBetween(VfmdLineArrayIterator *fromIterator,
                                                             VfmdLineArrayIterator *toIterator,
                                                             VfmdSpanTagStack *stack) const
 {
-    UNUSED_PARAMETER(fromIterator);
-    UNUSED_PARAMETER(toIterator);
-    UNUSED_PARAMETER(stack);
+    UNUSED_ARG(fromIterator);
+    UNUSED_ARG(toIterator);
+    UNUSED_ARG(stack);
     return false;
 }
 

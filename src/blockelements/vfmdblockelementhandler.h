@@ -4,7 +4,7 @@
 #include "vfmdline.h"
 #include "vfmdelementtreenode.h"
 
-#define UNUSED_PARAMETER(x) (void)x;
+#define UNUSED_ARG(x) (void)x;
 
 class VfmdBlockLineSequence;
 class VfmdInputLineSequence;

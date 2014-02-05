@@ -8,7 +8,7 @@ class VfmdLineArrayIterator;
 class VfmdSpanTagStack;
 class VfmdElementTreeNode;
 
-#define UNUSED_PARAMETER(x) (void)x;
+#define UNUSED_ARG(x) (void)x;
 
 class VfmdSpanElementHandler
 {
@@ -65,7 +65,7 @@ public:
     virtual int type() const { return VfmdConstants::UNDEFINED_STACK_NODE; }
 
     virtual void appendEquivalentTextToByteArray(VfmdByteArray *ba) {
-        UNUSED_PARAMETER(ba);
+        UNUSED_ARG(ba);
     }
 
     virtual void print() const { }

@@ -4,7 +4,7 @@
 
 void VfmdBlockElementHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
-    UNUSED_PARAMETER(lineSequence);
+    UNUSED_ARG(lineSequence);
 }
 
 const char *VfmdBlockElementHandler::description() const
@@ -24,13 +24,13 @@ VfmdBlockLineSequence::~VfmdBlockLineSequence()
 void VfmdBlockLineSequence::processBlockLine(const VfmdLine &currentLine)
 {
     /* Base implementation does nothing */
-    UNUSED_PARAMETER(currentLine);
+    UNUSED_ARG(currentLine);
 }
 
 bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
 {
-    UNUSED_PARAMETER(currentLine);
-    UNUSED_PARAMETER(nextLine);
+    UNUSED_ARG(currentLine);
+    UNUSED_ARG(nextLine);
     return false;
 }
 
