@@ -76,6 +76,8 @@ public:
 
 private:
     VfmdElementTreeNode *m_containedElements;
+
+    friend class VfmdElementTreeNode;
 };
 
 #endif // VFMDSPANELEMENTHANDLER_H

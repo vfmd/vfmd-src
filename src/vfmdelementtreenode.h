@@ -7,6 +7,7 @@
 #define UNUSED_ARG(x) (void)x;
 
 class TextSpanTreeNode;
+class VfmdOpeningSpanTagStackNode;
 
 class VfmdElementTreeNode
 {
@@ -24,6 +25,7 @@ public:
     void appendSiblings(VfmdElementTreeNode *node);
     void appendChildren(VfmdElementTreeNode *node);
     void appendText(const VfmdByteArray &ba);
+    void adoptContainedElements(VfmdOpeningSpanTagStackNode *stackNode);
 
     bool hasNext() const;
     bool hasChildren() const;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "vfmdelementtreenode.h"
 #include "textspantreenode.h"
+#include "spanelements/vfmdspanelementhandler.h"
 
 VfmdElementTreeNode::VfmdElementTreeNode()
     : m_nextSibling(0)
@@ -59,6 +60,13 @@ void VfmdElementTreeNode::appendText(const VfmdByteArray &ba)
         assert(ok);
         m_lastSibling = textNode;
     }
+}
+
+void VfmdElementTreeNode::adoptContainedElements(VfmdOpeningSpanTagStackNode *stackNode)
+{
+    VfmdElementTreeNode *containedElements = stackNode->m_containedElements;
+    stackNode->m_containedElements = 0;
+    appendChildren(containedElements);
 }
 
 bool VfmdElementTreeNode::setNextNodeIfNotSet(VfmdElementTreeNode *node)
