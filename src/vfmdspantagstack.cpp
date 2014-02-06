@@ -120,6 +120,10 @@ void VfmdSpanTagStack::print() const
         printf("  [%d] node: ", i);
         node->print();
         printf("\n");
+        VfmdElementTreeNode *tree = node->m_containedElements;
+        if (tree) {
+            tree->printSubtreeSequence("               ");
+        }
         i--;
     }
     printf("\n");
