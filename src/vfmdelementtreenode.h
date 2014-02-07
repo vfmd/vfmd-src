@@ -33,15 +33,14 @@ public:
     VfmdElementTreeNode *nextNode() const;
     VfmdElementTreeNode *firstChildNode() const;
 
-    void printSubtreeSequence(const VfmdByteArray &padding = VfmdByteArray()) const;
-    void printSubtree(const VfmdByteArray &padding) const;
-
     // Methods to reimplement in a subclass
     virtual ElementClassification elementClassification() const { return UNDEFINED; }
     virtual int elementType() const { return -1; }
     virtual const char *elementTypeString() const { return ""; }
+    virtual void debugPrint(const VfmdByteArray &padding) const { UNUSED_ARG(padding); }
 
 public:
+    static void debugPrintSubtreeSequence(VfmdElementTreeNode *tree, const VfmdByteArray &padding = VfmdByteArray());
     static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 
 private:

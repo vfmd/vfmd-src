@@ -2,6 +2,7 @@
 #define TEXTSPANTREENODE_H
 
 #include "vfmdelementtreenode.h"
+#include <stdio.h>
 
 class TextSpanTreeNode : public VfmdElementTreeNode
 {
@@ -21,6 +22,10 @@ public:
     virtual ElementClassification elementClassification() const { return TEXTSPAN; }
     virtual int elementType() const { return VfmdConstants::TEXTSPAN_ELEMENT; }
     virtual const char *elementTypeString() const { return "text-span"; }
+    virtual void debugPrint(const VfmdByteArray &padding) const {
+        m_text.debugPrint(padding, true);
+        printf("\n");
+    }
 
 private:
     VfmdByteArray m_text;

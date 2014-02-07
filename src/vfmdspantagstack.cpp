@@ -122,7 +122,7 @@ void VfmdSpanTagStack::print() const
         printf("\n");
         VfmdElementTreeNode *tree = node->m_containedElements;
         if (tree) {
-            tree->printSubtreeSequence("               ");
+            VfmdElementTreeNode::debugPrintSubtreeSequence(tree, "               ");
         }
         i--;
     }

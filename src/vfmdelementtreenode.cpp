@@ -123,45 +123,36 @@ VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode()
     return lastSibling;
 }
 
-void VfmdElementTreeNode::printSubtreeSequence(const VfmdByteArray &padding) const
+void VfmdElementTreeNode::debugPrintSubtreeSequence(VfmdElementTreeNode *subtree, const VfmdByteArray &padding)
 {
-    for (const VfmdElementTreeNode *node = this;
+    for (const VfmdElementTreeNode *node = subtree;
          node != 0;
          node = node->nextNode()) {
-        node->printSubtree(padding);
-    }
-    if (!hasChildren()) {
-        padding.print(); printf("\n");
-    }
-}
 
-void VfmdElementTreeNode::printSubtree(const VfmdByteArray &padding) const
-{
-    const char *classification = "";
-    switch (elementClassification()) {
-    case UNDEFINED: classification = "UNDEFINED"; break;
-    case BLOCK:     classification = "BLOCK"; break;
-    case SPAN:      classification = "SPAN"; break;
-    case TEXTSPAN:  classification = "TEXTSPAN"; break;
-    }
-    padding.print();
-    printf("+- %s/%s\n", classification, elementTypeString());
-    VfmdByteArray subsequentPadding = padding;
-    if (hasNext()) {
-        subsequentPadding.append("|  ");
-    } else {
-        subsequentPadding.append("   ");
-    }
-    if (elementClassification() == TEXTSPAN && elementType() == VfmdConstants::TEXTSPAN_ELEMENT) {
-        const TextSpanTreeNode *textSpanNode = dynamic_cast<const TextSpanTreeNode *>(this);
-        if (textSpanNode) {
-            textSpanNode->text().print(subsequentPadding, true);
-            printf("\n");
+        const char *classification = 0;
+        switch (node->elementClassification()) {
+        case UNDEFINED: classification = "UNDEFINED"; break;
+        case BLOCK:     classification = "BLOCK"; break;
+        case SPAN:      classification = "SPAN"; break;
+        case TEXTSPAN:  classification = "TEXTSPAN"; break;
+        default:        classification = "";
         }
-    }
-    if (hasChildren()) {
-        subsequentPadding.print(); printf("|\n");
-        firstChildNode()->printSubtreeSequence(subsequentPadding);
+        padding.print();
+        printf("+- %s/%s\n", classification, node->elementTypeString());
+        VfmdByteArray subsequentPadding = padding;
+        if (node->hasNext()) {
+            subsequentPadding.append("|  ");
+        } else {
+            subsequentPadding.append("   ");
+        }
+        node->debugPrint(subsequentPadding);
+        if (node->hasChildren()) {
+            subsequentPadding.print(); printf("|\n");
+            debugPrintSubtreeSequence(node->firstChildNode(), subsequentPadding);
+        } else {
+            // subsequentPadding.print(); printf("\n");
+        }
+
     }
 }
 

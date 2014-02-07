@@ -90,7 +90,8 @@ public:
     const char *c_str() const;
 
     /* Pretty-print the contained data */
-    void print(const VfmdByteArray &padding = VfmdByteArray(), bool quoted = false) const;
+    void print() const;
+    void debugPrint(const VfmdByteArray &padding = VfmdByteArray(), bool quoted = false) const;
 
 private:
     void ref();

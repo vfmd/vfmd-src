@@ -366,7 +366,22 @@ const char* VfmdByteArray::c_str() const
     return str;
 }
 
-void VfmdByteArray::print(const VfmdByteArray &padding, bool quoted) const {
+void VfmdByteArray::print() const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    if (data_ptr) {
+        for (unsigned int i = 0; i < sz; i++) {
+            printf("%c", data_ptr[i]);
+            if (data_ptr[i] == '\n') {
+                printf("\\n");
+            }
+        }
+    }
+}
+
+void VfmdByteArray::debugPrint(const VfmdByteArray &padding, bool quoted) const
+{
     const char *data_ptr = data();
     if (data_ptr) {
         size_t sz = size();

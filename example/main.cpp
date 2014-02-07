@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     fclose(inputFile);
 
     VfmdElementTreeNode *parseTree = document.end();
-    parseTree->printSubtreeSequence();
+    VfmdElementTreeNode::debugPrintSubtreeSequence(parseTree);
     VfmdElementTreeNode::freeSubtreeSequence(parseTree);
 
     return 0;
