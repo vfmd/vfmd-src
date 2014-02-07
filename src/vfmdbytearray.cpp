@@ -77,20 +77,28 @@ public:
 VfmdByteArray::VfmdByteArray()
     : d(new Private()), m_leftOffset(0), m_rightOffset(0)
 {
+    assert(d);
+    assert(d->refCount);
 }
 
 VfmdByteArray::VfmdByteArray(const char *str)
     : d(new Private(str, strlen(str))), m_leftOffset(0), m_rightOffset(0)
 {
+    assert(d);
+    assert(d->refCount);
 }
 
 VfmdByteArray::VfmdByteArray(const char *data, int length)
     : d(new Private(data, length)), m_leftOffset(0), m_rightOffset(0)
 {
+    assert(d);
+    assert(d->refCount);
 }
 
 VfmdByteArray::~VfmdByteArray()
 {
+    assert(d);
+    assert(d->refCount);
     deref();
 }
 
@@ -258,6 +266,8 @@ size_t VfmdByteArray::capacity() const
 
 void VfmdByteArray::clear()
 {
+    assert(d);
+    assert(d->refCount);
     if (d->refCount > 1) {
         // Some other instance is using the same data.
         deref();
@@ -268,18 +278,26 @@ void VfmdByteArray::clear()
     }
     m_leftOffset = 0;
     m_rightOffset = 0;
+    assert(d);
+    assert(d->refCount);
 }
 
 // Implicit sharing stuff follows
 
 VfmdByteArray::VfmdByteArray(const VfmdByteArray &other)
     : d(other.d) {
+    assert(d);
+    assert(d->refCount);
     ref();
     m_leftOffset = other.m_leftOffset;
     m_rightOffset = other.m_rightOffset;
+    assert(d);
+    assert(d->refCount);
 }
 
 VfmdByteArray& VfmdByteArray::operator=(const VfmdByteArray &other) {
+    assert(d);
+    assert(d->refCount);
     if (this != &other) {
         deref(); // dereference existing data
         d = other.d;
@@ -287,6 +305,8 @@ VfmdByteArray& VfmdByteArray::operator=(const VfmdByteArray &other) {
         m_leftOffset = other.m_leftOffset;
         m_rightOffset = other.m_rightOffset;
     }
+    assert(d);
+    assert(d->refCount);
     return *this;
 }
 
@@ -309,6 +329,8 @@ void VfmdByteArray::deref() {
 }
 
 void VfmdByteArray::copyOnWrite(size_t additionalSpaceRequired) {
+    assert(d);
+    assert(d->refCount);
     if (d->refCount > 1) {
         deref(); // dereference existing data
         // copy data (refCount will be 1 for new copy)
@@ -316,6 +338,8 @@ void VfmdByteArray::copyOnWrite(size_t additionalSpaceRequired) {
         m_leftOffset = 0;
         m_rightOffset = 0;
     }
+    assert(d);
+    assert(d->refCount);
 }
 
 VfmdByteArray VfmdByteArray::clone() const
@@ -325,6 +349,8 @@ VfmdByteArray VfmdByteArray::clone() const
 
 void VfmdByteArray::squeeze()
 {
+    assert(d);
+    assert(d->refCount);
     if (d->refCount > 1) {
         // Some other instance is using the same data.
         // Let's make a copy of the data, so that the other instance is not affected.
@@ -332,6 +358,8 @@ void VfmdByteArray::squeeze()
         d = new Private(data(), size());
         m_leftOffset = 0;
         m_rightOffset = 0;
+        assert(d);
+        assert(d->refCount);
     } else {
         // No other instance is using the same data.
         // We can realloc the data we hold.
