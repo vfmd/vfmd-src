@@ -34,12 +34,10 @@ public:
 
     /* identifySpanTagStartingBetween():
      * If this handler identifies a span tag that starts between the 'fromIterator'
-     * position and the 'toIterator' position, this method should handle the tag
-     * and move the iterators such that the 'fromIterator' position is just before
-     * the start of the identified tag and the 'toIterator' position is just after
-     * the end of the identified tag, and should return 'true'. This method should
-     * move 'fromIterator' and 'toIterator' only forwards, if at all, and not move
-     * either iterator backwards.
+     * position and the 'toIterator' position, this method should identify the part before
+     * the start of the span tag as a text fragment, handle the span tag, and
+     * move the 'toIterator' position to just after the end of the identified tag,
+     * and return 'true'. This method should not move 'toIterator' backwards.
      *
      * If no span tag is identified, between 'fromIterator' and 'toIterator', then
      * this method should return 'false'.
@@ -49,7 +47,8 @@ public:
      * This method is invoked in the case where the handler is registered with the
      * TRIGGER_BEFORE_TRIGGER_BYTE trigger option. */
 
-    virtual bool identifySpanTagStartingBetween(VfmdLineArrayIterator *fromIterator, VfmdLineArrayIterator *toIterator,
+    virtual bool identifySpanTagStartingBetween(const VfmdLineArrayIterator *fromIterator,
+                                                VfmdLineArrayIterator *toIterator,
                                                 VfmdSpanTagStack *stack) const;
 
     /* A short text describing this syntax (eg. "emphasis", "strikethrough") */

@@ -49,12 +49,10 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
         }
         bool identified = spanHandler->identifySpanTagStartingBetween(&fromIter, &toIter, stack);
 
-        assert((*textFragmentStart) <= fromIter);
         assert((*iterator)          <= toIter);
         assert(fromIter             <= toIter);
 
-        if (  ((*textFragmentStart) <= fromIter) ||
-              ((*iterator)          <= toIter)   ||
+        if (  ((*iterator)          <= toIter)   ||
               (fromIter             <= toIter)) {
             return false;
         }

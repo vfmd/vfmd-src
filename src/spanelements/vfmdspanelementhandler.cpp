@@ -16,7 +16,7 @@ void VfmdSpanElementHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *it
     UNUSED_ARG(stack);
 }
 
-bool VfmdSpanElementHandler::identifySpanTagStartingBetween(VfmdLineArrayIterator *fromIterator,
+bool VfmdSpanElementHandler::identifySpanTagStartingBetween(const VfmdLineArrayIterator *fromIterator,
                                                             VfmdLineArrayIterator *toIterator,
                                                             VfmdSpanTagStack *stack) const
 {
