@@ -30,7 +30,10 @@ void VfmdElementTreeNode::appendSubtreeToEndOfSequence(VfmdElementTreeNode *node
         textLastNode->appendText(textNode->text());
         bool ok = textLastNode->setNextNodeIfNotSet(nodesToAdd->nextNode());
         assert(ok);
-        m_lastSibling = nodesToAdd->lastSiblingNode();
+        VfmdElementTreeNode *possibleLastSiblingNode = nodesToAdd->lastSiblingNode();
+        if (possibleLastSiblingNode != nodesToAdd) {
+            m_lastSibling = possibleLastSiblingNode;
+        }
         delete nodesToAdd;
     } else {
         bool ok = lastNode->setNextNodeIfNotSet(nodesToAdd);
