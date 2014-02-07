@@ -34,7 +34,7 @@ const char *VfmdSpanElementHandler::description() const
 void VfmdOpeningSpanTagStackNode::appendToContainedElements(VfmdElementTreeNode *elementsToAppend)
 {
     if (m_containedElements) {
-        m_containedElements->appendSiblings(elementsToAppend);
+        m_containedElements->appendSubtreeToEndOfSequence(elementsToAppend);
     } else {
         m_containedElements = elementsToAppend;
     }
@@ -43,7 +43,7 @@ void VfmdOpeningSpanTagStackNode::appendToContainedElements(VfmdElementTreeNode 
 void VfmdOpeningSpanTagStackNode::appendToContainedElements(const VfmdByteArray &textToAppend)
 {
     if (m_containedElements) {
-        m_containedElements->appendText(textToAppend);
+        m_containedElements->appendTextToEndOfSubtree(textToAppend);
     } else {
         m_containedElements = new TextSpanTreeNode(textToAppend);
     }

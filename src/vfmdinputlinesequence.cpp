@@ -60,12 +60,12 @@ void VfmdInputLineSequence::processLineInChildSequence()
 
     // Check if the child sequence is done
     if (isAtEnd() || m_childLineSequence->isEndOfBlock(m_currentLine, m_nextLine)) {
-        VfmdElementTreeNode *parseTree = m_childLineSequence->endBlock();
-        if (parseTree) {
+        VfmdElementTreeNode *parseSubtree = m_childLineSequence->endBlock();
+        if (parseSubtree) {
             if (m_parseTree) {
-                m_parseTree->appendSiblings(parseTree);
+                m_parseTree->appendSubtreeToEndOfSequence(parseSubtree);
             } else {
-                m_parseTree = parseTree;
+                m_parseTree = parseSubtree;
             }
         }
         delete m_childLineSequence;

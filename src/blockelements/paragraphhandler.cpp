@@ -34,7 +34,8 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
     VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
-    paragraphNode->appendChildren(spanParseTree);
+    bool ok = paragraphNode->setChildNodeIfNotSet(spanParseTree);
+    assert(ok);
     return paragraphNode;
 }
 

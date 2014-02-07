@@ -22,9 +22,9 @@ public:
     VfmdElementTreeNode();
     virtual ~VfmdElementTreeNode();
 
-    void appendSiblings(VfmdElementTreeNode *node);
-    void appendChildren(VfmdElementTreeNode *node);
-    void appendText(const VfmdByteArray &ba);
+    void appendSubtreeToEndOfSequence(VfmdElementTreeNode *subtreeToAppend);
+    void appendTextToEndOfSubtree(const VfmdByteArray &textToAppend);
+
     void adoptContainedElements(VfmdOpeningSpanTagStackNode *stackNode);
 
     bool hasNext() const;
@@ -32,6 +32,9 @@ public:
 
     VfmdElementTreeNode *nextNode() const;
     VfmdElementTreeNode *firstChildNode() const;
+
+    bool setNextNodeIfNotSet(VfmdElementTreeNode *node);
+    bool setChildNodeIfNotSet(VfmdElementTreeNode *node);
 
     // Methods to reimplement in a subclass
     virtual ElementClassification elementClassification() const { return UNDEFINED; }
@@ -44,8 +47,6 @@ public:
     static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 
 private:
-    bool setNextNodeIfNotSet(VfmdElementTreeNode *node);
-
     VfmdElementTreeNode *lastSiblingNode();
 
     VfmdElementTreeNode *m_nextSibling, *m_lastSibling;

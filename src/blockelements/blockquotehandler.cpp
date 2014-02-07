@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 #include "blockquotehandler.h"
 #include "vfmdinputlinesequence.h"
 
@@ -56,7 +57,8 @@ VfmdElementTreeNode* BlockquoteLineSequence::endBlock()
 {
     VfmdElementTreeNode *blockquoteNode = new BlockquoteTreeNode();
     VfmdElementTreeNode *childSubTree = m_childSequence->endSequence();
-    blockquoteNode->appendChildren(childSubTree);
+    bool ok = blockquoteNode->setChildNodeIfNotSet(childSubTree);
+    assert(ok);
     return blockquoteNode;
 }
 
