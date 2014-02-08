@@ -8,6 +8,20 @@
 #include "spanelements/vfmdspanelementhandler.h"
 #include "vfmdelementtreenode.h"
 
+static bool isValidUtf8StartByte(unsigned char c)
+{
+    if (c < 128) { // A single-byte UTF-8 character
+        return true;
+    }
+    if (c < 0xc0) { // A UTF-8 continuation byte
+       return false;
+    }
+    if (c >= 0xfe) { // Bytes 0xfe and 0xff are invalid in UTF-8
+        return false;
+    }
+    return true;
+}
+
 static void closeTextFragmentIfOpen(VfmdLineArrayIterator *textFragmentStart,
                                     const VfmdLineArrayIterator &iterator,
                                     VfmdSpanTagStack *stack)
@@ -58,6 +72,16 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
         }
 
         if (identified) {
+
+            // Ensure toIter is not in the middle of a UTF-8 sequence
+            // (And in debug mode, abort if that happens)
+            char nextByte = (toIter.isAtEnd()? 0 : toIter.nextByte());
+            assert(isValidUtf8StartByte(nextByte));
+            while ((!toIter.isAtEnd()) && (!isValidUtf8StartByte(nextByte))) {
+                toIter.moveForward(1);
+                nextByte = (toIter.isAtEnd()? 0 : toIter.nextByte());
+            }
+
             assert(fromIter < toIter);
             if (fromIter >= toIter) {
                 return false;
@@ -92,19 +116,23 @@ VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdLi
         char currentByte = iterator.nextByte();
         bool isTagIdentifiedAtCurrentPos = false;
 
-        // Ask the span element handlers pertaining to this trigger byte
-        int n = registry->spanElementCountForTriggerByte(currentByte);
-        if (n > 0) {
-            closeTextFragmentIfOpen(&textFragmentStart, iterator, &stack);
-        }
-        for (int i = 0; i < n; i++) {
-            VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
-            int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
-            isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, triggerOptions,
-                                                                              &iterator, &stack, &textFragmentStart);
-            if (isTagIdentifiedAtCurrentPos) {
-                break;
+        if (isValidUtf8StartByte(currentByte)) {
+            // Ask the span element handlers pertaining to this trigger byte
+            int n = registry->spanElementCountForTriggerByte(currentByte);
+            if (n > 0) {
+                closeTextFragmentIfOpen(&textFragmentStart, iterator, &stack);
             }
+            for (int i = 0; i < n; i++) {
+                VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
+                int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
+                isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, triggerOptions,
+                                                                                  &iterator, &stack, &textFragmentStart);
+                if (isTagIdentifiedAtCurrentPos) {
+                    break;
+                }
+            }
+        } else {
+            assert(textFragmentStart.isValid());
         }
 
         // All span element handlers rejected this position => text fragment
