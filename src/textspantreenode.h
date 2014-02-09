@@ -22,13 +22,11 @@ public:
     virtual ElementClassification elementClassification() const { return TEXTSPAN; }
     virtual int elementType() const { return VfmdConstants::TEXTSPAN_ELEMENT; }
     virtual const char *elementTypeString() const { return "text-span"; }
-    virtual void debugPrint(const VfmdByteArray &padding) const {
-        m_text.debugPrint(padding, true);
-        printf("\n");
-    }
+
     virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;
+
 private:
     VfmdByteArray m_text;
 };

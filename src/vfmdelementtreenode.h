@@ -53,13 +53,12 @@ public:
     virtual ElementClassification elementClassification() const { return UNDEFINED; }
     virtual int elementType() const { return -1; }
     virtual const char *elementTypeString() const { return ""; }
+
     virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;
-    virtual void debugPrint(const VfmdByteArray &padding) const { UNUSED_ARG(padding); }
 
 public:
-    static void debugPrintSubtreeSequence(VfmdElementTreeNode *tree, const VfmdByteArray &padding = VfmdByteArray());
     static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 
 private:

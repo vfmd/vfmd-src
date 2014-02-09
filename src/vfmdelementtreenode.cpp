@@ -135,39 +135,6 @@ VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode()
     return lastSibling;
 }
 
-void VfmdElementTreeNode::debugPrintSubtreeSequence(VfmdElementTreeNode *subtree, const VfmdByteArray &padding)
-{
-    for (const VfmdElementTreeNode *node = subtree;
-         node != 0;
-         node = node->nextNode()) {
-
-        const char *classification = 0;
-        switch (node->elementClassification()) {
-        case UNDEFINED: classification = "UNDEFINED"; break;
-        case BLOCK:     classification = "BLOCK"; break;
-        case SPAN:      classification = "SPAN"; break;
-        case TEXTSPAN:  classification = "TEXTSPAN"; break;
-        default:        classification = "";
-        }
-        padding.print();
-        printf("+- %s/%s\n", classification, node->elementTypeString());
-        VfmdByteArray subsequentPadding = padding;
-        if (node->hasNext()) {
-            subsequentPadding.append("|  ");
-        } else {
-            subsequentPadding.append("   ");
-        }
-        node->debugPrint(subsequentPadding);
-        if (node->hasChildren()) {
-            subsequentPadding.print(); printf("|\n");
-            debugPrintSubtreeSequence(node->firstChildNode(), subsequentPadding);
-        } else {
-            // subsequentPadding.print(); printf("\n");
-        }
-
-    }
-}
-
 void VfmdElementTreeNode::renderSequence(VfmdConstants::RenderFormat format, int renderOptions,
                                          VfmdOutputDevice *outputDevice) const
 {

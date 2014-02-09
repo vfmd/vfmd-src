@@ -407,27 +407,3 @@ void VfmdByteArray::print() const
         }
     }
 }
-
-void VfmdByteArray::debugPrint(const VfmdByteArray &padding, bool quoted) const
-{
-    const char *data_ptr = data();
-    if (data_ptr) {
-        size_t sz = size();
-        padding.print();
-        if (quoted) {
-            printf("\"");
-        }
-        for (unsigned int i = 0; i < sz; i++) {
-            printf("%c", data_ptr[i]);
-            if (data_ptr[i] == '\n') {
-                padding.print();
-                if (quoted && (i < (sz - 1))) {
-                    printf(" ");
-                }
-            }
-        }
-        if (quoted) {
-            printf("\"");
-        }
-    }
-}

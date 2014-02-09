@@ -33,7 +33,10 @@ int main(int argc, char *argv[])
     fclose(inputFile);
 
     VfmdElementTreeNode *parseTree = document.end();
-    VfmdElementTreeNode::debugPrintSubtreeSequence(parseTree);
+    VfmdConsoleOutputDevice console;
+    parseTree->renderSequence(VfmdConstants::TREE_FORMAT,
+                              VfmdConstants::TREE_RENDER_INCLUDES_TEXT,
+                              &console);
     VfmdElementTreeNode::freeSubtreeSequence(parseTree);
 
     return 0;

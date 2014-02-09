@@ -39,13 +39,6 @@ public:
     virtual ElementClassification elementClassification() const { return SPAN; }
     virtual int elementType() const { return VfmdConstants::EMPHASIS_ELEMENT; }
     virtual const char *elementTypeString() const { return "emphasis"; }
-    virtual void debugPrint(const VfmdByteArray &padding) const {
-        padding.print();
-        for (int i = 0; i < m_repetitionCount; i++) {
-            printf("%c", m_char);
-        }
-        printf("\n");
-    }
 
 private:
     char m_char;

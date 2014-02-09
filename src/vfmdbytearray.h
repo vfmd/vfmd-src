@@ -89,9 +89,8 @@ public:
     /* Get a copy of the data as a null-terminated string */
     const char *c_str() const;
 
-    /* Pretty-print the contained data */
+    /* Print the contained data */
     void print() const;
-    void debugPrint(const VfmdByteArray &padding = VfmdByteArray(), bool quoted = false) const;
 
 private:
     void ref();
