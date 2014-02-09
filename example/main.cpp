@@ -34,8 +34,9 @@ int main(int argc, char *argv[])
 
     VfmdElementTreeNode *parseTree = document.end();
     VfmdConsoleOutputDevice console;
-    parseTree->renderSequence(VfmdConstants::TREE_FORMAT,
-                              VfmdConstants::TREE_RENDER_INCLUDES_TEXT,
+    parseTree->renderSequence(VfmdConstants::HTML_FORMAT,
+                              (VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS |
+                               VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS),
                               &console);
     VfmdElementTreeNode::freeSubtreeSequence(parseTree);
 

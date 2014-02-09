@@ -32,6 +32,10 @@ public:
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::PARAGRAPH_ELEMENT; }
     virtual const char *elementTypeString() const { return "paragraph"; }
+
+    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
+                            VfmdOutputDevice *outputDevice,
+                            VfmdElementTreeNodeStack *ancestorNodes) const;
 };
 
 #endif // PARAGRAPHHANDLER_H

@@ -122,3 +122,20 @@ void OpeningEmphasisTagStackNode::print() const
     }
     printf("\")");
 }
+
+void EmphasisTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
+                                  VfmdOutputDevice *outputDevice,
+                                  VfmdElementTreeNodeStack *ancestorNodes) const
+{
+    if (m_repetitionCount <= 0) {
+        return;
+    }
+    if (format == VfmdConstants::HTML_FORMAT) {
+        bool emTag = (m_repetitionCount < 2);
+        outputDevice->write(emTag? "<em>" : "<strong>");
+        renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+        outputDevice->write(emTag? "</em>" : "</strong>");
+    } else {
+        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
+    }
+}

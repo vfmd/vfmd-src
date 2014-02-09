@@ -42,6 +42,25 @@ void TextSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
                                   VfmdOutputDevice *outputDevice,
                                   VfmdElementTreeNodeStack *ancestorNodes) const
 {
+    if (format == VfmdConstants::HTML_FORMAT) {
+        bool shouldUseSelfClosingTags = ((renderOptions & VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) ==  VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
+        const char *data_ptr = m_text.data();
+        size_t sz = m_text.size();
+        if (data_ptr && sz) {
+            for (unsigned int i = 0; i < sz; i++) {
+                if ((data_ptr[i] == '\n') &&
+                    ((i > 1) && (data_ptr[i - 1] == ' ') && (data_ptr[i - 2] == ' '))) {
+                    outputDevice->write(shouldUseSelfClosingTags? "<br />\n" : "<br>\n");
+                } else if (data_ptr[i] == '\\') {
+                    // Do nothing
+                    // TODO: Check if the following char is a punctuation char
+                } else {
+                    outputDevice->write(data_ptr[i]);
+                }
+            }
+        }
+    }
+
     if (format == VfmdConstants::TREE_FORMAT) {
         renderTreePrefix(outputDevice, ancestorNodes, "+- span (text)\n");
         if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {

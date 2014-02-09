@@ -9,7 +9,7 @@ class VfmdOutputDevice
 public:
     VfmdOutputDevice();
     virtual ~VfmdOutputDevice();
-    bool write(const char byte);
+    bool write(const char byte, int numberOfTimes = 1);
     bool write(const char *data, int len = 0);
     bool write(const VfmdByteArray &ba);
 

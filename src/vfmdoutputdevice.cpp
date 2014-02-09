@@ -11,9 +11,16 @@ VfmdOutputDevice::~VfmdOutputDevice()
 {
 }
 
-bool VfmdOutputDevice::write(const char byte)
+bool VfmdOutputDevice::write(const char byte, int numberOfTimes)
 {
-    return writeData(&byte, 1);
+    bool ok = true;
+    for (int i = 0; i < numberOfTimes; i++) {
+        ok = writeData(&byte, 1);
+        if (!ok) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool VfmdOutputDevice::write(const char *data, int len)

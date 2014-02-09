@@ -180,6 +180,12 @@ void VfmdElementTreeNode::renderTreePrefix(VfmdOutputDevice *outputDevice,
     }
 }
 
+void VfmdElementTreeNode::renderHtmlIndent(VfmdOutputDevice *outputDevice,
+                                           const VfmdElementTreeNodeStack *ancestorNodes) const
+{
+    outputDevice->write(' ', ancestorNodes->size() * 2);
+}
+
 void VfmdElementTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                                      VfmdOutputDevice *outputDevice,
                                      VfmdElementTreeNodeStack *ancestorNodes) const

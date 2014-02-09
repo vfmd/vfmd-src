@@ -31,6 +31,10 @@ public:
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::BLOCKQUOTE_ELEMENT; }
     virtual const char *elementTypeString() const { return "blockquote"; }
+
+    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
+                            VfmdOutputDevice *outputDevice,
+                            VfmdElementTreeNodeStack *ancestorNodes) const;
 };
 
 #endif // BLOCKQUOTEHANDLER_H

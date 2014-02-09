@@ -4,6 +4,7 @@
 #include "vfmdbytearray.h"
 #include "vfmdconstants.h"
 #include "vfmdpointerarray.h"
+#include "vfmdoutputdevice.h"
 
 #define UNUSED_ARG(x) (void)x;
 
@@ -48,6 +49,8 @@ public:
     void renderTreePrefix(VfmdOutputDevice *outputDevice,
                           const VfmdElementTreeNodeStack *ancestorNodes,
                           const char *followup = 0) const;
+    void renderHtmlIndent(VfmdOutputDevice *outputDevice,
+                          const VfmdElementTreeNodeStack *ancestorNodes) const;
 
     // Methods to reimplement in a subclass
     virtual ElementClassification elementClassification() const { return UNDEFINED; }
