@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "vfmdspantagstack.h"
 #include "spanelements/vfmdspanelementhandler.h"
+#include "vfmdoutputdevice.h"
 
 #define ALLOC_CHUNK_SIZE (32)
 
@@ -122,7 +123,12 @@ void VfmdSpanTagStack::print() const
         printf("\n");
         VfmdElementTreeNode *tree = node->m_containedElements;
         if (tree) {
-            VfmdElementTreeNode::debugPrintSubtreeSequence(tree, "               ");
+            printf("Contained elements for node [%d]:\n", i);
+            VfmdConsoleOutputDevice console;
+            tree->renderSequence(VfmdConstants::TREE_FORMAT,
+                                 VfmdConstants::TREE_RENDER_INCLUDES_TEXT,
+                                 &console);
+            printf("\n");
         }
         i--;
     }

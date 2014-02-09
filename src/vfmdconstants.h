@@ -27,6 +27,14 @@ enum VfmdOpeningSpanTagStackNodeType {
     USER_STACK_NODE = 100
 };
 
+enum RenderFormat {
+    TREE_FORMAT
+};
+
+enum TreeRenderOptions {
+    TREE_RENDER_INCLUDES_TEXT = 1
+};
+
 };
 
 #endif // VFMDCONSTANTS_H

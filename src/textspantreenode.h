@@ -26,7 +26,9 @@ public:
         m_text.debugPrint(padding, true);
         printf("\n");
     }
-
+    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
+                            VfmdOutputDevice *outputDevice,
+                            VfmdElementTreeNodeStack *ancestorNodes) const;
 private:
     VfmdByteArray m_text;
 };

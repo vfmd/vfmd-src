@@ -3,6 +3,8 @@
 #include "vfmdelementtreenode.h"
 #include "textspantreenode.h"
 #include "spanelements/vfmdspanelementhandler.h"
+#include "vfmdelementtreenodestack.h"
+#include "vfmdoutputdevice.h"
 
 VfmdElementTreeNode::VfmdElementTreeNode()
     : m_nextSibling(0)
@@ -163,6 +165,79 @@ void VfmdElementTreeNode::debugPrintSubtreeSequence(VfmdElementTreeNode *subtree
             // subsequentPadding.print(); printf("\n");
         }
 
+    }
+}
+
+void VfmdElementTreeNode::renderSequence(VfmdConstants::RenderFormat format, int renderOptions,
+                                         VfmdOutputDevice *outputDevice) const
+{
+    VfmdElementTreeNodeStack ancestorNodes;
+    for (const VfmdElementTreeNode *node = this;
+         node != 0;
+         node = node->nextNode()) {
+        node->renderNode(format, renderOptions, outputDevice, &ancestorNodes);
+    }
+}
+
+void VfmdElementTreeNode::renderChildren(VfmdConstants::RenderFormat format, int renderOptions,
+                                         VfmdOutputDevice *outputDevice,
+                                         VfmdElementTreeNodeStack *ancestorNodes) const
+{
+    if (hasChildren()) {
+        ancestorNodes->push(this);
+        for (const VfmdElementTreeNode *childNode = firstChildNode();
+             childNode != 0;
+             childNode = childNode->nextNode()) {
+            childNode->renderNode(format, renderOptions, outputDevice, ancestorNodes);
+        }
+        const VfmdElementTreeNode *poppedNode = ancestorNodes->pop();
+        assert(poppedNode == this);
+    }
+}
+
+void VfmdElementTreeNode::renderTreePrefix(VfmdOutputDevice *outputDevice,
+                                           const VfmdElementTreeNodeStack *ancestorNodes,
+                                           const char *followup) const
+{
+    unsigned int ancestorsCount = ancestorNodes->size();
+    for (unsigned int i = 0; i < ancestorsCount; i++) {
+        const VfmdElementTreeNode *ancestorNode = ancestorNodes->nodeAt(i);
+        if (ancestorNode->hasNext()) {
+            outputDevice->write("|  ");
+        } else {
+            outputDevice->write("   ");
+        }
+    }
+    if (followup) {
+        outputDevice->write(followup);
+    }
+}
+
+void VfmdElementTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
+                                     VfmdOutputDevice *outputDevice,
+                                     VfmdElementTreeNodeStack *ancestorNodes) const
+{
+    UNUSED_ARG(renderOptions);
+    if (format == VfmdConstants::TREE_FORMAT) {
+        renderTreePrefix(outputDevice, ancestorNodes, "+- ");
+        switch (elementClassification()) {
+        case BLOCK:
+            outputDevice->write("block (");
+            break;
+        case SPAN:
+        case TEXTSPAN:
+            outputDevice->write("span (");
+            break;
+        case UNDEFINED:
+        default:
+            outputDevice->write("? (");
+        }
+        outputDevice->write(elementTypeString());
+        outputDevice->write(")\n");
+        if (hasChildren()) {
+            renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+        }
     }
 }
 

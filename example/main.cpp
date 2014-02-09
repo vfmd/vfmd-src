@@ -4,6 +4,7 @@
 #include "vfmdelementregistry.h"
 #include "vfmdelementtreenode.h"
 #include "vfmdscopedpointer.h"
+#include "vfmdoutputdevice.h"
 
 #define BUFFER_SIZE 1024
 
