@@ -2,6 +2,8 @@
 #define VFMDBYTEARRAY_H
 
 #include <stdlib.h>
+#include <stdint.h>
+#include "vfmdunicodeproperties.h"
 
 // VfmdByteArray
 // Stores a byte array. Uses implicit data sharing.
@@ -92,7 +94,46 @@ public:
     /* Print the contained data */
     void print() const;
 
+    // Methods that offer Unicode-related functionality.
+    // These methods assume that the VfmdByteArray instance contains UTF-8 data
+
+    /* Add a Unicode Code Point to the bytearray. The bytearray will include it
+     * after encoding it as UTF-8. */
+    void appendCharAsUTF8(int32_t codePointValue);
+
+    /* Does byteIndex form the starting byte of a UTF-8 code point */
+    bool isUTF8CharStartingAt(unsigned int byteIndex) const;
+
+    /* How many bytes are in the UTF-8 code point starting at byteIndex? */
+    int numberOfBytesInUTF8CharStartingAt(unsigned int byteIndex) const;
+
+    /* Assuming that byteIndex forms the starting byte of a UTF-8 code point,
+     * which is the byteIndex at which the previous code point starts? */
+    int previousUTF8CharStartsAt(unsigned int byteIndex) const;
+
+    /* Assuming that byteIndex forms the starting byte of a UTF-8 code point,
+     * what code point starts at byteIndex? */
+    int32_t codePointValueOfUTF8CharStartingAt(unsigned int byteIndex) const;
+
+    /* What is the General_Category of the UTF-8 code point
+     * whose starting byte is at byteIndex? */
+    VfmdUnicodeProperties::GeneralCategory categoryOfUTF8CharStartingAt(unsigned int byteIndex) const;
+
+    /* What is the major class of the General_Category of the UTF-8 code point
+     * whose starting byte is at byteIndex? */
+    VfmdUnicodeProperties::GeneralCategoryMajorClass majorClassOfUTF8CharStartingAt(unsigned int byteIndex) const;
+
+    /* Returns a bytearray with the uppercase equivalent of this bytearray, assuming
+     * that this bytearray is in UTF-8 encoding. The returned bytearray is in UTF-8. */
+    VfmdByteArray toUpperCase() const;
+
+    /* Returns a bytearray with the lowercase equivalent of this bytearray, assuming
+     * that this bytearray is in UTF-8 encoding. The returned bytearray is in UTF-8. */
+    VfmdByteArray toLowerCase() const;
+
 private:
+    VfmdByteArray caseFlipCodePointsOfCategory(VfmdUnicodeProperties::GeneralCategory category) const;
+
     void ref();
     void deref();
     void copyOnWrite(size_t additionalSpaceRequired = 0);

@@ -32,6 +32,7 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/textspantreenode.h \
            $$PWD/vfmdoutputdevice.h \
            $$PWD/vfmdelementtreenodestack.h \
+           $$PWD/vfmdunicodeproperties.h \
            $$PWD/core/vfmdpreprocessor.h \
            $$PWD/core/vfmdspanelementsprocessor.h \
            $$PWD/core/vfmdpointerarray.h \
