@@ -78,7 +78,7 @@ void TextSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
                         outputDevice->write(data_ptr[i]);
                     }
                 }
-                if (m_text.lastChar() != '\n') {
+                if (m_text.lastByte() != '\n') {
                     outputDevice->write("\"\n");
                 }
             }

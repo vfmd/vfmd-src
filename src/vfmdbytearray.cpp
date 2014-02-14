@@ -186,14 +186,14 @@ size_t VfmdByteArray::size() const
     return (d->size - m_leftOffset - m_rightOffset);
 }
 
-char VfmdByteArray::charAt(unsigned int pos) const
+char VfmdByteArray::byteAt(unsigned int pos) const
 {
     return *(data() + pos);
 }
 
-char VfmdByteArray::lastChar() const
+char VfmdByteArray::lastByte() const
 {
-    return charAt(size() - 1);
+    return byteAt(size() - 1);
 }
 
 bool VfmdByteArray::startsWith(const char *str) const
@@ -392,12 +392,12 @@ void VfmdByteArray::squeeze()
 const char* VfmdByteArray::c_str() const
 {
     size_t len = size();
-    if (lastChar() == '\n') {
+    if (lastByte() == '\n') {
         len++;
     }
     char *str = static_cast<char *>(malloc(len + 1));
     memcpy(str, data(), len);
-    if (lastChar() == '\n') {
+    if (lastByte() == '\n') {
         str[len - 2] = '\\';
         str[len - 1] = 'n';
     }
@@ -594,14 +594,14 @@ void VfmdByteArray::appendCharAsUTF8(int32_t codePointValue)
 
 bool VfmdByteArray::isUTF8CharStartingAt(unsigned int byteIndex) const
 {
-    unsigned char c = charAt(byteIndex);
+    unsigned char c = byteAt(byteIndex);
     bool ok = IS_UTF8_FIRSTBYTE((unsigned char) c);
     return ok;
 }
 
 int VfmdByteArray::numberOfBytesInUTF8CharStartingAt(unsigned int byteIndex) const
 {
-    unsigned char c = (unsigned char) charAt(byteIndex);
+    unsigned char c = (unsigned char) byteAt(byteIndex);
     bool isUtf8FirstByte = IS_UTF8_FIRSTBYTE((unsigned char) c);
     assert(isUtf8FirstByte);
     if (!isUtf8FirstByte) {
@@ -623,7 +623,7 @@ int VfmdByteArray::previousUTF8CharStartsAt(unsigned int byteIndex) const
 {
     if (byteIndex > 0) {
         for (int i = byteIndex - 1; i >= 0; i--) {
-            if (IS_UTF8_FIRSTBYTE(charAt(byteIndex))) {
+            if (IS_UTF8_FIRSTBYTE(byteAt(byteIndex))) {
                 return i;
             }
         }
@@ -733,7 +733,7 @@ VfmdByteArray VfmdByteArray::caseFlipCodePointsOfCategory(VfmdUnicodeProperties:
         } else {
             // Copy the bytes intact
             for (unsigned int j = 0; j < n; j++) {
-                caseFlippedBa.appendByte(charAt(i + j));
+                caseFlippedBa.appendByte(byteAt(i + j));
             }
         }
         i += n;

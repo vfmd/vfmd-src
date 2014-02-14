@@ -36,17 +36,17 @@ VfmdLineArrayIterator::~VfmdLineArrayIterator()
 
 char VfmdLineArrayIterator::nextByte() const
 {
-    return m_lineArray->lineAt(m_lineIndex)->charAt(m_byteIndex);
+    return m_lineArray->lineAt(m_lineIndex)->byteAt(m_byteIndex);
 }
 
 char VfmdLineArrayIterator::previousByte() const
 {
     if (m_byteIndex > 0) {
         // Return the previous byte in the same line
-        return m_lineArray->lineAt(m_lineIndex)->charAt(m_byteIndex - 1);
+        return m_lineArray->lineAt(m_lineIndex)->byteAt(m_byteIndex - 1);
     } else if (m_lineIndex > 0) {
         // Return the last byte of the previous line
-        return m_lineArray->lineAt(m_lineIndex - 1)->lastChar();
+        return m_lineArray->lineAt(m_lineIndex - 1)->lastByte();
     }
     return 0;
 }

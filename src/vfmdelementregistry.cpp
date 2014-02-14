@@ -31,7 +31,7 @@ VfmdElementRegistry::~VfmdElementRegistry()
             // This is a not valid typeId. Nothing to free.
             continue;
         }
-        VfmdPointerArray<SpanElementData>* spanElementsArray = m_spanElementsByTriggerByte[(unsigned char) triggerBytes->charAt(0)];
+        VfmdPointerArray<SpanElementData>* spanElementsArray = m_spanElementsByTriggerByte[(unsigned char) triggerBytes->byteAt(0)];
         int triggerBytesCount = triggerBytes->size();
         for (int i = 0; i < triggerBytesCount; i++) {
             VfmdElementRegistry::SpanElementData *spanElementData = spanElementsArray->itemAt(i);
@@ -140,7 +140,7 @@ bool VfmdElementRegistry::appendSpanElement(int typeId, VfmdSpanElementHandler *
     m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
     VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler, triggerOptions);
     for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
-        char byte = triggerBytes.charAt(byteIndex);
+        char byte = triggerBytes.byteAt(byteIndex);
         ensureSpanElementsForTriggerByteAllocated(byte);
         m_spanElementsByTriggerByte[(unsigned char) byte]->append(spanElementData);
     }
@@ -161,7 +161,7 @@ bool VfmdElementRegistry::prependSpanElement(int typeId, VfmdSpanElementHandler 
     m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
     VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler, triggerOptions);
     for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
-        char byte = triggerBytes.charAt(byteIndex);
+        char byte = triggerBytes.byteAt(byteIndex);
         ensureSpanElementsForTriggerByteAllocated(byte);
         m_spanElementsByTriggerByte[(unsigned char) byte]->prepend(spanElementData);
     }
@@ -199,7 +199,7 @@ bool VfmdElementRegistry::containsSpanElement(int typeId) const
 {
     VfmdByteArray *triggerBytes = m_triggerBytesById[typeId];
     if (triggerBytes && triggerBytes->size() > 0) {
-        return doesSpanElementExistInPointerArray(typeId, m_spanElementsByTriggerByte[(unsigned char) triggerBytes->charAt(0)]);
+        return doesSpanElementExistInPointerArray(typeId, m_spanElementsByTriggerByte[(unsigned char) triggerBytes->byteAt(0)]);
     }
     return false;
 }
@@ -209,7 +209,7 @@ void VfmdElementRegistry::removeSpanElement(int typeId)
     VfmdByteArray *triggerBytes = m_triggerBytesById[typeId];
     if (triggerBytes && triggerBytes->size() > 0) {
         for (unsigned int i = 0; i < triggerBytes->size(); i++) {
-            removeSpanElementFromPointerArray(typeId, m_spanElementsByTriggerByte[(unsigned char) triggerBytes->charAt(i)]);
+            removeSpanElementFromPointerArray(typeId, m_spanElementsByTriggerByte[(unsigned char) triggerBytes->byteAt(i)]);
         }
     }
 }

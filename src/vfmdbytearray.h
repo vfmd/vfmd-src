@@ -50,8 +50,8 @@ public:
     size_t size() const;
 
     /* Utility query functions */
-    char charAt(unsigned int pos) const;
-    char lastChar() const;
+    char byteAt(unsigned int pos) const;
+    char lastByte() const;
     bool startsWith(const char *str) const;
     char firstNonSpace() const;
 
