@@ -332,14 +332,24 @@ void VfmdByteArray::copyOnWrite(size_t additionalSpaceRequired) {
     assert(d);
     assert(d->refCount);
     if (d->refCount > 1) {
+        // There are other instances that use this data,
+        // so make a copy of the data.
         deref(); // dereference existing data
         // copy data (refCount will be 1 for new copy)
         d = new Private(data(), size(), size() + additionalSpaceRequired);
         m_leftOffset = 0;
         m_rightOffset = 0;
+    } else if (d->refCount == 1) {
+        // This is the only copy that uses this data,
+        // so canonicalize the rightOffset.
+        if (m_rightOffset > 0) {
+            d->size -= m_rightOffset;
+            m_rightOffset = 0;
+        }
     }
     assert(d);
     assert(d->refCount);
+    assert(m_rightOffset == 0);
 }
 
 VfmdByteArray VfmdByteArray::clone() const
