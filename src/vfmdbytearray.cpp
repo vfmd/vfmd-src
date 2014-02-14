@@ -253,6 +253,62 @@ VfmdByteArray VfmdByteArray::mid(unsigned int n, unsigned int l) const
     return ba;
 }
 
+void VfmdByteArray::trimLeft()
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    unsigned int i;
+    for (i = 0; i < sz; i++) {
+        char c = data_ptr[i];
+        if (c != 0x09 /* Tab */ &&
+            c != 0x0a /* LF */ &&
+            c != 0x0c /* FF */ &&
+            c != 0x0d /* CR */ &&
+            c != 0x20 /* Space */) {
+            break;
+        }
+    }
+    unsigned int bytesToChop = i;
+    if (bytesToChop > 0) {
+        chopLeft(bytesToChop);
+    }
+}
+
+void VfmdByteArray::trimRight()
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    unsigned int i;
+    for (i = sz; i > 0; i--) {
+        char c = data_ptr[i - 1];
+        if (c != 0x09 /* Tab */ &&
+            c != 0x0a /* LF */ &&
+            c != 0x0c /* FF */ &&
+            c != 0x0d /* CR */ &&
+            c != 0x20 /* Space */) {
+            break;
+        }
+    }
+    unsigned int bytesToChop = (sz - i);
+    if (bytesToChop > 0) {
+        chopRight(bytesToChop);
+    }
+}
+
+VfmdByteArray VfmdByteArray::leftTrimmed() const
+{
+    VfmdByteArray implicitCopy = *(this);
+    implicitCopy.trimLeft();
+    return implicitCopy;
+}
+
+VfmdByteArray VfmdByteArray::rightTrimmed() const
+{
+    VfmdByteArray implicitCopy = *(this);
+    implicitCopy.trimRight();
+    return implicitCopy;
+}
+
 void VfmdByteArray::reserve(size_t length)
 {
     if (d->allocatedSize < length) {

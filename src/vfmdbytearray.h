@@ -68,6 +68,12 @@ public:
     /* Return the 'l' bytes starting from the 'n'th position as a bytearray (without any data-replication) */
     VfmdByteArray mid(unsigned int n, unsigned int l) const;
 
+    /* Trimming (remove whitespace at beginning or end) */
+    void trimLeft();
+    void trimRight();
+    VfmdByteArray leftTrimmed() const;
+    VfmdByteArray rightTrimmed() const;
+
     /* Ensure there are atleast 'length' bytes of allocated space.
      * This can cause an internal realloc and/or data copy. */
     void reserve(size_t length);
