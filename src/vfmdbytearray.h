@@ -6,7 +6,8 @@
 #include "vfmdunicodeproperties.h"
 
 // VfmdByteArray
-// Stores a byte array. Uses implicit data sharing.
+// Stores an array of bytes. Uses implicit data sharing.
+// Can also be used to store Unicode strings encoded as UTF-8.
 
 class VfmdByteArray
 {
