@@ -1,6 +1,7 @@
 #ifndef VFMDLINEARRAYITERATOR_H
 #define VFMDLINEARRAYITERATOR_H
 
+#include <stdint.h>
 #include "vfmdregexp.h"
 
 class VfmdLineArray;
@@ -60,6 +61,18 @@ public:
     bool isAtBeginning() const;
     bool isAtEnd() const;
     bool isAtLastLine() const;
+
+    /* Unicode-related functionality, assuming UTF-8 encoding */
+    bool isAtUTF8Boundary() const;
+    void ensureIsAtUTF8Boundary(); // moves iterator forward if necessary
+    bool moveForwardOneCharacter();
+    bool moveBackwardOneCharacter();
+    int32_t nextCharacter() const;
+    int32_t previousCharacter() const;
+    VfmdUnicodeProperties::GeneralCategory categoryOfNextCharacter() const;
+    VfmdUnicodeProperties::GeneralCategory categoryOfPreviousCharacter() const;
+    VfmdUnicodeProperties::GeneralCategoryMajorClass majorClassOfNextCharacter() const;
+    VfmdUnicodeProperties::GeneralCategoryMajorClass majorClassOfPreviousCharacter() const;
 
     /* Compare with other iterator objects */
     bool isEqualTo(const VfmdLineArrayIterator *other) const;

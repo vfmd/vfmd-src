@@ -369,6 +369,115 @@ bool VfmdLineArrayIterator::isAtLastLine() const
     return (m_lineIndex >= (m_lineArray->lineCount() - 1));
 }
 
+bool VfmdLineArrayIterator::isAtUTF8Boundary() const
+{
+    if (isAtEnd()) {
+        return true;
+    }
+    return m_lineArray->lineAt(m_lineIndex)->isUTF8CharStartingAt(m_byteIndex);
+}
+
+void VfmdLineArrayIterator::ensureIsAtUTF8Boundary()
+{
+    const VfmdLine *line = m_lineArray->lineAt(m_lineIndex);
+    unsigned int i;
+    for (i = m_byteIndex; i < line->size(); i++) {
+        if (line->isUTF8CharStartingAt(i)) {
+            break;
+        }
+    }
+    if (i == m_byteIndex) {
+        // Already at a UTF8 boundary. Nothing to do.
+        return;
+    } else if (i < line->size()) {
+        moveTo(m_lineIndex, i);
+    } else {
+        moveForwardTillEndOfLine();
+    }
+}
+
+bool VfmdLineArrayIterator::moveForwardOneCharacter()
+{
+    if (isAtEnd() || !isAtUTF8Boundary()) {
+        return false;
+    }
+    int n = m_lineArray->lineAt(m_lineIndex)->numberOfBytesInUTF8CharStartingAt(m_byteIndex);
+    assert(n > 0);
+    if (n > 0) {
+        moveForward(n);
+        return true;
+    }
+    return false;
+}
+
+bool VfmdLineArrayIterator::moveBackwardOneCharacter()
+{
+    if (!isAtUTF8Boundary()) {
+        return false;
+    }
+    if (isAtBeginning()) {
+        return false;
+    }
+    do {
+        moveBackward(1);
+    } while ((!isAtUTF8Boundary()) && (!isAtBeginning()));
+    return true;
+}
+
+int32_t VfmdLineArrayIterator::nextCharacter() const
+{
+    if (isAtEnd()) {
+        return -1;
+    }
+    return m_lineArray->lineAt(m_lineIndex)->codePointValueOfUTF8CharStartingAt(m_byteIndex);
+}
+
+int32_t VfmdLineArrayIterator::previousCharacter() const
+{
+    VfmdLineArrayIterator iter = *(this);
+    bool ok = iter.moveBackwardOneCharacter();
+    if (ok) {
+        return iter.nextCharacter();
+    }
+    return -1;
+}
+
+VfmdUnicodeProperties::GeneralCategory VfmdLineArrayIterator::categoryOfNextCharacter() const
+{
+    if (isAtEnd()) {
+        return VfmdUnicodeProperties::ucp_UndefinedGeneralCategory;
+    }
+    return m_lineArray->lineAt(m_lineIndex)->categoryOfUTF8CharStartingAt(m_byteIndex);
+}
+
+VfmdUnicodeProperties::GeneralCategory VfmdLineArrayIterator::categoryOfPreviousCharacter() const
+{
+    VfmdLineArrayIterator iter = *(this);
+    bool ok = iter.moveBackwardOneCharacter();
+    if (ok) {
+        return iter.categoryOfNextCharacter();
+    }
+    return VfmdUnicodeProperties::ucp_UndefinedGeneralCategory;
+}
+
+VfmdUnicodeProperties::GeneralCategoryMajorClass VfmdLineArrayIterator::majorClassOfNextCharacter() const
+{
+    if (isAtEnd()) {
+        return VfmdUnicodeProperties::ucp_UndefinedGeneralCategoryMajorClass;
+    }
+    return m_lineArray->lineAt(m_lineIndex)->majorClassOfUTF8CharStartingAt(m_byteIndex);
+}
+
+VfmdUnicodeProperties::GeneralCategoryMajorClass VfmdLineArrayIterator::majorClassOfPreviousCharacter() const
+{
+    VfmdLineArrayIterator iter = *(this);
+    bool ok = iter.moveBackwardOneCharacter();
+    if (ok) {
+        return iter.majorClassOfNextCharacter();
+    }
+    return VfmdUnicodeProperties::ucp_UndefinedGeneralCategoryMajorClass;
+}
+
 bool VfmdLineArrayIterator::isEqualTo(const VfmdLineArrayIterator *other) const
 {
     return ((m_lineArray == other->m_lineArray) &&
