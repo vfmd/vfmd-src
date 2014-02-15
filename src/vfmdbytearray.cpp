@@ -409,6 +409,11 @@ void VfmdByteArray::copyOnWrite(size_t additionalSpaceRequired) {
     assert(m_rightOffset == 0);
 }
 
+VfmdByteArray *VfmdByteArray::copy() const
+{
+    return new VfmdByteArray(*this);
+}
+
 VfmdByteArray VfmdByteArray::clone() const
 {
     return VfmdByteArray(data(), size());

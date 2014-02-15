@@ -87,6 +87,7 @@ public:
     /* Copy this object */
     VfmdByteArray(const VfmdByteArray &other);
     VfmdByteArray& operator=(const VfmdByteArray& other);
+    VfmdByteArray *copy() const;
 
     /* Deep-copy this object */
     VfmdByteArray clone() const;
