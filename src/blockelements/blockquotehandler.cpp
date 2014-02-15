@@ -22,8 +22,9 @@ BlockquoteLineSequence::~BlockquoteLineSequence()
     delete m_childSequence;
 }
 
-void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine)
+void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
 {
+    UNUSED_ARG(isEndOfParentLineSequence);
     VfmdLine processedLine = currentLine;
     if (processedLine.startsWith("> ")) {
         processedLine.chopLeft(2);

@@ -56,7 +56,7 @@ void VfmdInputLineSequence::processLineInChildSequence()
     assert(hasChildSequence());
 
     // Pass the current line on to the child sequence
-    m_childLineSequence->processBlockLine(m_currentLine);
+    m_childLineSequence->processBlockLine(m_currentLine, isAtEnd());
 
     // Check if the child sequence is done
     if (isAtEnd() || m_childLineSequence->isEndOfBlock(m_currentLine, m_nextLine)) {

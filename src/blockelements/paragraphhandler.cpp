@@ -20,8 +20,9 @@ ParagraphLineSequence::~ParagraphLineSequence()
 {
 }
 
-void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine)
+void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
 {
+    UNUSED_ARG(isEndOfParentLineSequence);
     m_lineArray.addLine(currentLine);
 }
 
