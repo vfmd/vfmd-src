@@ -33,6 +33,7 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
 
 VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
+    m_lineArray.trim();
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
     VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
     bool ok = paragraphNode->setChildNodeIfNotSet(spanParseTree);
