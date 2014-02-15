@@ -2,7 +2,7 @@
 #include "vfmdinputlinesequence.h"
 #include "vfmdelementregistry.h"
 #include "vfmdelementtreenode.h"
-#include "blockelements/vfmdblockelementhandler.h"
+#include "vfmdblockelementhandler.h"
 
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry)
     : m_registry(registry)

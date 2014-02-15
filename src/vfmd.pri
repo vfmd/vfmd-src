@@ -9,6 +9,8 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/vfmddocument.cpp \
            $$PWD/vfmdelementregistry.cpp \
            $$PWD/vfmdinputlinesequence.cpp \
+           $$PWD/vfmdblockelementhandler.cpp \
+           $$PWD/vfmdspanelementhandler.cpp \
            $$PWD/vfmdregexp.cpp \
            $$PWD/vfmdelementtreenode.cpp \
            $$PWD/textspantreenode.cpp \
@@ -26,6 +28,8 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/vfmddocument.h \
            $$PWD/vfmdelementregistry.h \
            $$PWD/vfmdinputlinesequence.h \
+           $$PWD/vfmdblockelementhandler.h \
+           $$PWD/vfmdspanelementhandler.h \
            $$PWD/vfmdregexp.h \
            $$PWD/vfmdconstants.h \
            $$PWD/vfmdelementtreenode.h \
@@ -41,20 +45,20 @@ HEADERS += $$PWD/vfmdbytearray.h \
 
 BLK = $$PWD/blockelements
 
-SOURCES += $$BLK/vfmdblockelementhandler.cpp \
+SOURCES += \
            $$BLK/paragraphhandler.cpp \
            $$BLK/blockquotehandler.cpp
 
-HEADERS += $$BLK/vfmdblockelementhandler.h \
+HEADERS += \
            $$BLK/paragraphhandler.h \
            $$BLK/blockquotehandler.h
 
 SPN = $$PWD/spanelements
 
-SOURCES += $$SPN/vfmdspanelementhandler.cpp \
+SOURCES += \
            $$SPN/emphasishandler.cpp
 
-HEADERS += $$SPN/vfmdspanelementhandler.h \
+HEADERS += \
            $$SPN/emphasishandler.h
 
 INCLUDEPATH += $$PWD $$PWD/core

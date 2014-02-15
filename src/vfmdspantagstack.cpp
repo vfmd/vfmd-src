@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include "vfmdspantagstack.h"
-#include "spanelements/vfmdspanelementhandler.h"
+#include "vfmdspanelementhandler.h"
 #include "vfmdoutputdevice.h"
 
 #define ALLOC_CHUNK_SIZE (32)

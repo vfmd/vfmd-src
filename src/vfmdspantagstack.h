@@ -4,7 +4,7 @@
 #include "vfmdpointerarray.h"
 #include "vfmdconstants.h"
 #include "vfmdelementtreenode.h"
-#include "spanelements/vfmdspanelementhandler.h"
+#include "vfmdspanelementhandler.h"
 
 class VfmdSpanTagStack
 {

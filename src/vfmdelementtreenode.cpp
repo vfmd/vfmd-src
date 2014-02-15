@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "vfmdelementtreenode.h"
 #include "textspantreenode.h"
-#include "spanelements/vfmdspanelementhandler.h"
+#include "vfmdspanelementhandler.h"
 #include "vfmdelementtreenodestack.h"
 #include "vfmdoutputdevice.h"
 

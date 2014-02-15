@@ -1,7 +1,7 @@
 #ifndef EMPHASISHANDLER_H
 #define EMPHASISHANDLER_H
 
-#include "spanelements/vfmdspanelementhandler.h"
+#include "vfmdspanelementhandler.h"
 #include <stdio.h>
 
 class EmphasisHandler : public VfmdSpanElementHandler

@@ -1,6 +1,6 @@
 #include "vfmdelementregistry.h"
-#include "spanelements/vfmdspanelementhandler.h"
-#include "blockelements/vfmdblockelementhandler.h"
+#include "vfmdspanelementhandler.h"
+#include "vfmdblockelementhandler.h"
 #include <stdio.h>
 
 VfmdElementRegistry::VfmdElementRegistry()

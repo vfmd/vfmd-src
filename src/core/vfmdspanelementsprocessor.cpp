@@ -5,7 +5,7 @@
 #include "vfmdelementregistry.h"
 #include "vfmdspantagstack.h"
 #include "vfmdscopedpointer.h"
-#include "spanelements/vfmdspanelementhandler.h"
+#include "vfmdspanelementhandler.h"
 #include "vfmdelementtreenode.h"
 
 static bool isValidUtf8StartByte(unsigned char c)
