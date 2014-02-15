@@ -16,6 +16,18 @@ public:
 
     void addLine(const VfmdLine &line);
 
+    // trimLeft(): Remove any leading whitespace characters in the
+    // line array, even if they exist across multiple lines
+    void trimLeft();
+
+    // trimRight(): Remove any trailing whitespace characters in the
+    // line array, even if they exist across multiple lines
+    void trimRight();
+
+    // trim(): Remove leading and trailing whitespace characters in the
+    // line array, even if they exist across multiple lines
+    void trim();
+
     unsigned int lineCount() const;
     const VfmdLine *lineAt(unsigned int lineIndex) const;
 

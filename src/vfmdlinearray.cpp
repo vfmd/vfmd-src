@@ -26,6 +26,36 @@ void VfmdLineArray::addLine(const VfmdLine &line)
     }
 }
 
+void VfmdLineArray::trimLeft()
+{
+    while (m_lines->size() > 0) {
+        VfmdLine *firstLine = m_lines->itemAt(0);
+        firstLine->trimLeft();
+        if (firstLine->size() > 0) {
+            break;
+        }
+        m_lines->removeItemAt(0);
+    }
+}
+
+void VfmdLineArray::trimRight()
+{
+    while (m_lines->size() > 0) {
+        VfmdLine *lastLine = m_lines->lastItem();
+        lastLine->trimRight();
+        if (lastLine->size() > 0) {
+            break;
+        }
+        m_lines->removeLastItem();
+    }
+}
+
+void VfmdLineArray::trim()
+{
+    trimRight();
+    trimLeft();
+}
+
 unsigned int VfmdLineArray::lineCount() const
 {
     return m_lines->size();
