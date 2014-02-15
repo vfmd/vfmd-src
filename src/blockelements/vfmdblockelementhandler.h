@@ -18,6 +18,11 @@ public:
 
     /* A short text describing this syntax (eg. "emphasis", "strikethrough") */
     virtual const char *description() const;
+
+private:
+    /* Prevent copying of this class */
+    VfmdBlockElementHandler(const VfmdBlockElementHandler& other);
+    VfmdBlockElementHandler& operator=(const VfmdBlockElementHandler& other);
 };
 
 class VfmdBlockLineSequence {
@@ -30,6 +35,10 @@ public:
     const VfmdInputLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
 private:
+    /* Prevent copying of this class */
+    VfmdBlockLineSequence(const VfmdBlockLineSequence& other);
+    VfmdBlockLineSequence& operator=(const VfmdBlockLineSequence& other);
+
     const VfmdInputLineSequence *m_parentLineSequence;
 };
 

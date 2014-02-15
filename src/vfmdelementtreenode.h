@@ -65,6 +65,10 @@ public:
     static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 
 private:
+    /* Prevent copying of this class */
+    VfmdElementTreeNode(const VfmdElementTreeNode& other);
+    VfmdElementTreeNode& operator=(const VfmdElementTreeNode& other);
+
     VfmdElementTreeNode *lastSiblingNode();
 
     VfmdElementTreeNode *m_nextSibling, *m_lastSibling;

@@ -53,6 +53,11 @@ public:
 
     /* A short text describing this syntax (eg. "emphasis", "strikethrough") */
     virtual const char *description() const;
+
+private:
+    /* Prevent copying of this class */
+    VfmdSpanElementHandler(const VfmdSpanElementHandler& other);
+    VfmdSpanElementHandler& operator=(const VfmdSpanElementHandler& other);
 };
 
 class VfmdOpeningSpanTagStackNode
@@ -75,6 +80,10 @@ public:
     void appendToContainedElements(VfmdOpeningSpanTagStackNode *node);
 
 private:
+    /* Prevent copying of this class */
+    VfmdOpeningSpanTagStackNode(const VfmdOpeningSpanTagStackNode& other);
+    VfmdOpeningSpanTagStackNode& operator=(const VfmdOpeningSpanTagStackNode& other);
+
     VfmdElementTreeNode *m_containedElements;
 
     friend class VfmdElementTreeNode;

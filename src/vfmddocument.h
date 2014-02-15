@@ -12,6 +12,10 @@ public:
     VfmdElementTreeNode* end();
 
 private:
+    /* Prevent copying of this class */
+    VfmdDocument(const VfmdDocument& other);
+    VfmdDocument& operator=(const VfmdDocument& other);
+
     VfmdPreprocessor *m_preprocessor;
     VfmdInputLineSequence *m_documentLineSequence;
 };

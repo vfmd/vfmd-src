@@ -98,6 +98,9 @@ public:
     static VfmdElementRegistry* createRegistryWithDefaultElements();
 
 private:
+    /* Prevent copying of this class */
+    VfmdElementRegistry(const VfmdElementRegistry& other);
+    VfmdElementRegistry& operator=(const VfmdElementRegistry& other);
 
     // Block elements
 

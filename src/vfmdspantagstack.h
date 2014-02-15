@@ -40,6 +40,9 @@ public:
     void print() const;
 
 private:
+    /* Prevent copying of this class */
+    VfmdSpanTagStack(const VfmdSpanTagStack& other);
+    VfmdSpanTagStack& operator=(const VfmdSpanTagStack& other);
 
     VfmdPointerArray<VfmdOpeningSpanTagStackNode> *m_nodes;
 };

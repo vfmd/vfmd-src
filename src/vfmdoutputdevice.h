@@ -15,6 +15,11 @@ public:
 
 protected:
     virtual bool writeData(const char *data, int len) = 0;
+
+private:
+    /* Prevent copying of this class */
+    VfmdOutputDevice(const VfmdOutputDevice& other);
+    VfmdOutputDevice& operator=(const VfmdOutputDevice& other);
 };
 
 class VfmdFileOutputDevice : public VfmdOutputDevice

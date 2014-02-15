@@ -28,6 +28,10 @@ public:
     VfmdLineArrayIterator end() const;
 
 private:
+    /* Prevent copying of this class */
+    VfmdLineArray(const VfmdLineArray& other);
+    VfmdLineArray& operator=(const VfmdLineArray& other);
+
     VfmdPointerArray<VfmdLine> *m_lines;
 };
 

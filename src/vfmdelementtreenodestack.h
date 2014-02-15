@@ -16,6 +16,10 @@ public:
     const VfmdElementTreeNode* pop();
 
 private:
+    /* Prevent copying of this class */
+    VfmdElementTreeNodeStack(const VfmdElementTreeNodeStack& other);
+    VfmdElementTreeNodeStack& operator=(const VfmdElementTreeNodeStack& other);
+
     VfmdPointerArray<const VfmdElementTreeNode> *m_nodes;
 };
 

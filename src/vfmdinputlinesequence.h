@@ -33,6 +33,10 @@ public:
     void setChildSequence(VfmdBlockLineSequence *lineSequence);
 
 private:
+    /* Prevent copying of this class */
+    VfmdInputLineSequence(const VfmdInputLineSequence& other);
+    VfmdInputLineSequence& operator=(const VfmdInputLineSequence& other);
+
     void processLineInChildSequence();
 
     VfmdLine m_currentLine, m_nextLine;
