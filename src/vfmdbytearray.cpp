@@ -453,6 +453,9 @@ void VfmdByteArray::squeeze()
 const char* VfmdByteArray::c_str() const
 {
     size_t len = size();
+    if (len == 0) {
+        return "";
+    }
     if (lastByte() == '\n') {
         len++;
     }
