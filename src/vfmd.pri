@@ -36,7 +36,8 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/core/vfmdpreprocessor.h \
            $$PWD/core/vfmdspanelementsprocessor.h \
            $$PWD/core/vfmdpointerarray.h \
-           $$PWD/core/vfmdscopedpointer.h
+           $$PWD/core/vfmdscopedpointer.h \
+           $$PWD/core/vfmddictionary.h
 
 BLK = $$PWD/blockelements
 
