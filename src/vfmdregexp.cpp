@@ -28,6 +28,7 @@ public:
             printf("VfmdRegexp: Bad regexp pattern [%s]. Error \"%s\" at position %d.\n", patternStr, errorMsg, errorOffsetInString);
         }
         capturedTextCount = 0;
+        matchFound = false;
     }
 
     Private(pcre *p, const VfmdByteArray &s, int ctc, int *cd) : refCount(1) {
@@ -54,6 +55,7 @@ public:
     VfmdByteArray subjectBa;
     int capturedTextCount;
     int captureData[MAX_CAPTURE_COUNT * 3];
+    bool matchFound;
 };
 
 VfmdRegexp::VfmdRegexp(const char *pattern)
@@ -77,8 +79,15 @@ int VfmdRegexp::indexIn(const VfmdByteArray &ba, int offset)
         return -1;
     }
 
+    if (ba == d->subjectBa) {
+        // Nothing to do
+        if (d->matchFound) {
+            return d->captureData[0];
+        }
+        return -1;
+    }
+
     copyOnWrite();
-    d->subjectBa = ba;
     int options = 0;
 #ifndef VFMD_DEBUG
         options = (options | PCRE_NO_UTF8_CHECK);
@@ -100,10 +109,13 @@ int VfmdRegexp::indexIn(const VfmdByteArray &ba, int offset)
         printf("VfmdRegexp: Matching failed with PCRE error code: %d.\n", matchCode);
     }
     d->capturedTextCount = capturedTextCount;
+    d->subjectBa = ba;
 
     if (matchCode >= 0) {
+        d->matchFound = true;
         return d->captureData[0];
     }
+    d->matchFound = false;
     return -1;
 }
 
