@@ -5,8 +5,9 @@ class VfmdConstants {
 public:
 
 enum VfmdBlockElementType {
-    PARAGRAPH_ELEMENT,
+    NULL_BLOCK_ELEMENT,
     BLOCKQUOTE_ELEMENT,
+    PARAGRAPH_ELEMENT,
     USER_BLOCK_ELEMENT = 100,
     MAX_USER_BLOCK_ELEMENT = 255
 };

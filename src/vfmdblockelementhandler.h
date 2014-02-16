@@ -3,6 +3,7 @@
 
 #include "vfmdline.h"
 #include "vfmdelementtreenode.h"
+#include "vfmdinputlinesequence.h"
 
 #define UNUSED_ARG(x) (void)x;
 

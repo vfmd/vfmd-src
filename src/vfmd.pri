@@ -51,7 +51,8 @@ SOURCES += \
 
 HEADERS += \
            $$BLK/paragraphhandler.h \
-           $$BLK/blockquotehandler.h
+           $$BLK/blockquotehandler.h \
+           $$BLK/nullblockhandler.h
 
 SPN = $$PWD/spanelements
 
