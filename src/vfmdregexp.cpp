@@ -107,7 +107,7 @@ int VfmdRegexp::indexIn(const VfmdByteArray &ba, int offset)
     return -1;
 }
 
-bool VfmdRegexp::match(const VfmdByteArray &ba)
+bool VfmdRegexp::matches(const VfmdByteArray &ba)
 {
     return (indexIn(ba) >= 0);
 }
