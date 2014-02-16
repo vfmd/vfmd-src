@@ -25,7 +25,12 @@ bool VfmdLine::isBlankLine() const
     const char *data_ptr = data();
     size_t sz = size();
     for (unsigned int i = 0; i < sz; i++) {
-        if (data_ptr[i] != 0x20 /* space */ && data_ptr[i] != 0x0a /* LF */) {
+        const char c = data_ptr[i];
+        if (c != 0x09 /* Tab */ &&
+            c != 0x0a /* LF */ &&
+            c != 0x0c /* FF */ &&
+            c != 0x0d /* CR */ &&
+            c != 0x20 /* Space */) {
             return false;
         }
     }
