@@ -59,9 +59,6 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
         }
         outputDevice->write("<p>");
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-            renderHtmlIndent(outputDevice, ancestorNodes);
-        }
         outputDevice->write("</p>\n");
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
