@@ -48,11 +48,13 @@ HEADERS += $$PWD/vfmdbytearray.h \
 BLK = $$PWD/blockelements
 
 SOURCES += \
+           $$BLK/refresolutionblockhandler.cpp \
            $$BLK/blockquotehandler.cpp \
            $$BLK/paragraphhandler.cpp
 
 HEADERS += \
            $$BLK/nullblockhandler.h \
+           $$BLK/refresolutionblockhandler.h \
            $$BLK/blockquotehandler.h \
            $$BLK/paragraphhandler.h
 

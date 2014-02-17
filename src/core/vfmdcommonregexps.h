@@ -13,6 +13,18 @@ class VfmdCommonRegexps
 public:
     // Static methods returning regexp instances
 
+    // Quoted strings
+    static VfmdRegexp& beginningWithSingleQuotedString();
+    static VfmdRegexp& beginningWithDoubleQuotedString();
+
+    // Reference-resolution block
+    static VfmdRegexp& refResolutionBlockLabelAndPlainURL();
+    static VfmdRegexp& refResolutionBlockLabelAndBracketedURL();
+    static VfmdRegexp& refResolutionBlockTitleLine();
+    static VfmdRegexp& refResolutionBlockFullLabelAndURL();
+    static VfmdRegexp& refResolutionBlockFullLabelURLAndText();
+    static VfmdRegexp& refResolutionBlockBracketedTitle();
+
 };
 
 #endif // VFMDCOMMONREGEXPS_H
