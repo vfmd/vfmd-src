@@ -76,6 +76,10 @@ public:
     void trimRight();
     VfmdByteArray leftTrimmed() const;
     VfmdByteArray rightTrimmed() const;
+    VfmdByteArray trimmed() const;
+
+    /* Simplifying (trim, and replace internal whitespace with a single space) */
+    VfmdByteArray simplified() const;
 
     /* Ensure there are atleast 'length' bytes of allocated space.
      * This can cause an internal realloc and/or data copy. */

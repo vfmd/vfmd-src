@@ -345,6 +345,67 @@ VfmdByteArray VfmdByteArray::rightTrimmed() const
     return implicitCopy;
 }
 
+VfmdByteArray VfmdByteArray::trimmed() const
+{
+    VfmdByteArray implicitCopy = *(this);
+    implicitCopy.trimRight();
+    implicitCopy.trimLeft();
+    return implicitCopy;
+}
+
+VfmdByteArray VfmdByteArray::simplified() const
+{
+    VfmdByteArray ba;
+    VfmdByteArray trimmedSelf = trimmed();
+    ba.reserve(trimmedSelf.size());
+
+    const char *data_ptr = trimmedSelf.data();
+    size_t sz = trimmedSelf.size();
+    bool isInWhitespaceStretch;
+
+    bool isAlreadySimplified = true;
+    isInWhitespaceStretch = false;
+    for (unsigned int i = 0; i < sz; i++) {
+        char c = data_ptr[i];
+        if (c == 0x09 /* Tab */ ||
+            c == 0x0a /* LF */ ||
+            c == 0x0c /* FF */ ||
+            c == 0x0d /* CR */ ||
+            c == 0x20 /* Space */) {
+            if (isInWhitespaceStretch || (c != 0x20)) {
+                isAlreadySimplified = false;
+                break;
+            }
+            isInWhitespaceStretch = true;
+        } else {
+            isInWhitespaceStretch = false;
+        }
+    }
+
+    if (isAlreadySimplified) {
+        return trimmedSelf;
+    }
+
+    isInWhitespaceStretch = false;
+    for (unsigned int i = 0; i < sz; i++) {
+        char c = data_ptr[i];
+        if (c == 0x09 /* Tab */ ||
+            c == 0x0a /* LF */ ||
+            c == 0x0c /* FF */ ||
+            c == 0x0d /* CR */ ||
+            c == 0x20 /* Space */) {
+            if (!isInWhitespaceStretch) {
+                ba.appendByte(0x20 /* Space */);
+                isInWhitespaceStretch = true;
+            }
+        } else {
+            ba.appendByte(c);
+            isInWhitespaceStretch = false;
+        }
+    }
+    return ba;
+}
+
 void VfmdByteArray::reserve(size_t length)
 {
     if (d->allocatedSize < length) {
