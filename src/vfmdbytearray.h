@@ -55,6 +55,9 @@ public:
     char lastByte() const;
     bool startsWith(const char *str) const;
     char firstNonSpace() const;
+    char lastNonSpace() const;
+    int indexOfFirstNonSpace() const;
+    int indexOfLastNonSpace() const;
 
     /* Return the left 'count' bytes as a bytearray (without any data-replication) */
     VfmdByteArray left(unsigned int count) const;

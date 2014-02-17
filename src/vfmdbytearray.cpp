@@ -224,6 +224,42 @@ char VfmdByteArray::firstNonSpace() const
     return 0;
 }
 
+char VfmdByteArray::lastNonSpace() const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    for (int i = (int) sz - 1; i >= 0; i--) {
+        if (data_ptr[i] != 0x20 /* space */) {
+            return data_ptr[i];
+        }
+    }
+    return 0;
+}
+
+int VfmdByteArray::indexOfFirstNonSpace() const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    for (unsigned int i = 0; i < sz; i++) {
+        if (data_ptr[i] != 0x20 /* space */) {
+            return (int) i;
+        }
+    }
+    return -1;
+}
+
+int VfmdByteArray::indexOfLastNonSpace() const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    for (int i = (int) sz - 1; i >= 0; i--) {
+        if (data_ptr[i] != 0x20 /* space */) {
+            return (int) i;
+        }
+    }
+    return -1;
+}
+
 VfmdByteArray VfmdByteArray::left(unsigned int count) const
 {
     VfmdByteArray ba = *this;
