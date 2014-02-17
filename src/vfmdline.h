@@ -12,6 +12,9 @@ public:
     /* Create an empty and invalid line */
     VfmdLine();
 
+    /* Implicit cast from a bytearray, without checking for ending newline */
+    VfmdLine(const VfmdByteArray &ba);
+
     /* Create a line with a copy of the null-terminated string 'str' */
     VfmdLine(const char *str);
 
