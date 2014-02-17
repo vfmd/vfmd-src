@@ -49,11 +49,13 @@ BLK = $$PWD/blockelements
 
 SOURCES += \
            $$BLK/refresolutionblockhandler.cpp \
+           $$BLK/setextheaderhandler.cpp \
            $$BLK/blockquotehandler.cpp \
            $$BLK/paragraphhandler.cpp
 
 HEADERS += \
            $$BLK/nullblockhandler.h \
+           $$BLK/setextheaderhandler.h \
            $$BLK/refresolutionblockhandler.h \
            $$BLK/blockquotehandler.h \
            $$BLK/paragraphhandler.h

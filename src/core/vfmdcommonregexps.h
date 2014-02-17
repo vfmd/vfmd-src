@@ -25,6 +25,9 @@ public:
     static VfmdRegexp& refResolutionBlockFullLabelURLAndText();
     static VfmdRegexp& refResolutionBlockBracketedTitle();
 
+    // Setext header
+    static VfmdRegexp& setextHeaderUnderline();
+
 };
 
 #endif // VFMDCOMMONREGEXPS_H

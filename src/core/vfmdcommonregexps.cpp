@@ -47,3 +47,9 @@ VfmdRegexp& VfmdCommonRegexps::refResolutionBlockBracketedTitle()
     static VfmdRegexp re("^\\((([^\\\\\\(\\)]|\\\\.)*)\\)");
     return re;
 }
+
+VfmdRegexp& VfmdCommonRegexps::setextHeaderUnderline()
+{
+    static VfmdRegexp re("^(-+|=+) *$");
+    return re;
+}
