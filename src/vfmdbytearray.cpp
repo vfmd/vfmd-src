@@ -454,6 +454,20 @@ VfmdByteArray VfmdByteArray::bytesInStringRemoved(const char *bytesToRemove) con
     return ba;
 }
 
+void VfmdByteArray::chomp()
+{
+    if (lastByte() == '\n') {
+        chopRight(1);
+    }
+}
+
+VfmdByteArray VfmdByteArray::chomped() const
+{
+    VfmdByteArray ba = *(this);
+    ba.chomp();
+    return ba;
+}
+
 void VfmdByteArray::reserve(size_t length)
 {
     if (d->allocatedSize < length) {

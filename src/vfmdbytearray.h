@@ -84,6 +84,10 @@ public:
     /* Removing bytes */
     VfmdByteArray bytesInStringRemoved(const char *bytesToRemove) const;
 
+    /* Chomping (removing trailing newline) */
+    void chomp();
+    VfmdByteArray chomped() const;
+
     /* Ensure there are atleast 'length' bytes of allocated space.
      * This can cause an internal realloc and/or data copy. */
     void reserve(size_t length);
