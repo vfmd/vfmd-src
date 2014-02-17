@@ -48,13 +48,13 @@ HEADERS += $$PWD/vfmdbytearray.h \
 BLK = $$PWD/blockelements
 
 SOURCES += \
-           $$BLK/paragraphhandler.cpp \
-           $$BLK/blockquotehandler.cpp
+           $$BLK/blockquotehandler.cpp \
+           $$BLK/paragraphhandler.cpp
 
 HEADERS += \
-           $$BLK/paragraphhandler.h \
+           $$BLK/nullblockhandler.h \
            $$BLK/blockquotehandler.h \
-           $$BLK/nullblockhandler.h
+           $$BLK/paragraphhandler.h
 
 SPN = $$PWD/spanelements
 
