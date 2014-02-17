@@ -75,7 +75,7 @@ bool VfmdRegexp::isValid() const
 
 int VfmdRegexp::indexIn(const VfmdByteArray &ba, int offset)
 {
-    if (!isValid()) {
+    if (!isValid() || !ba.isValid()) {
         return -1;
     }
 
