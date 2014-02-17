@@ -448,6 +448,22 @@ void VfmdByteArray::squeeze()
     }
 }
 
+bool VfmdByteArray::operator==(const VfmdByteArray &other) const
+{
+    if (isValid() != other.isValid()) {
+        return false;
+    }
+    if (size() != other.size()) {
+        return false;
+    }
+    for (unsigned int i = 0; i < size(); i++) {
+        if (byteAt(i) != other.byteAt(i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // Printing helper
 
 const char* VfmdByteArray::c_str() const
