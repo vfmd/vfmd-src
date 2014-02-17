@@ -406,6 +406,54 @@ VfmdByteArray VfmdByteArray::simplified() const
     return ba;
 }
 
+VfmdByteArray VfmdByteArray::bytesInStringRemoved(const char *bytesToRemove) const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    int n = strlen(bytesToRemove);
+    bool isByteToBeRemoved;
+
+    int indexOfFirstByteToRemove = -1;
+    for (unsigned int i = 0; i < sz; i++) {
+        char c = data_ptr[i];
+        isByteToBeRemoved = false;
+        for (int j = 0; j < n; j++) {
+            if (c == bytesToRemove[j]) {
+                isByteToBeRemoved = true;
+                break;
+            }
+        }
+        if (isByteToBeRemoved) {
+            indexOfFirstByteToRemove = i;
+            break;
+        }
+    }
+
+    if (indexOfFirstByteToRemove < 0) {
+        return *(this);
+    }
+
+    VfmdByteArray ba;
+    ba.reserve(sz);
+    if (indexOfFirstByteToRemove > 0) {
+        ba.append(data_ptr, indexOfFirstByteToRemove);
+    }
+    for (unsigned int i = indexOfFirstByteToRemove + 1; i < sz; i++) {
+        char c = data_ptr[i];
+        isByteToBeRemoved = false;
+        for (int j = 0; j < n; j++) {
+            if (c == bytesToRemove[j]) {
+                isByteToBeRemoved = true;
+                break;
+            }
+        }
+        if (!isByteToBeRemoved) {
+            ba.appendByte(c);
+        }
+    }
+    return ba;
+}
+
 void VfmdByteArray::reserve(size_t length)
 {
     if (d->allocatedSize < length) {
