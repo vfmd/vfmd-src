@@ -54,6 +54,7 @@ SOURCES += \
            $$BLK/atxheaderhandler.cpp \
            $$BLK/blockquotehandler.cpp \
            $$BLK/horizontalrulehandler.cpp \
+           $$BLK/unorderedlisthandler.cpp \
            $$BLK/paragraphhandler.cpp
 
 HEADERS += \
@@ -64,6 +65,7 @@ HEADERS += \
            $$BLK/atxheaderhandler.h \
            $$BLK/blockquotehandler.h \
            $$BLK/horizontalrulehandler.h \
+           $$BLK/unorderedlisthandler.h \
            $$BLK/paragraphhandler.h
 
 SPN = $$PWD/spanelements
