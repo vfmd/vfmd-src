@@ -83,3 +83,15 @@ VfmdRegexp& VfmdCommonRegexps::horizontalRule()
     static VfmdRegexp re("^ *((\\* *\\* *\\* *[\\* ]*)|(\\- *\\- *\\- *[\\- ]*)|(_ *_ *_ *[_ ]*))$");
     return re;
 }
+
+VfmdRegexp& VfmdCommonRegexps::unorderedListStarter()
+{
+    static VfmdRegexp re("^( *[\\*\\-\\+] +)[^ ]");
+    return re;
+}
+
+VfmdRegexp& VfmdCommonRegexps::orderedListStarter()
+{
+    static VfmdRegexp re("^( *([0-9]+)\\. +)[^ ]");
+    return re;
+}

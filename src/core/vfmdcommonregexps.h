@@ -39,6 +39,9 @@ public:
     // Horizontal rule
     static VfmdRegexp& horizontalRule();
 
+    // List
+    static VfmdRegexp& unorderedListStarter();
+    static VfmdRegexp& orderedListStarter();
 };
 
 #endif // VFMDCOMMONREGEXPS_H
