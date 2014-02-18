@@ -200,7 +200,8 @@ bool VfmdByteArray::startsWith(const char *str) const
 {
     const char *data_ptr = data();
     size_t sz = size();
-    for (unsigned int i = 0; i < sz; i++) {
+    unsigned int i;
+    for (i = 0; i < sz; i++) {
         const char c = str[i];
         if (c == 0) {
             return true;
@@ -209,6 +210,11 @@ bool VfmdByteArray::startsWith(const char *str) const
             return false;
         }
     }
+    if (str[i] == 0) {
+        // strings are equal
+        return true;
+    }
+    // str has more unmatched bytes
     return false;
 }
 
@@ -220,7 +226,8 @@ bool VfmdByteArray::startsWith(const VfmdByteArray &ba) const
     const char *data_ptr = data();
     size_t sz = size();
     size_t subjectSize = ba.size();
-    for (unsigned int i = 0; i < sz; i++) {
+    unsigned int i;
+    for (i = 0; i < sz; i++) {
         if (i == subjectSize) {
             return true;
         }
@@ -229,6 +236,11 @@ bool VfmdByteArray::startsWith(const VfmdByteArray &ba) const
             return false;
         }
     }
+    if (i == subjectSize) {
+        // strings are equal
+        return true;
+    }
+    // ba has more unmatched bytes
     return false;
 }
 
