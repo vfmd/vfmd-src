@@ -639,20 +639,31 @@ void VfmdByteArray::squeeze()
     }
 }
 
+bool VfmdByteArray::isEqualTo(const char *str, int len) const
+{
+    if (len == 0) {
+        len = strlen(str);
+    }
+    if (!isValid()) {
+        return false;
+    }
+    if (size() != len) {
+        return false;
+    }
+    for (unsigned int i = 0; i < size(); i++) {
+        if (byteAt(i) != str[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool VfmdByteArray::operator==(const VfmdByteArray &other) const
 {
     if (isValid() != other.isValid()) {
         return false;
     }
-    if (size() != other.size()) {
-        return false;
-    }
-    for (unsigned int i = 0; i < size(); i++) {
-        if (byteAt(i) != other.byteAt(i)) {
-            return false;
-        }
-    }
-    return true;
+    return isEqualTo(other.data(), other.size());
 }
 
 // Printing helper
