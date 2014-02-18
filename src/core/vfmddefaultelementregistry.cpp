@@ -7,6 +7,7 @@
 #include "blockelements/codeblockhandler.h"
 #include "blockelements/atxheaderhandler.h"
 #include "blockelements/blockquotehandler.h"
+#include "blockelements/horizontalrulehandler.h"
 #include "blockelements/paragraphhandler.h"
 
 #include "spanelements/emphasishandler.h"
@@ -22,6 +23,7 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
     registry->appendBlockElement(VfmdConstants::CODE_BLOCK_ELEMENT, new CodeBlockHandler);
     registry->appendBlockElement(VfmdConstants::ATX_HEADER_ELEMENT, new AtxHeaderHandler);
     registry->appendBlockElement(VfmdConstants::BLOCKQUOTE_ELEMENT, new BlockquoteHandler);
+    registry->appendBlockElement(VfmdConstants::HORIZONTAL_RULE_ELEMENT, new HorizontalRuleHandler);
     registry->appendBlockElement(VfmdConstants::PARAGRAPH_ELEMENT, new ParagraphHandler);
 
     // Span elements
