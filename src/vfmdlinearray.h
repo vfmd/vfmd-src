@@ -33,6 +33,8 @@ public:
 
     void print() const;
 
+    void clear();
+
     /* Traverse the line array using an iterator.
      * If you modify the line array, the iterator becomes invalid,
      * and you need to call begin() or end() afresh. */

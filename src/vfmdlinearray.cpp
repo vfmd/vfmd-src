@@ -73,6 +73,15 @@ void VfmdLineArray::print() const
     }
 }
 
+void VfmdLineArray::clear()
+{
+    for (unsigned int i = 0; i < m_lines->size(); i++) {
+        delete m_lines->itemAt(i);
+    }
+    delete m_lines;
+    m_lines = new VfmdPointerArray<VfmdLine>(ALLOC_CHUNK_SIZE);
+}
+
 VfmdLineArrayIterator VfmdLineArray::begin() const
 {
     return VfmdLineArrayIterator(this, 0, 0);
