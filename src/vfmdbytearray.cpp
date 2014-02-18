@@ -212,6 +212,26 @@ bool VfmdByteArray::startsWith(const char *str) const
     return false;
 }
 
+bool VfmdByteArray::startsWith(const VfmdByteArray &ba) const
+{
+    if (!ba.isValid()) {
+        return false;
+    }
+    const char *data_ptr = data();
+    size_t sz = size();
+    size_t subjectSize = ba.size();
+    for (unsigned int i = 0; i < sz; i++) {
+        if (i == subjectSize) {
+            return true;
+        }
+        const char c = ba.byteAt(i);
+        if (data_ptr[i] != c) {
+            return false;
+        }
+    }
+    return false;
+}
+
 char VfmdByteArray::firstNonSpace() const
 {
     const char *data_ptr = data();

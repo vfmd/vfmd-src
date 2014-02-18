@@ -54,6 +54,7 @@ public:
     char byteAt(unsigned int pos) const;
     char lastByte() const;
     bool startsWith(const char *str) const;
+    bool startsWith(const VfmdByteArray &ba) const;
     char firstNonSpace() const;
     char lastNonSpace() const;
     int indexOfFirstNonSpace() const;
