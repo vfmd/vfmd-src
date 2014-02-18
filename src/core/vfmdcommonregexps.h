@@ -31,6 +31,14 @@ public:
     // Atx header
     static VfmdRegexp& atxHeaderLineWithHeaderText();
     static VfmdRegexp& atxHeaderLineWithoutHeaderText();
+
+    // Blockquote
+    static VfmdRegexp& blockquotePrefixWithEndingSpace();
+    static VfmdRegexp& blockquotePrefixWithoutEndingSpace();
+
+    // Horizontal rule
+    static VfmdRegexp& horizontalRule();
+
 };
 
 #endif // VFMDCOMMONREGEXPS_H

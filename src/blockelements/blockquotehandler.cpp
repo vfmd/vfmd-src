@@ -2,12 +2,13 @@
 #include <assert.h>
 #include "blockquotehandler.h"
 #include "vfmdinputlinesequence.h"
+#include "vfmdcommonregexps.h"
 
 void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
-    if (lineSequence->currentLine().startsWith("> ")) {
-        BlockquoteLineSequence *blockquoteLineSequence = new BlockquoteLineSequence(lineSequence);
-        lineSequence->setChildSequence(blockquoteLineSequence);
+    VfmdLine firstLine = lineSequence->currentLine();
+    if (firstLine.firstNonSpace() == '>') {
+        lineSequence->setChildSequence(new BlockquoteLineSequence(lineSequence));
     }
 }
 
@@ -24,31 +25,55 @@ BlockquoteLineSequence::~BlockquoteLineSequence()
 
 void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
 {
-    UNUSED_ARG(isEndOfParentLineSequence);
-    VfmdLine processedLine = currentLine;
-    if (processedLine.startsWith("> ")) {
-        processedLine.chopLeft(2);
+    if (currentLine.isBlankLine()) {
+        // If the last line is a blank line, ignore it
+        if (isEndOfParentLineSequence) {
+            return;
+        }
+        VfmdLine nextLine = parentLineSequence()->nextLine();
+        if (isEndOfBlock(currentLine, nextLine)) {
+            return;
+        }
     }
-    m_childSequence->addLine(processedLine);
+
+    VfmdRegexp rePrefixWithEndingSpace = VfmdCommonRegexps::blockquotePrefixWithEndingSpace();
+    VfmdRegexp rePrefixWithoutEndingSpace = VfmdCommonRegexps::blockquotePrefixWithoutEndingSpace();
+
+    VfmdLine line = currentLine;
+    unsigned int lengthOfMatch = 0;
+    if (rePrefixWithEndingSpace.matches(line)) {
+        lengthOfMatch = rePrefixWithEndingSpace.capturedText(0).size();
+    } else if (rePrefixWithoutEndingSpace.matches(line)) {
+        lengthOfMatch = rePrefixWithoutEndingSpace.capturedText(0).size();
+    }
+    if (lengthOfMatch > 0) {
+        line.chopLeft(lengthOfMatch);
+    }
+    m_childSequence->addLine(line);
 }
 
 bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
 {
     if (!nextLine.isValid()) {
         return true;
+    }
+    if (currentLine.isBlankLine()) {
+        // current line is a blank line
+        if (nextLine.isBlankLine()) {
+            return true;
+        }
+        if (nextLine.startsWith("    ")) {
+            return true;
+        }
+        if (nextLine.firstNonSpace() != '>') {
+            return true;
+        }
     } else {
-        if (currentLine.isBlankLine()) {
-            if (nextLine.isBlankLine()) {
-                return true;
-            }
-            if (nextLine.startsWith("    ")) {
-                return true;
-            }
-            if (nextLine.firstNonSpace() != '>') {
-                return true;
-            }
-        } else {
-            // TODO: Match with horizontal rule regexp
+        // current line is not a blank line
+        VfmdRegexp reHorizontalRule = VfmdCommonRegexps::horizontalRule();
+        if ((!nextLine.startsWith("    ")) &&
+            (reHorizontalRule.matches(nextLine.chomped())) ) {
+            return true;
         }
     }
     return false;
