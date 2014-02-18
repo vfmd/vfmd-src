@@ -28,6 +28,9 @@ public:
     // Setext header
     static VfmdRegexp& setextHeaderUnderline();
 
+    // Atx header
+    static VfmdRegexp& atxHeaderLineWithHeaderText();
+    static VfmdRegexp& atxHeaderLineWithoutHeaderText();
 };
 
 #endif // VFMDCOMMONREGEXPS_H

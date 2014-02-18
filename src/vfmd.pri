@@ -51,6 +51,7 @@ SOURCES += \
            $$BLK/refresolutionblockhandler.cpp \
            $$BLK/setextheaderhandler.cpp \
            $$BLK/codeblockhandler.cpp \
+           $$BLK/atxheaderhandler.cpp \
            $$BLK/blockquotehandler.cpp \
            $$BLK/paragraphhandler.cpp
 
@@ -59,6 +60,7 @@ HEADERS += \
            $$BLK/setextheaderhandler.h \
            $$BLK/refresolutionblockhandler.h \
            $$BLK/codeblockhandler.h \
+           $$BLK/atxheaderhandler.h \
            $$BLK/blockquotehandler.h \
            $$BLK/paragraphhandler.h
 

@@ -53,3 +53,15 @@ VfmdRegexp& VfmdCommonRegexps::setextHeaderUnderline()
     static VfmdRegexp re("^(-+|=+) *$");
     return re;
 }
+
+VfmdRegexp& VfmdCommonRegexps::atxHeaderLineWithHeaderText()
+{
+    static VfmdRegexp re("^(#+)(.*[^#])#*$");
+    return re;
+}
+
+VfmdRegexp& VfmdCommonRegexps::atxHeaderLineWithoutHeaderText()
+{
+    static VfmdRegexp re("^(#+)$");
+    return re;
+}
