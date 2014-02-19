@@ -14,6 +14,7 @@ public:
 
     void push(const VfmdElementTreeNode *node);
     const VfmdElementTreeNode* pop();
+    const VfmdElementTreeNode* topNode();
 
 private:
     /* Prevent copying of this class */

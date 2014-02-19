@@ -29,3 +29,8 @@ const VfmdElementTreeNode* VfmdElementTreeNodeStack::pop()
 {
     return m_nodes->takeLastItem();
 }
+
+const VfmdElementTreeNode* VfmdElementTreeNodeStack::topNode()
+{
+    return ((m_nodes->size() > 0) ? m_nodes->lastItem() : 0);
+}
