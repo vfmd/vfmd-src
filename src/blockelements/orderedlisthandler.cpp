@@ -166,6 +166,7 @@ OrderedListTreeNode::OrderedListTreeNode(const VfmdByteArray& startingNumber)
 void OrderedListTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
+        outputDevice->write('\n');
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }

@@ -95,18 +95,21 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
 
         bool encloseContentInPTags = true;
         const VfmdElementTreeNode *parentNode = ancestorNodes->topNode();
+        bool isContainedInListItem = false;
         bool isContainedInTopPackedListItem = false;
         bool isContainedInBottomPackedListItem = false;
         if (parentNode) {
             if (parentNode->elementType() == VfmdConstants::UNORDERED_LIST_ELEMENT) {
                 const UnorderedListItemTreeNode *listItemNode = dynamic_cast<const UnorderedListItemTreeNode *>(parentNode);
                 if (listItemNode) {
+                    isContainedInListItem = true;
                     isContainedInTopPackedListItem = listItemNode->isTopPacked();
                     isContainedInBottomPackedListItem = listItemNode->isBottomPacked();
                 }
             } else if (parentNode->elementType() == VfmdConstants::ORDERED_LIST_ELEMENT) {
                 const OrderedListItemTreeNode *listItemNode = dynamic_cast<const OrderedListItemTreeNode *>(parentNode);
                 if (listItemNode) {
+                    isContainedInListItem = true;
                     isContainedInTopPackedListItem = listItemNode->isTopPacked();
                     isContainedInBottomPackedListItem = listItemNode->isBottomPacked();
                 }
@@ -128,8 +131,10 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
         }
 
         if (encloseContentInPTags) {
-            if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-                renderHtmlIndent(outputDevice, ancestorNodes);
+            if (!isContainedInListItem) {
+                if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
+                    renderHtmlIndent(outputDevice, ancestorNodes);
+                }
             }
             outputDevice->write("<p>");
         }

@@ -149,6 +149,7 @@ VfmdElementTreeNode* UnorderedListLineSequence::endBlock()
 void UnorderedListTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
+        outputDevice->write('\n');
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
@@ -171,9 +172,6 @@ void UnorderedListItemTreeNode::renderNode(VfmdConstants::RenderFormat format, i
         }
         outputDevice->write("<li>");
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-            renderHtmlIndent(outputDevice, ancestorNodes);
-        }
         outputDevice->write("</li>\n");
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
