@@ -21,12 +21,17 @@ public:
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 
-    void closeListItem();
+    void closeListItem(bool isEndOfList);
+    bool isTopPackedListItem(bool isEndOfList) const;
+    bool isBottomPackedListItem(bool isEndOfList) const;
 
 private:
     VfmdByteArray m_listStarterString;
     VfmdInputLineSequence *m_childSequence;
     UnorderedListTreeNode *m_listNode;
+    int m_numOfClosedListItems;
+    VfmdLine m_previousLine;
+    bool m_isCurrentListItemPrecededByABlankLine;
 };
 
 class UnorderedListTreeNode : public VfmdElementTreeNode {
@@ -49,6 +54,11 @@ public:
     UnorderedListItemTreeNode() { }
     ~UnorderedListItemTreeNode() { }
 
+    void setTopPacked(bool yes) { m_isTopPacked = yes; }
+    void setBottomPacked(bool yes) { m_isBottomPacked = yes; }
+    bool isTopPacked() const { return m_isTopPacked; }
+    bool isBottomPacked() const { return m_isBottomPacked; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::UNORDERED_LIST_ELEMENT; }
@@ -57,6 +67,9 @@ public:
     virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;
+
+private:
+    bool m_isTopPacked, m_isBottomPacked;
 };
 
 #endif // UNORDEREDLISTHANDLER_H
