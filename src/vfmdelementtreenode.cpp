@@ -115,6 +115,14 @@ VfmdElementTreeNode* VfmdElementTreeNode::firstChildNode() const
     return m_firstChild;
 }
 
+VfmdElementTreeNode *VfmdElementTreeNode::lastChildNode() const
+{
+    if (m_firstChild) {
+        return m_firstChild->lastSiblingNode();
+    }
+    return 0;
+}
+
 VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode()
 {
     if (m_nextSibling == 0) {

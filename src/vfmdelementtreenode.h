@@ -37,6 +37,7 @@ public:
 
     VfmdElementTreeNode *nextNode() const;
     VfmdElementTreeNode *firstChildNode() const;
+    VfmdElementTreeNode *lastChildNode() const;
 
     bool setNextNodeIfNotSet(VfmdElementTreeNode *node);
     bool setChildNodeIfNotSet(VfmdElementTreeNode *node);
