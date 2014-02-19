@@ -20,6 +20,7 @@ OrderedListLineSequence::OrderedListLineSequence(const VfmdInputLineSequence *pa
     , m_startingNumber(startingNumber)
     , m_childSequence(0)
     , m_listNode(new OrderedListTreeNode(startingNumber))
+    , m_numOfClosedListItems(0)
 {
 }
 
@@ -28,17 +29,54 @@ OrderedListLineSequence::~OrderedListLineSequence()
     delete m_childSequence;
 }
 
-void OrderedListLineSequence::closeListItem()
+void OrderedListLineSequence::closeListItem(bool isEndOfList)
 {
     if (m_childSequence) {
-        VfmdElementTreeNode *listItemNode = new OrderedListItemTreeNode();
+        OrderedListItemTreeNode *listItemNode = new OrderedListItemTreeNode();
+        listItemNode->setTopPacked(isTopPackedListItem(isEndOfList));
+        listItemNode->setBottomPacked(isBottomPackedListItem(isEndOfList));
         VfmdElementTreeNode *childSubTree = m_childSequence->endSequence();
         bool ok = listItemNode->setChildNodeIfNotSet(childSubTree);
         assert(ok);
         m_listNode->adoptAsLastChild(listItemNode);
         delete m_childSequence;
         m_childSequence = 0;
+        m_numOfClosedListItems++;
     }
+}
+
+bool OrderedListLineSequence::isTopPackedListItem(bool isEndOfList) const
+{
+    // This method is assumed to be called only from closeListItem()
+    VfmdLine lastLineOfListItem = m_previousLine;
+    bool isFirstListItem = (m_numOfClosedListItems == 0);
+    bool isLastListItem = isEndOfList;
+    bool isTopPacked = false;
+    if (isFirstListItem && isLastListItem) {
+        isTopPacked = true;
+    } else if (isFirstListItem && !lastLineOfListItem.isBlankLine()) {
+        isTopPacked = true;
+    } else if (!isFirstListItem && !m_isCurrentListItemPrecededByABlankLine) {
+        isTopPacked = true;
+    }
+    return isTopPacked;
+}
+
+bool OrderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
+{
+    // This method is assumed to be called only from closeListItem()
+    VfmdLine lastLineOfListItem = m_previousLine;
+    bool isFirstListItem = (m_numOfClosedListItems == 0);
+    bool isLastListItem = isEndOfList;
+    bool isBottomPacked = false;
+    if (isFirstListItem && isLastListItem) {
+        isBottomPacked = true;
+    } else if (!lastLineOfListItem.isBlankLine()) {
+        isBottomPacked = true;
+    } else if (!isLastListItem && !m_isCurrentListItemPrecededByABlankLine) {
+        isBottomPacked = true;
+    }
+    return isBottomPacked;
 }
 
 void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
@@ -53,9 +91,10 @@ void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, bool
     bool isListItemStartLine = (reStarterPattern.matches(currentLine) && lineStartHasNonSpace);
     if (isListItemStartLine) {
         // current line is the starting line of a list item
-        closeListItem();
+        closeListItem(false /* not the end of the list */);
         m_childSequence = new VfmdInputLineSequence(registry());
         m_childSequence->setContainingBlockSequenceType(VfmdConstants::ORDERED_LIST_ELEMENT);
+        m_isCurrentListItemPrecededByABlankLine = m_previousLine.isBlankLine();
         int matchLength = (int) reStarterPattern.capturedText(1).size();
         line.chopLeft(matchLength);
     } else {
@@ -72,6 +111,7 @@ void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, bool
         line.chopLeft(prefixedSpacesToRemove);
     }
     m_childSequence->addLine(line);
+    m_previousLine = currentLine;
 }
 
 bool OrderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
@@ -110,7 +150,7 @@ bool OrderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vf
 
 VfmdElementTreeNode* OrderedListLineSequence::endBlock()
 {
-    closeListItem();
+    closeListItem(true /* end of the list*/);
     return (VfmdElementTreeNode*) m_listNode;
 }
 
