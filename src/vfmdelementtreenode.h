@@ -28,6 +28,7 @@ public:
 
     void appendSubtreeToEndOfSequence(VfmdElementTreeNode *subtreeToAppend);
     void appendTextToEndOfSequence(const VfmdByteArray &textToAppend);
+    void adoptAsLastChild(VfmdElementTreeNode *subtreeToAdopt);
 
     void adoptContainedElements(VfmdOpeningSpanTagStackNode *stackNode);
 

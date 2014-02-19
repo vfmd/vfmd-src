@@ -59,17 +59,22 @@ void VfmdElementTreeNode::appendTextToEndOfSequence(const VfmdByteArray &textToA
     }
 }
 
+void VfmdElementTreeNode::adoptAsLastChild(VfmdElementTreeNode *subtreeToAdopt)
+{
+    if (subtreeToAdopt) {
+        if (m_firstChild == 0) {
+            m_firstChild = subtreeToAdopt;
+        } else {
+            m_firstChild->appendSubtreeToEndOfSequence(subtreeToAdopt);
+        }
+    }
+}
+
 void VfmdElementTreeNode::adoptContainedElements(VfmdOpeningSpanTagStackNode *stackNode)
 {
     VfmdElementTreeNode *containedElements = stackNode->m_containedElements;
-    if (containedElements) {
-        if (m_firstChild == 0) {
-            m_firstChild = containedElements;
-        } else {
-            m_firstChild->appendSubtreeToEndOfSequence(containedElements);
-        }
-        stackNode->m_containedElements = 0;
-    }
+    adoptAsLastChild(containedElements);
+    stackNode->m_containedElements = 0;
 }
 
 bool VfmdElementTreeNode::setNextNodeIfNotSet(VfmdElementTreeNode *node)
