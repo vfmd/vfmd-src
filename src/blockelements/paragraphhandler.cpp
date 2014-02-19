@@ -4,6 +4,9 @@
 #include "vfmdinputlinesequence.h"
 #include "textspantreenode.h"
 #include "vfmdcommonregexps.h"
+#include "vfmdelementtreenodestack.h"
+#include "orderedlisthandler.h"
+#include "unorderedlisthandler.h"
 
 void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
@@ -89,12 +92,51 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
                                    VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
-        if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-            renderHtmlIndent(outputDevice, ancestorNodes);
+
+        bool encloseContentInPTags = true;
+        const VfmdElementTreeNode *parentNode = ancestorNodes->topNode();
+        bool isContainedInTopPackedListItem = false;
+        bool isContainedInBottomPackedListItem = false;
+        if (parentNode) {
+            if (parentNode->elementType() == VfmdConstants::UNORDERED_LIST_ELEMENT) {
+                const UnorderedListItemTreeNode *listItemNode = dynamic_cast<const UnorderedListItemTreeNode *>(parentNode);
+                if (listItemNode) {
+                    isContainedInTopPackedListItem = listItemNode->isTopPacked();
+                    isContainedInBottomPackedListItem = listItemNode->isBottomPacked();
+                }
+            } else if (parentNode->elementType() == VfmdConstants::ORDERED_LIST_ELEMENT) {
+                const OrderedListItemTreeNode *listItemNode = dynamic_cast<const OrderedListItemTreeNode *>(parentNode);
+                if (listItemNode) {
+                    isContainedInTopPackedListItem = listItemNode->isTopPacked();
+                    isContainedInBottomPackedListItem = listItemNode->isBottomPacked();
+                }
+            }
         }
-        outputDevice->write("<p>");
+        if (isContainedInTopPackedListItem) {
+            bool firstBlockInParent = (parentNode && parentNode->firstChildNode() == this);
+            if (firstBlockInParent) {
+                encloseContentInPTags = false;
+            }
+        }
+        if (isContainedInBottomPackedListItem) {
+            bool secondBlockInParent = (parentNode && parentNode->firstChildNode() &&
+                                        parentNode->firstChildNode()->nextNode() == this);
+            bool lastBlockInParent = (parentNode && parentNode->lastChildNode() == this);
+            if (lastBlockInParent && !secondBlockInParent) {
+                encloseContentInPTags = false;
+            }
+        }
+
+        if (encloseContentInPTags) {
+            if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
+                renderHtmlIndent(outputDevice, ancestorNodes);
+            }
+            outputDevice->write("<p>");
+        }
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        outputDevice->write("</p>\n");
+        if (encloseContentInPTags) {
+            outputDevice->write("</p>\n");
+        }
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
