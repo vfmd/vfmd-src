@@ -7,6 +7,7 @@
 #include "vfmdoutputdevice.h"
 
 #define BUFFER_SIZE 1024
+// #define OUTPUT_TREE
 
 int main(int argc, char *argv[])
 {
@@ -34,10 +35,16 @@ int main(int argc, char *argv[])
 
     VfmdElementTreeNode *parseTree = document.end();
     VfmdConsoleOutputDevice console;
+#ifdef OUTPUT_TREE
+    parseTree->renderSequence(VfmdConstants::TREE_FORMAT,
+                              (VfmdConstants::TREE_RENDER_INCLUDES_TEXT),
+                              &console);
+#else
     parseTree->renderSequence(VfmdConstants::HTML_FORMAT,
                               (VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS |
                                VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS),
                               &console);
+#endif
     VfmdElementTreeNode::freeSubtreeSequence(parseTree);
 
     return 0;
