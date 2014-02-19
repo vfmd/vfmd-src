@@ -5,6 +5,7 @@ class VfmdConstants {
 public:
 
 enum VfmdBlockElementType {
+    UNDEFINED_BLOCK_ELEMENT,
     NULL_BLOCK_ELEMENT,
     REF_RESOLUTION_BLOCK_ELEMENT,
     SETEXT_HEADER_ELEMENT,

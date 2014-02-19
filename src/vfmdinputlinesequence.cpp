@@ -6,6 +6,7 @@
 
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry)
     : m_registry(registry)
+    , m_containingBlockSequenceType(VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
     , m_isAtEnd(false)
     , m_childLineSequence(0)
     , m_parseTree(0)
@@ -98,4 +99,14 @@ void VfmdInputLineSequence::setChildSequence(VfmdBlockLineSequence *lineSequence
     if (m_childLineSequence == 0) {
         m_childLineSequence = lineSequence;
     }
+}
+
+void VfmdInputLineSequence::setContainingBlockSequenceType(VfmdConstants::VfmdBlockElementType type)
+{
+    m_containingBlockSequenceType = type;
+}
+
+VfmdConstants::VfmdBlockElementType VfmdInputLineSequence::containingBlockSequenceType() const
+{
+    return m_containingBlockSequenceType;
 }

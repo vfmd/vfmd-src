@@ -2,6 +2,7 @@
 #define VFMDINPUTLINESEQUENCE_H
 
 #include "vfmdline.h"
+#include "vfmdconstants.h"
 
 class VfmdBlockElementHandler;
 class VfmdBlockLineSequence;
@@ -32,6 +33,11 @@ public:
     // in a class derived from 'VfmdBlockElementHandler'
     void setChildSequence(VfmdBlockLineSequence *lineSequence);
 
+    // containingBlockSequenceType is the type of the block element
+    // represented by the containing VfmdBlockLineSequence
+    void setContainingBlockSequenceType(VfmdConstants::VfmdBlockElementType type);
+    VfmdConstants::VfmdBlockElementType containingBlockSequenceType() const;
+
 private:
     /* Prevent copying of this class */
     VfmdInputLineSequence(const VfmdInputLineSequence& other);
@@ -40,6 +46,7 @@ private:
     void processLineInChildSequence();
 
     const VfmdElementRegistry *m_registry;
+    VfmdConstants::VfmdBlockElementType m_containingBlockSequenceType;
     VfmdLine m_currentLine, m_nextLine;
     bool m_isAtEnd;
     VfmdBlockLineSequence *m_childLineSequence;
