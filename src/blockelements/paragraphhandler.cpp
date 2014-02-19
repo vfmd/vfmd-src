@@ -3,7 +3,7 @@
 #include "vfmdspanelementsprocessor.h"
 #include "vfmdinputlinesequence.h"
 #include "textspantreenode.h"
-#include "vfmdscopedpointer.h"
+#include "vfmdcommonregexps.h"
 
 void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
 {
@@ -28,7 +28,42 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, bool i
 
 bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
 {
-    return (currentLine.isBlankLine() || !nextLine.isValid());
+    if (currentLine.isBlankLine()) {
+        return true;
+    }
+    if (!nextLine.isValid()) {
+        return true;
+    }
+    VfmdRegexp reHorizontalRule = VfmdCommonRegexps::horizontalRule();
+    if (reHorizontalRule.matches(nextLine)) {
+        return true;
+    }
+
+    VfmdConstants::VfmdBlockElementType containerType = VfmdConstants::UNDEFINED_BLOCK_ELEMENT;
+    const VfmdInputLineSequence *parentSequence = parentLineSequence();
+    assert(parentSequence != 0);
+    if (parentSequence) {
+        containerType = parentSequence->containingBlockSequenceType();
+    }
+
+    if ((nextLine.firstNonSpace() == '>') &&
+        (containerType == VfmdConstants::BLOCKQUOTE_ELEMENT)) {
+        return true;
+    }
+
+    VfmdRegexp reOrderedListStarter = VfmdCommonRegexps::orderedListStarter();
+    VfmdRegexp reUnorderedListStarter = VfmdCommonRegexps::unorderedListStarter();
+
+    if ((reUnorderedListStarter.matches(nextLine)) &&
+        (containerType == VfmdConstants::UNORDERED_LIST_ELEMENT)) {
+        return true;
+    }
+    if ((reOrderedListStarter.matches(nextLine)) &&
+        (containerType == VfmdConstants::ORDERED_LIST_ELEMENT)) {
+        return true;
+    }
+
+    return false;
 }
 
 VfmdElementTreeNode* ParagraphLineSequence::endBlock()

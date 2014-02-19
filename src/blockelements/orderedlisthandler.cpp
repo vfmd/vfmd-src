@@ -55,6 +55,7 @@ void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, bool
         // current line is the starting line of a list item
         closeListItem();
         m_childSequence = new VfmdInputLineSequence(registry());
+        m_childSequence->setContainingBlockSequenceType(VfmdConstants::ORDERED_LIST_ELEMENT);
         int matchLength = (int) reStarterPattern.capturedText(1).size();
         line.chopLeft(matchLength);
     } else {
