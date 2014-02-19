@@ -27,7 +27,7 @@ public:
     virtual ~VfmdElementTreeNode();
 
     void appendSubtreeToEndOfSequence(VfmdElementTreeNode *subtreeToAppend);
-    void appendTextToEndOfSubtree(const VfmdByteArray &textToAppend);
+    void appendTextToEndOfSequence(const VfmdByteArray &textToAppend);
 
     void adoptContainedElements(VfmdOpeningSpanTagStackNode *stackNode);
 

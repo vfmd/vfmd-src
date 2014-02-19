@@ -44,7 +44,7 @@ void VfmdElementTreeNode::appendSubtreeToEndOfSequence(VfmdElementTreeNode *node
     }
 }
 
-void VfmdElementTreeNode::appendTextToEndOfSubtree(const VfmdByteArray &textToAdd)
+void VfmdElementTreeNode::appendTextToEndOfSequence(const VfmdByteArray &textToAdd)
 {
     VfmdElementTreeNode *lastNode = lastSiblingNode();
     if (lastNode->elementClassification() == VfmdElementTreeNode::TEXTSPAN) {

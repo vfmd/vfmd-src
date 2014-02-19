@@ -43,7 +43,7 @@ void VfmdOpeningSpanTagStackNode::appendToContainedElements(VfmdElementTreeNode 
 void VfmdOpeningSpanTagStackNode::appendToContainedElements(const VfmdByteArray &textToAppend)
 {
     if (m_containedElements) {
-        m_containedElements->appendTextToEndOfSubtree(textToAppend);
+        m_containedElements->appendTextToEndOfSequence(textToAppend);
     } else {
         m_containedElements = new TextSpanTreeNode(textToAppend);
     }
