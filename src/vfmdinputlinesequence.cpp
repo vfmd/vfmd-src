@@ -6,10 +6,10 @@
 
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry)
     : m_registry(registry)
+    , m_isAtEnd(false)
     , m_childLineSequence(0)
     , m_parseTree(0)
 {
-    m_isAtEnd = false;
 }
 
 void VfmdInputLineSequence::addLine(const VfmdLine &line) {

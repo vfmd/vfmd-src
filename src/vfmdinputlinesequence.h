@@ -39,9 +39,9 @@ private:
 
     void processLineInChildSequence();
 
+    const VfmdElementRegistry *m_registry;
     VfmdLine m_currentLine, m_nextLine;
     bool m_isAtEnd;
-    const VfmdElementRegistry *m_registry;
     VfmdBlockLineSequence *m_childLineSequence;
     VfmdElementTreeNode *m_parseTree;
 };
