@@ -9,6 +9,7 @@
 #include "blockelements/blockquotehandler.h"
 #include "blockelements/horizontalrulehandler.h"
 #include "blockelements/unorderedlisthandler.h"
+#include "blockelements/orderedlisthandler.h"
 #include "blockelements/paragraphhandler.h"
 
 #include "spanelements/emphasishandler.h"
@@ -26,6 +27,7 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
     registry->appendBlockElement(VfmdConstants::BLOCKQUOTE_ELEMENT, new BlockquoteHandler);
     registry->appendBlockElement(VfmdConstants::HORIZONTAL_RULE_ELEMENT, new HorizontalRuleHandler);
     registry->appendBlockElement(VfmdConstants::UNORDERED_LIST_ELEMENT, new UnorderedListHandler);
+    registry->appendBlockElement(VfmdConstants::ORDERED_LIST_ELEMENT, new OrderedListHandler);
     registry->appendBlockElement(VfmdConstants::PARAGRAPH_ELEMENT, new ParagraphHandler);
 
     // Span elements
