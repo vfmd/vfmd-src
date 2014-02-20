@@ -125,7 +125,8 @@ bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const 
             VfmdByteArray nextLineStart = nextLine.left(m_listStarterString.size());
             bool nextLineStartHasNonSpace = (nextLineStart.indexOfFirstNonSpace() >= 0);
             if (nextLineStartHasNonSpace && !nextLine.startsWith("    ")) {
-                VfmdLine nextLineChomped = nextLine.chomped();
+                VfmdLine nextLineChomped = nextLine;
+                nextLineChomped.chomp();
                 VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
                 VfmdRegexp reOrderedListStarterPattern = VfmdCommonRegexps::orderedListStarter();
                 VfmdRegexp reHorizontalRulePattern = VfmdCommonRegexps::horizontalRule();

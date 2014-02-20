@@ -37,10 +37,14 @@ VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
     VfmdRegexp reLineWithHeaderText = VfmdCommonRegexps::atxHeaderLineWithHeaderText();
     VfmdRegexp reLineWithoutHeaderText = VfmdCommonRegexps::atxHeaderLineWithoutHeaderText();
     int headingLevel = 0;
-    VfmdByteArray headerContent("");
+    VfmdLine headerContent;
     if (reLineWithHeaderText.matches(m_headerLine)) {
         headingLevel = reLineWithHeaderText.capturedText(1).size();
-        headerContent = reLineWithHeaderText.capturedText(2).trimmed();
+        int numOfTrailingHashes = reLineWithHeaderText.capturedText(2).size();
+        headerContent = m_headerLine;
+        headerContent.chopLeft(headingLevel);
+        headerContent.chopRight(numOfTrailingHashes);
+        headerContent.trim();
     } else if (reLineWithoutHeaderText.matches(m_headerLine)) {
         headingLevel = reLineWithoutHeaderText.capturedText(1).size();
     }
@@ -52,7 +56,7 @@ VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
     VfmdElementTreeNode *atxNode = new AtxHeaderTreeNode(headingLevel);
     if (headerContent.size() > 0) {
         VfmdLineArray lineArray;
-        lineArray.addLine(VfmdLine(headerContent));
+        lineArray.addLine(headerContent);
         lineArray.trim();
         VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(&lineArray, registry());
         bool ok = atxNode->setChildNodeIfNotSet(spanParseTree);

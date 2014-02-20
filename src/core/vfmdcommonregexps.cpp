@@ -56,7 +56,7 @@ VfmdRegexp& VfmdCommonRegexps::setextHeaderUnderline()
 
 VfmdRegexp& VfmdCommonRegexps::atxHeaderLineWithHeaderText()
 {
-    static VfmdRegexp re("^(#+)(.*[^#])#*$");
+    static VfmdRegexp re("^(#+).*[^#](#*)$");
     return re;
 }
 
