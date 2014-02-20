@@ -363,6 +363,12 @@ void VfmdByteArray::trimRight()
     }
 }
 
+void VfmdByteArray::trim()
+{
+    trimRight();
+    trimLeft();
+}
+
 VfmdByteArray VfmdByteArray::leftTrimmed() const
 {
     VfmdByteArray implicitCopy = *(this);

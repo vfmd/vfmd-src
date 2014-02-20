@@ -75,6 +75,7 @@ public:
     /* Trimming (remove whitespace at beginning or end) */
     void trimLeft();
     void trimRight();
+    void trim();
     VfmdByteArray leftTrimmed() const;
     VfmdByteArray rightTrimmed() const;
     VfmdByteArray trimmed() const;
