@@ -8,6 +8,7 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/vfmdlinearrayiterator.cpp \
            $$PWD/vfmddocument.cpp \
            $$PWD/vfmdelementregistry.cpp \
+           $$PWD/vfmddefaultelementregistry.cpp \
            $$PWD/vfmdinputlinesequence.cpp \
            $$PWD/vfmdblockelementhandler.cpp \
            $$PWD/vfmdspanelementhandler.cpp \
@@ -18,7 +19,6 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/vfmdelementtreenodestack.cpp \
            $$PWD/core/vfmdpreprocessor.cpp \
            $$PWD/core/vfmdspanelementsprocessor.cpp \
-           $$PWD/core/vfmddefaultelementregistry.cpp \
            $$PWD/core/vfmdcommonregexps.cpp
 
 HEADERS += $$PWD/vfmdbytearray.h \
