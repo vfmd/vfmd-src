@@ -159,6 +159,10 @@ public:
      * that this bytearray is in UTF-8 encoding. The returned bytearray is in UTF-8. */
     VfmdByteArray toLowerCase() const;
 
+protected:
+    // Make this bytearray invalid
+    void invalidate();
+
 private:
     VfmdByteArray caseFlipCodePointsOfCategory(VfmdUnicodeProperties::GeneralCategory category) const;
 

@@ -1038,3 +1038,9 @@ VfmdByteArray VfmdByteArray::toLowerCase() const
 {
     return caseFlipCodePointsOfCategory(VfmdUnicodeProperties::ucp_Lu);
 }
+
+void VfmdByteArray::invalidate()
+{
+    deref();
+    d = new Private();
+}
