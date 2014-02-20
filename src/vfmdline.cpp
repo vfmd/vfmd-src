@@ -6,11 +6,6 @@ VfmdLine::VfmdLine()
 {
 }
 
-VfmdLine::VfmdLine(const VfmdByteArray &ba)
-    : VfmdByteArray(ba)
-{
-}
-
 VfmdLine::VfmdLine(const char *str)
     : VfmdByteArray(str)
 {
