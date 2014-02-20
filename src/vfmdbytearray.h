@@ -59,6 +59,7 @@ public:
     char lastNonSpace() const;
     int indexOfFirstNonSpace() const;
     int indexOfLastNonSpace() const;
+    int indexOf(char byte) const;
 
     /* Return the left 'count' bytes as a bytearray (without any data-replication) */
     VfmdByteArray left(unsigned int count) const;

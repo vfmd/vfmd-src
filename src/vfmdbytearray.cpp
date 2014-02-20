@@ -292,6 +292,18 @@ int VfmdByteArray::indexOfLastNonSpace() const
     return -1;
 }
 
+int VfmdByteArray::indexOf(char byte) const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+    for (unsigned int i = 0; i < sz; i++) {
+        if (data_ptr[i] != byte) {
+            return (int) i;
+        }
+    }
+    return -1;
+}
+
 VfmdByteArray VfmdByteArray::left(unsigned int count) const
 {
     VfmdByteArray ba = *this;
