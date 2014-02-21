@@ -711,10 +711,10 @@ void VfmdByteArray::print() const
     size_t sz = size();
     if (data_ptr) {
         for (unsigned int i = 0; i < sz; i++) {
-            printf("%c", data_ptr[i]);
             if (data_ptr[i] == '\n') {
                 printf("\\n");
             }
+            printf("%c", data_ptr[i]);
         }
     }
 }
