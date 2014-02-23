@@ -120,6 +120,10 @@ public:
         m_size = 0;
     }
 
+    unsigned int capacity() {
+        return m_allocatedSize;
+    }
+
     void map(void (*fn)(T *)) {
         for (unsigned int i = 0; i < m_size; i++) {
             (*fn)(m_data[i]);

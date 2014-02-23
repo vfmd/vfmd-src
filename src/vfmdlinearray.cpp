@@ -78,8 +78,12 @@ void VfmdLineArray::clear()
     for (unsigned int i = 0; i < m_lines->size(); i++) {
         delete m_lines->itemAt(i);
     }
-    delete m_lines;
-    m_lines = new VfmdPointerArray<VfmdLine>(ALLOC_CHUNK_SIZE);
+    m_lines->clear();
+    if (m_lines->capacity() > ALLOC_CHUNK_SIZE) {
+        // Conserve memory
+        delete m_lines;
+        m_lines = new VfmdPointerArray<VfmdLine>(ALLOC_CHUNK_SIZE);
+    }
 }
 
 VfmdLineArrayIterator VfmdLineArray::begin() const
