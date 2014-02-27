@@ -16,7 +16,6 @@ BlockquoteLineSequence::BlockquoteLineSequence(const VfmdInputLineSequence *pare
     : VfmdBlockLineSequence(parent)
 {
     m_childSequence = new VfmdInputLineSequence(registry(), this);
-    m_childSequence->setContainingBlockSequenceType(VfmdConstants::BLOCKQUOTE_ELEMENT);
 }
 
 BlockquoteLineSequence::~BlockquoteLineSequence()
