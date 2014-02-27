@@ -13,7 +13,7 @@ public:
 
 class RefResolutionBlockLineSequence : public VfmdBlockLineSequence {
 public:
-    RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent);
+    RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent, const VfmdLine &firstLine, const VfmdLine &nextLine);
     virtual ~RefResolutionBlockLineSequence() { }
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;

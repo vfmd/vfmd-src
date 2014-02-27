@@ -11,16 +11,17 @@ void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineS
     VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
     if (reLabelAndPlainURL.matches(firstLine) ||
         reLabelAndBracketedURL.matches(firstLine)) {
-        lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence));
+        lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, firstLine, nextLine));
     }
 }
 
-RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent)
-    : VfmdBlockLineSequence(parent), m_numOfLinesSeen(0)
+RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
+                                                               const VfmdLine &firstLine,
+                                                               const VfmdLine &nextLine)
+    : VfmdBlockLineSequence(parent), m_numOfLinesSeen(0), m_numOfLinesInSequence(0)
 {
     VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
     VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
-    VfmdByteArray firstLine = parent->currentLine();
     VfmdByteArray refDefinitionTrailingSequence;
     if (reLabelAndPlainURL.matches(firstLine)) {
         refDefinitionTrailingSequence = reLabelAndPlainURL.capturedText(2);
@@ -28,29 +29,26 @@ RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLi
         refDefinitionTrailingSequence = reLabelAndBracketedURL.capturedText(2);
     }
     bool firstLineHasTrailingNonSpaceChars = (refDefinitionTrailingSequence.indexOfFirstNonSpace() >= 0);
+    m_numOfLinesInSequence = 1;
     if (!firstLineHasTrailingNonSpaceChars) {
         VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
-        VfmdByteArray secondLine = parent->nextLine();
-        if (secondLine.isValid() &&
-            reTitleLine.matches(secondLine)) {
+        if (nextLine.isValid() &&
+            reTitleLine.matches(nextLine)) {
             m_numOfLinesInSequence = 2;
-            return;
         }
     }
-    m_numOfLinesInSequence = 1;
+    assert(m_numOfLinesInSequence > 0);
+    m_linkDefText = firstLine;
+    if (m_numOfLinesInSequence == 2) {
+        m_linkDefText.chomp(); // Remove trailing newline
+        m_linkDefText.append(nextLine);
+    }
 }
 
 void RefResolutionBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
+    UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
-    VfmdLine line = currentLine;
-    if (m_numOfLinesSeen < (m_numOfLinesInSequence - 1)) {
-        // If not the last line, remove the trailing newline
-        if (line.lastByte() == '\n') {
-            line.chopRight(1);
-        }
-    }
-    m_linkDefText.append(line);
     m_numOfLinesSeen++;
 }
 
