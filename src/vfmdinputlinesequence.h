@@ -42,6 +42,7 @@ private:
     const VfmdElementRegistry *m_registry;
     VfmdLine m_nextLine;
     VfmdBlockLineSequence *m_childLineSequence;
+    int m_numOfLinesGivenToChildLineSequence;
     VfmdElementTreeNode *m_parseTree;
 };
 
