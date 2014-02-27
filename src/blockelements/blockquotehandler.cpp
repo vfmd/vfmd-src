@@ -24,14 +24,14 @@ BlockquoteLineSequence::~BlockquoteLineSequence()
     delete m_childSequence;
 }
 
-void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
+    bool isEndOfParentLineSequence = nextLine.isInvalid();
     if (currentLine.isBlankLine()) {
         // If the last line is a blank line, ignore it
         if (isEndOfParentLineSequence) {
             return;
         }
-        VfmdLine nextLine = parentLineSequence()->nextLine();
         if (isEndOfBlock(currentLine, nextLine)) {
             return;
         }

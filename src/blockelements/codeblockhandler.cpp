@@ -13,13 +13,13 @@ CodeBlockLineSequence::CodeBlockLineSequence(const VfmdInputLineSequence *parent
 {
 }
 
-void CodeBlockLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void CodeBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
+    bool isEndOfParentLineSequence = nextLine.isInvalid();
     assert(currentLine.isBlankLine() || currentLine.startsWith("    "));
     if (isEndOfParentLineSequence) {
         m_isAtEnd = true;
     } else {
-        VfmdLine nextLine = parentLineSequence()->nextLine();
         if (!nextLine.startsWith("    ")) {
             m_isAtEnd = true;
         }

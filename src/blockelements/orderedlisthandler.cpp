@@ -79,9 +79,9 @@ bool OrderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
     return isBottomPacked;
 }
 
-void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
-    UNUSED_ARG(isEndOfParentLineSequence);
+    UNUSED_ARG(nextLine);
     VfmdLine line = currentLine;
     VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
 

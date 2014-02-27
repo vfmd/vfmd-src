@@ -23,11 +23,11 @@ VfmdBlockLineSequence::~VfmdBlockLineSequence()
 {
 }
 
-void VfmdBlockLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void VfmdBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
     /* Base implementation does nothing */
     UNUSED_ARG(currentLine);
-    UNUSED_ARG(isEndOfParentLineSequence);
+    UNUSED_ARG(nextLine);
 }
 
 bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const

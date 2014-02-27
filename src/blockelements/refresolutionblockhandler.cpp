@@ -40,8 +40,9 @@ RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLi
     m_numOfLinesInSequence = 1;
 }
 
-void RefResolutionBlockLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void RefResolutionBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
+    UNUSED_ARG(nextLine);
     VfmdLine line = currentLine;
     if (m_numOfLinesSeen < (m_numOfLinesInSequence - 1)) {
         // If not the last line, remove the trailing newline

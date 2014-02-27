@@ -10,9 +10,9 @@ public:
 
     virtual ~NullBlockLineSequence() { }
 
-    virtual void processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence) {
+    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine) {
         UNUSED_ARG(currentLine);
-        UNUSED_ARG(isEndOfParentLineSequence);
+        UNUSED_ARG(nextLine);
     }
 
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const {

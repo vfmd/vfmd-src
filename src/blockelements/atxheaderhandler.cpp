@@ -17,9 +17,9 @@ AtxHeaderLineSequence::AtxHeaderLineSequence(const VfmdInputLineSequence *parent
 {
 }
 
-void AtxHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void AtxHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
-    UNUSED_ARG(isEndOfParentLineSequence);
+    UNUSED_ARG(nextLine);
     m_headerLine = currentLine;
     m_headerLine.chomp(); // Remove trailing newline
 }

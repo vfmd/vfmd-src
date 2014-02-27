@@ -17,7 +17,7 @@ class UnorderedListLineSequence : public VfmdBlockLineSequence {
 public:
     UnorderedListLineSequence(const VfmdInputLineSequence *parent, const VfmdByteArray &starterString);
     virtual ~UnorderedListLineSequence();
-    virtual void processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence);
+    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 

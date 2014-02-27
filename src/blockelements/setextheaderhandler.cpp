@@ -22,8 +22,9 @@ SetextHeaderLineSequence::SetextHeaderLineSequence(const VfmdInputLineSequence *
 {
 }
 
-void SetextHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void SetextHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
+    UNUSED_ARG(nextLine);
     if (m_numOfLinesSeen == 0) {
         m_firstLine = currentLine;
     } else if (m_numOfLinesSeen == 1) {

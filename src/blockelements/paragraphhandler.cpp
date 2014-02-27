@@ -25,9 +25,9 @@ ParagraphLineSequence::~ParagraphLineSequence()
 {
 }
 
-void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
-    UNUSED_ARG(isEndOfParentLineSequence);
+    UNUSED_ARG(nextLine);
     m_lineArray.addLine(currentLine);
 }
 

@@ -76,9 +76,9 @@ bool UnorderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
     return isBottomPacked;
 }
 
-void UnorderedListLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void UnorderedListLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
-    UNUSED_ARG(isEndOfParentLineSequence);
+    UNUSED_ARG(nextLine);
     VfmdLine line = currentLine;
     bool isListItemStartLine = (currentLine.startsWith(m_listStarterString));
     if (isListItemStartLine) {

@@ -19,7 +19,7 @@ public:
                             int listStarterStringLength,
                             const VfmdByteArray& startingNumber);
     virtual ~OrderedListLineSequence();
-    virtual void processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence);
+    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 

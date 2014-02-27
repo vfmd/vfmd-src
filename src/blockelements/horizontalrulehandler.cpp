@@ -16,10 +16,10 @@ HorizontalRuleLineSequence::HorizontalRuleLineSequence(const VfmdInputLineSequen
 {
 }
 
-void HorizontalRuleLineSequence::processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence)
+void HorizontalRuleLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
     UNUSED_ARG(currentLine);
-    UNUSED_ARG(isEndOfParentLineSequence);
+    UNUSED_ARG(nextLine);
 }
 
 bool HorizontalRuleLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const

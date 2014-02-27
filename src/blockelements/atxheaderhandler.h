@@ -15,7 +15,7 @@ class AtxHeaderLineSequence : public VfmdBlockLineSequence {
 public:
     AtxHeaderLineSequence(const VfmdInputLineSequence *parent);
     virtual ~AtxHeaderLineSequence() { }
-    virtual void processBlockLine(const VfmdLine &currentLine, bool isEndOfParentLineSequence);
+    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 private:
