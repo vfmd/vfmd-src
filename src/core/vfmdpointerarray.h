@@ -5,7 +5,7 @@
 #include <string.h>
 #include <assert.h>
 
-template<typename T>
+template<class T>
 class VfmdPointerArray
 {
 public:
@@ -134,6 +134,13 @@ public:
         for (unsigned int i = 0; i < m_size; i++) {
             (*fn)(ctx, m_data[i]);
         }
+    }
+
+    void freeItemsAndClear() {
+        for (unsigned int i = 0; i < m_size; i++) {
+            delete m_data[i];
+        }
+        m_size = 0;
     }
 
 private:
