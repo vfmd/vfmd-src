@@ -143,6 +143,13 @@ public:
         m_size = 0;
     }
 
+    void squeeze() {
+        if (m_allocatedSize > m_size) {
+            m_allocatedSize = m_size;
+            m_data = static_cast<T**>(realloc(m_data, sizeof(T*) * m_allocatedSize));
+        }
+    }
+
 private:
     void grow() {
         m_allocatedSize += m_chunkSize;
