@@ -23,6 +23,11 @@ VfmdBlockLineSequence::~VfmdBlockLineSequence()
 {
 }
 
+int VfmdBlockLineSequence::elementType() const
+{
+    return VfmdConstants::UNDEFINED_BLOCK_ELEMENT;
+}
+
 void VfmdBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
     /* Base implementation does nothing */

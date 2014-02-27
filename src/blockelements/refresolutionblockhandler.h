@@ -15,6 +15,7 @@ class RefResolutionBlockLineSequence : public VfmdBlockLineSequence {
 public:
     RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent, const VfmdLine &firstLine, const VfmdLine &nextLine);
     virtual ~RefResolutionBlockLineSequence() { }
+    virtual int elementType() const { return VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT; }
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();

@@ -4,6 +4,7 @@
 #include "vfmdline.h"
 #include "vfmdelementtreenode.h"
 #include "vfmdinputlinesequence.h"
+#include "vfmdconstants.h"
 
 #define UNUSED_ARG(x) (void)x;
 
@@ -30,6 +31,7 @@ class VfmdBlockLineSequence {
 public:
     VfmdBlockLineSequence(const VfmdInputLineSequence *parentLineSequence);
     virtual ~VfmdBlockLineSequence();
+    virtual int elementType() const;
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();

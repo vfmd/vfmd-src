@@ -15,6 +15,7 @@ class BlockquoteLineSequence : public VfmdBlockLineSequence {
 public:
     BlockquoteLineSequence(const VfmdInputLineSequence *parent);
     virtual ~BlockquoteLineSequence();
+    virtual int elementType() const { return VfmdConstants::BLOCKQUOTE_ELEMENT; }
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();

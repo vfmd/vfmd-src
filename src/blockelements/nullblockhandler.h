@@ -10,6 +10,8 @@ public:
 
     virtual ~NullBlockLineSequence() { }
 
+    virtual int elementType() const { return VfmdConstants::NULL_BLOCK_ELEMENT; }
+
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine) {
         UNUSED_ARG(currentLine);
         UNUSED_ARG(nextLine);

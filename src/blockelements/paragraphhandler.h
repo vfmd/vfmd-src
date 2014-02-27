@@ -16,6 +16,7 @@ class ParagraphLineSequence : public VfmdBlockLineSequence {
 public:
     ParagraphLineSequence(const VfmdInputLineSequence *parent);
     virtual ~ParagraphLineSequence();
+    virtual int elementType() const { return VfmdConstants::PARAGRAPH_ELEMENT; }
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
