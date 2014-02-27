@@ -17,7 +17,7 @@ public:
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence);
     virtual ~VfmdBlockElementHandler() { }
 
-    /* A short text describing this syntax (eg. "emphasis", "strikethrough") */
+    /* A short text describing this syntax (eg. "paragraph", "code-block") */
     virtual const char *description() const;
 
 private:
