@@ -8,8 +8,10 @@
 #include "orderedlisthandler.h"
 #include "unorderedlisthandler.h"
 
-void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
+    UNUSED_ARG(firstLine);
+    UNUSED_ARG(nextLine);
     ParagraphLineSequence *paragraphLineSequence = new ParagraphLineSequence(lineSequence);
     lineSequence->setChildSequence(paragraphLineSequence);
 }

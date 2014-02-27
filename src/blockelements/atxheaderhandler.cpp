@@ -3,9 +3,9 @@
 #include "vfmdlinearray.h"
 #include "vfmdspanelementsprocessor.h"
 
-void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
-    VfmdLine firstLine = lineSequence->currentLine();
+    UNUSED_ARG(nextLine);
     if ((firstLine.size() > 0) &&
         (firstLine.byteAt(0) == '#')) {
         lineSequence->setChildSequence(new AtxHeaderLineSequence(lineSequence));

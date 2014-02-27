@@ -46,7 +46,7 @@ void VfmdInputLineSequence::processLineInChildSequence()
     if (!m_childLineSequence) {
         for (unsigned int i = 0; i < m_registry->blockElementsCount(); i++) {
             VfmdBlockElementHandler *blockHandler = m_registry->blockElementHandler(i);
-            blockHandler->createChildSequence(this);
+            blockHandler->createChildSequence(this, m_currentLine, m_nextLine);
             if (hasChildSequence()) {
                 // the block handler has created and set a child sequence
                 break;

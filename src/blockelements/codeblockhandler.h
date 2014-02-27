@@ -6,7 +6,7 @@
 class CodeBlockHandler : public VfmdBlockElementHandler {
 public:
     CodeBlockHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
     virtual ~CodeBlockHandler() { }
     virtual const char *description() const { return "code-block"; }
 };

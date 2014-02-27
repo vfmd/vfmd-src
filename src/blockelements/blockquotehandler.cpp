@@ -4,9 +4,9 @@
 #include "vfmdinputlinesequence.h"
 #include "vfmdcommonregexps.h"
 
-void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
-    VfmdLine firstLine = lineSequence->currentLine();
+    UNUSED_ARG(nextLine);
     if (firstLine.firstNonSpace() == '>') {
         lineSequence->setChildSequence(new BlockquoteLineSequence(lineSequence));
     }

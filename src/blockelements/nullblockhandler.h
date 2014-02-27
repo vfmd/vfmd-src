@@ -29,8 +29,9 @@ class NullBlockHandler : public VfmdBlockElementHandler
 public:
     NullBlockHandler() { }
 
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence) {
-        if (lineSequence->currentLine().isBlankLine()) {
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) {
+        UNUSED_ARG(nextLine);
+        if (firstLine.isBlankLine()) {
             NullBlockLineSequence *nullBlockLineSequence = new NullBlockLineSequence(lineSequence);
             lineSequence->setChildSequence(nullBlockLineSequence);
         }

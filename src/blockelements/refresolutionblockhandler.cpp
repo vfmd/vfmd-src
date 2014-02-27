@@ -1,9 +1,9 @@
 #include "refresolutionblockhandler.h"
 #include "vfmdcommonregexps.h"
 
-void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
-    VfmdByteArray firstLine = lineSequence->currentLine();
+    UNUSED_ARG(nextLine);
     if (firstLine.indexOfFirstNonSpace() >= 4) {
         return;
     }
@@ -11,7 +11,6 @@ void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineS
     VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
     if (reLabelAndPlainURL.matches(firstLine) ||
         reLabelAndBracketedURL.matches(firstLine)) {
-        // This is the start of a ref-resolution block
         lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence));
     }
 }

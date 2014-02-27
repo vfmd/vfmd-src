@@ -5,14 +5,14 @@
 #include "vfmdoutputdevice.h"
 #include "vfmdelementtreenodestack.h"
 
-void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
-    VfmdByteArray secondLine = lineSequence->nextLine();
-    if (!secondLine.isValid()) {
+    UNUSED_ARG(firstLine);
+    if (!nextLine.isValid()) {
         return;
     }
     VfmdRegexp reUnderline = VfmdCommonRegexps::setextHeaderUnderline();
-    if (reUnderline.matches(secondLine)) {
+    if (reUnderline.matches(nextLine)) {
         lineSequence->setChildSequence(new SetextHeaderLineSequence(lineSequence));
     }
 }

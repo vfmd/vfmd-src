@@ -1,9 +1,9 @@
 #include "orderedlisthandler.h"
 #include "vfmdcommonregexps.h"
 
-void OrderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void OrderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
-    VfmdLine firstLine = lineSequence->currentLine();
+    UNUSED_ARG(nextLine);
     VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
     if (reStarterPattern.matches(firstLine)) {
         VfmdByteArray listStarterString = reStarterPattern.capturedText(1);

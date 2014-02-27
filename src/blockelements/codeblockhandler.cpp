@@ -1,8 +1,8 @@
 #include "codeblockhandler.h"
 
-void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
-    VfmdByteArray firstLine = lineSequence->currentLine();
+    UNUSED_ARG(nextLine);
     if (firstLine.startsWith("    ")) {
         lineSequence->setChildSequence(new CodeBlockLineSequence(lineSequence));
     }

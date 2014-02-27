@@ -2,11 +2,11 @@
 #include "vfmdregexp.h"
 #include "vfmdcommonregexps.h"
 
-void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence)
+void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
-    VfmdLine currentLine = lineSequence->currentLine();
+    UNUSED_ARG(nextLine);
     VfmdRegexp reHorizontalRule = VfmdCommonRegexps::horizontalRule();
-    if (reHorizontalRule.matches(currentLine)) {
+    if (reHorizontalRule.matches(firstLine)) {
         lineSequence->setChildSequence(new HorizontalRuleLineSequence(lineSequence));
     }
 }

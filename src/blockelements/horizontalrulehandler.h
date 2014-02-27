@@ -6,7 +6,7 @@
 class HorizontalRuleHandler : public VfmdBlockElementHandler {
 public:
     HorizontalRuleHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
     virtual ~HorizontalRuleHandler() { }
     virtual const char *description() const { return "horizontal-rule"; }
 };
