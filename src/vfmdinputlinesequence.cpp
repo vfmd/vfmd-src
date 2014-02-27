@@ -23,7 +23,7 @@ void VfmdInputLineSequence::addLine(const VfmdLine &line) {
     } else {
         m_currentLine = m_nextLine;
         m_nextLine = line;
-        processLineInChildSequence();
+        processInChildSequence(m_currentLine, m_nextLine);
     }
 }
 
@@ -32,7 +32,7 @@ VfmdElementTreeNode* VfmdInputLineSequence::endSequence()
     m_currentLine = m_nextLine;
     m_nextLine = VfmdLine();
     m_isAtEnd = true;
-    processLineInChildSequence();
+    processInChildSequence(m_currentLine, m_nextLine);
     return m_parseTree;
 }
 
@@ -40,13 +40,13 @@ bool VfmdInputLineSequence::isAtEnd() const {
     return m_isAtEnd;
 }
 
-void VfmdInputLineSequence::processLineInChildSequence()
+void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
         for (unsigned int i = 0; i < m_registry->blockElementsCount(); i++) {
             VfmdBlockElementHandler *blockHandler = m_registry->blockElementHandler(i);
-            blockHandler->createChildSequence(this, m_currentLine, m_nextLine);
+            blockHandler->createChildSequence(this, currentLine, nextLine);
             if (hasChildSequence()) {
                 // the block handler has created and set a child sequence
                 break;
@@ -57,10 +57,10 @@ void VfmdInputLineSequence::processLineInChildSequence()
     assert(hasChildSequence());
 
     // Pass the current line on to the child sequence
-    m_childLineSequence->processBlockLine(m_currentLine, m_nextLine);
+    m_childLineSequence->processBlockLine(currentLine, nextLine);
 
     // Check if the child sequence is done
-    if (isAtEnd() || m_childLineSequence->isEndOfBlock(m_currentLine, m_nextLine)) {
+    if (isAtEnd() || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
         VfmdElementTreeNode *parseSubtree = m_childLineSequence->endBlock();
         if (parseSubtree) {
             if (m_parseTree) {

@@ -36,7 +36,7 @@ private:
     VfmdInputLineSequence(const VfmdInputLineSequence& other);
     VfmdInputLineSequence& operator=(const VfmdInputLineSequence& other);
 
-    void processLineInChildSequence();
+    void processInChildSequence(const VfmdLine &currentLine, const VfmdLine &nextLine);
 
     const VfmdBlockLineSequence *m_parentLineSequence;
     const VfmdElementRegistry *m_registry;
