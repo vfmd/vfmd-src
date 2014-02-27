@@ -12,13 +12,14 @@ class VfmdElementTreeNode;
 class VfmdInputLineSequence
 {
 public:
-    VfmdInputLineSequence(const VfmdElementRegistry *registry);
+    VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence = 0);
 
     void addLine(const VfmdLine &line);
     VfmdElementTreeNode* endSequence();
 
     bool isAtEnd() const;
 
+    const VfmdBlockLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
 
     bool hasChildSequence() const;
@@ -42,6 +43,7 @@ private:
 
     void processLineInChildSequence();
 
+    const VfmdBlockLineSequence *m_parentLineSequence;
     const VfmdElementRegistry *m_registry;
     VfmdConstants::VfmdBlockElementType m_containingBlockSequenceType;
     VfmdLine m_currentLine, m_nextLine;

@@ -84,7 +84,7 @@ void UnorderedListLineSequence::processBlockLine(const VfmdLine &currentLine, co
     if (isListItemStartLine) {
         // current line is the starting line of a list item
         closeListItem(false /* not the end of the list */);
-        m_childSequence = new VfmdInputLineSequence(registry());
+        m_childSequence = new VfmdInputLineSequence(registry(), this);
         m_childSequence->setContainingBlockSequenceType(VfmdConstants::UNORDERED_LIST_ELEMENT);
         m_isCurrentListItemPrecededByABlankLine = m_previousLine.isBlankLine();
         line.chopLeft(m_listStarterString.size());

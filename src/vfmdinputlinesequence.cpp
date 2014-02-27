@@ -4,8 +4,9 @@
 #include "vfmdelementtreenode.h"
 #include "vfmdblockelementhandler.h"
 
-VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry)
+VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence)
     : m_registry(registry)
+    , m_parentLineSequence(parentLineSequence)
     , m_containingBlockSequenceType(VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
     , m_isAtEnd(false)
     , m_childLineSequence(0)
@@ -72,6 +73,11 @@ void VfmdInputLineSequence::processLineInChildSequence()
         delete m_childLineSequence;
         m_childLineSequence = 0;
     }
+}
+
+const VfmdBlockLineSequence *VfmdInputLineSequence::parentLineSequence() const
+{
+    return m_parentLineSequence;
 }
 
 const VfmdElementRegistry *VfmdInputLineSequence::registry() const

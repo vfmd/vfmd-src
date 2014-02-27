@@ -92,7 +92,7 @@ void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, cons
     if (isListItemStartLine) {
         // current line is the starting line of a list item
         closeListItem(false /* not the end of the list */);
-        m_childSequence = new VfmdInputLineSequence(registry());
+        m_childSequence = new VfmdInputLineSequence(registry(), this);
         m_childSequence->setContainingBlockSequenceType(VfmdConstants::ORDERED_LIST_ELEMENT);
         m_isCurrentListItemPrecededByABlankLine = m_previousLine.isBlankLine();
         int matchLength = (int) reStarterPattern.capturedText(1).size();
