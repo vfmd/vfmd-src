@@ -27,6 +27,7 @@ public:
 
     /* Uninitialized bytearrays are invalid */
     bool isValid() const;
+    bool isInvalid() const;
 
     /* Append a copy of 'length' bytes starting from 'data' */
     void append(const char *data, int length);

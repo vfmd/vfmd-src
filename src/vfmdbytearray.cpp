@@ -108,6 +108,11 @@ bool VfmdByteArray::isValid() const
     return (d->data != 0);
 }
 
+bool VfmdByteArray::isInvalid() const
+{
+    return (d->data == 0);
+}
+
 void VfmdByteArray::append(const char *data, int length)
 {
     copyOnWrite(length);
