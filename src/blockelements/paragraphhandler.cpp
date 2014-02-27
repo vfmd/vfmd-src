@@ -44,11 +44,11 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
         return true;
     }
 
-    VfmdConstants::VfmdBlockElementType containerType = VfmdConstants::UNDEFINED_BLOCK_ELEMENT;
-    const VfmdInputLineSequence *parentSequence = parentLineSequence();
-    assert(parentSequence != 0);
-    if (parentSequence) {
-        containerType = parentSequence->containingBlockSequenceType();
+    int containerType = VfmdConstants::UNDEFINED_BLOCK_ELEMENT;
+    assert(parentLineSequence());
+    const VfmdBlockLineSequence *containingBlockSequence = (parentLineSequence()? parentLineSequence()->parentLineSequence() : 0);
+    if (containingBlockSequence) {
+        containerType = containingBlockSequence->elementType();
     }
 
     if ((nextLine.firstNonSpace() == '>') &&
