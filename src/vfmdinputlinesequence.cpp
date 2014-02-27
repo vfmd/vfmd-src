@@ -7,7 +7,6 @@
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence)
     : m_registry(registry)
     , m_parentLineSequence(parentLineSequence)
-    , m_isAtEnd(false)
     , m_childLineSequence(0)
     , m_parseTree(0)
 {
@@ -21,23 +20,18 @@ void VfmdInputLineSequence::addLine(const VfmdLine &line) {
     if (!m_nextLine.isValid()) {
         m_nextLine = line;
     } else {
-        m_currentLine = m_nextLine;
+        VfmdLine currentLine = m_nextLine;
         m_nextLine = line;
-        processInChildSequence(m_currentLine, m_nextLine);
+        processInChildSequence(currentLine, m_nextLine);
     }
 }
 
 VfmdElementTreeNode* VfmdInputLineSequence::endSequence()
 {
-    m_currentLine = m_nextLine;
+    VfmdLine currentLine = m_nextLine;
     m_nextLine = VfmdLine();
-    m_isAtEnd = true;
-    processInChildSequence(m_currentLine, m_nextLine);
+    processInChildSequence(currentLine, m_nextLine);
     return m_parseTree;
-}
-
-bool VfmdInputLineSequence::isAtEnd() const {
-    return m_isAtEnd;
 }
 
 void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, const VfmdLine &nextLine)
@@ -60,7 +54,8 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, 
     m_childLineSequence->processBlockLine(currentLine, nextLine);
 
     // Check if the child sequence is done
-    if (isAtEnd() || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
+    bool isEndOfLineSequence = nextLine.isInvalid();
+    if (isEndOfLineSequence || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
         VfmdElementTreeNode *parseSubtree = m_childLineSequence->endBlock();
         if (parseSubtree) {
             if (m_parseTree) {

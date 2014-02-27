@@ -40,8 +40,7 @@ private:
 
     const VfmdBlockLineSequence *m_parentLineSequence;
     const VfmdElementRegistry *m_registry;
-    VfmdLine m_currentLine, m_nextLine;
-    bool m_isAtEnd;
+    VfmdLine m_nextLine;
     VfmdBlockLineSequence *m_childLineSequence;
     VfmdElementTreeNode *m_parseTree;
 };
