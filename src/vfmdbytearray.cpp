@@ -681,6 +681,14 @@ bool VfmdByteArray::isEqualTo(const char *str, int len) const
     return true;
 }
 
+bool VfmdByteArray::isEqualTo(const VfmdByteArray &other) const
+{
+    if (isValid() != other.isValid()) {
+        return false;
+    }
+    return isEqualTo(other.data(), other.size());
+}
+
 bool VfmdByteArray::operator==(const VfmdByteArray &other) const
 {
     if (isValid() != other.isValid()) {

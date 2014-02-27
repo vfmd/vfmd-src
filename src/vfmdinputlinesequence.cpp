@@ -53,10 +53,12 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, 
     // Pass the current line on to the child sequence
     m_childLineSequence->processBlockLine(currentLine, nextLine);
 
-    // Check if the child sequence is done
+    // If necessary, end the child sequence
     bool isEndOfLineSequence = nextLine.isInvalid();
     if (isEndOfLineSequence || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
+        // End the child block
         VfmdElementTreeNode *parseSubtree = m_childLineSequence->endBlock();
+        VfmdPointerArray<const VfmdLine> *unconsumedLines = m_childLineSequence->linesSinceEndOfBlock();
         if (parseSubtree) {
             if (m_parseTree) {
                 m_parseTree->appendSubtreeToEndOfSequence(parseSubtree);
@@ -66,6 +68,24 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, 
         }
         delete m_childLineSequence;
         m_childLineSequence = 0;
+
+        // Re-process any unconsumed lines
+        if (unconsumedLines && (unconsumedLines->size() > 0)) {
+            unsigned int sz = unconsumedLines->size();
+            assert(unconsumedLines->lastItem()->isEqualTo(currentLine));
+            if (unconsumedLines->lastItem()->isEqualTo(currentLine)) {
+                for (unsigned int i = 0; i < (sz - 1); i++) {
+                    const VfmdLine *line = unconsumedLines->itemAt(i);
+                    const VfmdLine *nextLine = unconsumedLines->itemAt(i + 1);
+                    processInChildSequence(*line, *nextLine);
+                }
+                processInChildSequence(currentLine, nextLine);
+            }
+        }
+        if (unconsumedLines) {
+            unconsumedLines->freeItemsAndClear();
+            delete unconsumedLines;
+        }
     }
 }
 

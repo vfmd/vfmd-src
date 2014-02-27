@@ -116,6 +116,7 @@ public:
 
     /* Compare with others */
     bool isEqualTo(const char *str, int len = 0) const;
+    bool isEqualTo(const VfmdByteArray &other) const;
     bool operator==(const VfmdByteArray &other) const;
 
     /* Get a copy of the data as a null-terminated string */

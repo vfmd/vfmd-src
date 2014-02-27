@@ -5,6 +5,7 @@
 #include "vfmdelementtreenode.h"
 #include "vfmdinputlinesequence.h"
 #include "vfmdconstants.h"
+#include "vfmdpointerarray.h"
 
 #define UNUSED_ARG(x) (void)x;
 
@@ -37,6 +38,19 @@ public:
     virtual VfmdElementTreeNode* endBlock();
     const VfmdInputLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
+
+    // linesSinceEndOfBlock():
+    // This method is called after endBlock() to check if there
+    // are any unprocessed lines.
+    //
+    // If there are lines passed as 'currentLine' to this
+    // block's processBlockLine() that are not consumed in the block,
+    // those lines should be returned, in the same order.
+    //
+    // Among the core vfmd blocks, the only block that uses this is
+    // the paragraph block.
+    virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock() const;
+
 private:
     /* Prevent copying of this class */
     VfmdBlockLineSequence(const VfmdBlockLineSequence& other);
