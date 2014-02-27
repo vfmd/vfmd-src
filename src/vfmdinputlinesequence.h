@@ -19,9 +19,6 @@ public:
 
     bool isAtEnd() const;
 
-    VfmdLine currentLine() const;
-    VfmdLine nextLine() const;
-
     const VfmdElementRegistry *registry() const;
 
     bool hasChildSequence() const;

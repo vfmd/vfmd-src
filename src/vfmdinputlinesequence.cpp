@@ -74,16 +74,6 @@ void VfmdInputLineSequence::processLineInChildSequence()
     }
 }
 
-VfmdLine VfmdInputLineSequence::currentLine() const
-{
-    return m_currentLine;
-}
-
-VfmdLine VfmdInputLineSequence::nextLine() const
-{
-    return m_nextLine;
-}
-
 const VfmdElementRegistry *VfmdInputLineSequence::registry() const
 {
     return m_registry;
