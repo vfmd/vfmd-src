@@ -3,6 +3,8 @@
 
 #include "vfmdblockelementhandler.h"
 #include "vfmdlinearray.h"
+#include "core/vfmdcodespanfilter.h"
+#include "core/htmlstatewatcher.h"
 
 class ParagraphHandler : public VfmdBlockElementHandler {
 public:
@@ -20,8 +22,14 @@ public:
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
     virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
+    virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock() const;
+
 private:
     VfmdLineArray m_lineArray;
+    VfmdCodeSpanFilter m_codeSpanFilter;
+    HtmlStateWatcher m_htmlStateWatcher;
+    bool m_isAtEndOfParagraph, m_isLookingAhead;
+    VfmdPointerArray<const VfmdLine> *m_lookaheadLines;
 };
 
 class ParagraphTreeNode : public VfmdElementTreeNode {

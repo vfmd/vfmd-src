@@ -18,6 +18,9 @@ void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, 
 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
+    , m_isAtEndOfParagraph(false)
+    , m_isLookingAhead(false)
+    , m_lookaheadLines(0)
 {
 }
 
@@ -25,15 +28,19 @@ ParagraphLineSequence::~ParagraphLineSequence()
 {
 }
 
-void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+static void appendToLineArray(VfmdLineArray *lineArray, VfmdPointerArray<const VfmdLine> *lines)
 {
-    UNUSED_ARG(nextLine);
-    m_lineArray.addLine(currentLine);
+    if (lineArray && lines && (lines->size() > 0)) {
+        unsigned int sz = lines->size();
+        for (unsigned int i = 0; i < sz; i++) {
+            lineArray->addLine(*(lines->itemAt(i)));
+        }
+    }
 }
 
-bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+static bool isPotentialEndOfParagraph(const VfmdInputLineSequence *parentSequence, const VfmdLine &nextLine)
 {
-    if (currentLine.isBlankLine()) {
+    if (nextLine.isBlankLine()) {
         return true;
     }
     if (!nextLine.isValid()) {
@@ -45,8 +52,7 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
     }
 
     int containerType = VfmdConstants::UNDEFINED_BLOCK_ELEMENT;
-    assert(parentLineSequence());
-    const VfmdBlockLineSequence *containingBlockSequence = (parentLineSequence()? parentLineSequence()->parentLineSequence() : 0);
+    const VfmdBlockLineSequence *containingBlockSequence = (parentSequence? parentSequence->parentLineSequence() : 0);
     if (containingBlockSequence) {
         containerType = containingBlockSequence->elementType();
     }
@@ -71,6 +77,82 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
     return false;
 }
 
+void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+{
+    UNUSED_ARG(nextLine);
+
+    if (!m_isLookingAhead) {
+
+        // Not in lookahead mode
+        m_lineArray.addLine(currentLine);
+        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine, &m_htmlStateWatcher);
+        HtmlStateWatcher::State htmlState = m_htmlStateWatcher.state();
+        bool isPotentialEnd = isPotentialEndOfParagraph(parentLineSequence(), nextLine);
+        if (isPotentialEnd) {
+            if (htmlState == HtmlStateWatcher::TEXT_STATE) {
+                m_isAtEndOfParagraph = true;
+                return;
+            } else if (htmlState == HtmlStateWatcher::INDETERMINATE_STATE) {
+                // Enter lookahead mode
+                m_isLookingAhead = true;
+                m_htmlStateWatcher.beginLookahead();
+                assert(m_lookaheadLines == 0);
+                m_lookaheadLines = new VfmdPointerArray<const VfmdLine>(128);
+                return;
+            } else {
+                // No other states are possible at this point
+                assert(false);
+            }
+        }
+
+    } else {
+
+        // In lookahead mode
+        assert(m_lookaheadLines);
+        m_lookaheadLines->append(new VfmdLine(currentLine));
+        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine, &m_htmlStateWatcher);
+        HtmlStateWatcher::State state = m_htmlStateWatcher.state();
+        if ((state == HtmlStateWatcher::HTML_COMMENT_STATE) ||
+            (state == HtmlStateWatcher::HTML_TAG_STATE)) {
+            // Paragraph should not end at the point where lookahead started
+            appendToLineArray(&m_lineArray, m_lookaheadLines); // Consume lookahead lines
+            m_lookaheadLines->freeItemsAndClear();
+            m_htmlStateWatcher.endLookahead(true /* consumeLookaheadLines */);
+            HtmlStateWatcher::State updatedHtmlState = m_htmlStateWatcher.state();
+            if (updatedHtmlState == HtmlStateWatcher::INDETERMINATE_STATE) {
+                // Begin a new lookahead from (and including) the current line
+                m_htmlStateWatcher.beginLookahead();
+            } else {
+                delete m_lookaheadLines;
+                m_lookaheadLines = 0;
+                m_isLookingAhead = false;
+                if (updatedHtmlState == HtmlStateWatcher::TEXT_STATE) {
+                    m_isAtEndOfParagraph = isPotentialEndOfParagraph(parentLineSequence(), nextLine);
+                } else {
+                    // No other states are possible at this point
+                    assert(false);
+                }
+            }
+            return;
+        } else if (state == HtmlStateWatcher::TEXT_STATE) {
+            // Paragraph should have ended at the point where lookahead started
+            m_isLookingAhead = false;
+            m_htmlStateWatcher.endLookahead(false /* consumeLookaheadLines */);
+            m_isAtEndOfParagraph = true;
+            return;
+        }
+
+    }
+
+}
+
+bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+{
+    UNUSED_ARG(currentLine);
+    UNUSED_ARG(nextLine);
+    return m_isAtEndOfParagraph;
+}
+
 VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
     m_lineArray.trim();
@@ -79,6 +161,11 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
     bool ok = paragraphNode->setChildNodeIfNotSet(spanParseTree);
     assert(ok);
     return paragraphNode;
+}
+
+VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock() const
+{
+    return m_lookaheadLines;
 }
 
 ParagraphTreeNode::ParagraphTreeNode()
