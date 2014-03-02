@@ -2,6 +2,7 @@
 #define HTMLSTATEWATCHER_H
 
 #include "vfmdline.h"
+#include "vfmdpointerarray.h"
 
 struct htmlparser_ctx_s;
 
@@ -9,10 +10,12 @@ class HtmlStateWatcher
 {
 public:
     enum State {
-        INDETERMINATE_STATE,
         TEXT_STATE,
-        HTML_TAG_STATE,
-        HTML_COMMENT_STATE
+        INDETERMINATE_STATE,             // Could be within a tag, or within a comment, or just text
+        HTML_TAG_STATE,                  // Definitely within a tag
+        HTML_COMMENT_STATE,              // Definitely within a comment
+        INDETERMINATE_VERBATIM_HTML_ELEMENT_STATE,         // Within a verbatim HTML element, well-formed or not
+        CONTENT_OF_WELL_FORMED_VERBATIM_HTML_ELEMENT_STATE // Within a well-formed verbatim HTML element
     };
 
     HtmlStateWatcher();
@@ -43,6 +46,8 @@ public:
     struct ParserCallbackContext {
         State state, lookaheadState;
         bool isLookingAhead;
+        VfmdPointerArray<VfmdByteArray> *openVerbatimHtmlTagsStack;
+        int numOfOpenVerbatimHtmlTagsAtStartOfLookahead;
     };
 
 private:
