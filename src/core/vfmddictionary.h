@@ -7,15 +7,9 @@
 #include <stdio.h>
 #include "vfmdbytearray.h"
 
-#ifdef __cplusplus
 extern "C" {
-#endif
-
 #include "red_black_tree.h"
-
-#ifdef __cplusplus
 }
-#endif
 
 static int compareByteArrays(const void *ba_ptr1, const void *ba_ptr2);
 static void destroyByteArray(void *ba_ptr);
