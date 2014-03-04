@@ -2,18 +2,24 @@
 #define REFRESOLUTIONBLOCKHANDLER_H
 
 #include "vfmdblockelementhandler.h"
+#include "core/vfmdlinkrefmap.h"
 
 class RefResolutionBlockHandler : public VfmdBlockElementHandler {
 public:
-    RefResolutionBlockHandler() { }
+    RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap);
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
     virtual ~RefResolutionBlockHandler() { }
     virtual const char *description() const { return "ref-resolution-block"; }
+
+private:
+    VfmdLinkRefMap *m_linkRefMap;
 };
 
 class RefResolutionBlockLineSequence : public VfmdBlockLineSequence {
 public:
-    RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent, const VfmdLine &firstLine, const VfmdLine &nextLine);
+    RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
+                                   const VfmdLine &firstLine, const VfmdLine &nextLine,
+                                   VfmdLinkRefMap *linkRefMap);
     virtual ~RefResolutionBlockLineSequence() { }
     virtual int elementType() const { return VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT; }
     virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
@@ -21,6 +27,7 @@ public:
     virtual VfmdElementTreeNode* endBlock();
 
 private:
+    VfmdLinkRefMap *m_linkRefMap;
     VfmdByteArray m_linkDefText;
     int m_numOfLinesSeen;
     int m_numOfLinesInSequence;

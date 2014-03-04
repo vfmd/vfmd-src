@@ -6,6 +6,7 @@
 
 class VfmdSpanElementHandler;
 class VfmdBlockElementHandler;
+class VfmdLinkRefMap;
 
 class VfmdElementRegistry
 {
@@ -95,7 +96,7 @@ public:
 
     // Default vfmd elements
 
-    static VfmdElementRegistry* createRegistryWithDefaultElements();
+    static VfmdElementRegistry* createRegistryWithDefaultElements(VfmdLinkRefMap *linkRefMap);
 
 private:
     /* Prevent copying of this class */

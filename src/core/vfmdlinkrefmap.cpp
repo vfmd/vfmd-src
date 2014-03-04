@@ -56,3 +56,10 @@ VfmdByteArray VfmdLinkRefMap::linkTitle(const VfmdByteArray &refId)
     }
     return VfmdByteArray();
 }
+
+// LinkData
+
+VfmdLinkRefMap::LinkData::LinkData(const VfmdByteArray &u, const VfmdByteArray &t)
+    : url(u), title(t)
+{
+}

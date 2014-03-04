@@ -1,5 +1,6 @@
 #include "vfmdelementregistry.h"
 #include "vfmdconstants.h"
+#include "core/vfmdlinkrefmap.h"
 
 #include "blockelements/nullblockhandler.h"
 #include "blockelements/refresolutionblockhandler.h"
@@ -14,13 +15,14 @@
 
 #include "spanelements/emphasishandler.h"
 
-VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
+VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements(VfmdLinkRefMap *linkRefMap)
 {
     VfmdElementRegistry *registry = new VfmdElementRegistry;
 
     // Block elements
     registry->appendBlockElement(VfmdConstants::NULL_BLOCK_ELEMENT, new NullBlockHandler);
-    registry->appendBlockElement(VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT, new RefResolutionBlockHandler);
+    registry->appendBlockElement(VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT,
+                                 new RefResolutionBlockHandler(linkRefMap));
     registry->appendBlockElement(VfmdConstants::SETEXT_HEADER_ELEMENT, new SetextHeaderHandler);
     registry->appendBlockElement(VfmdConstants::CODE_BLOCK_ELEMENT, new CodeBlockHandler);
     registry->appendBlockElement(VfmdConstants::ATX_HEADER_ELEMENT, new AtxHeaderHandler);

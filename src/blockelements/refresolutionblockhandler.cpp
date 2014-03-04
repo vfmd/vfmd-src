@@ -1,6 +1,11 @@
 #include "refresolutionblockhandler.h"
 #include "vfmdcommonregexps.h"
 
+RefResolutionBlockHandler::RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap)
+    : m_linkRefMap(linkRefMap)
+{
+}
+
 void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
     UNUSED_ARG(nextLine);
@@ -11,14 +16,18 @@ void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineS
     VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
     if (reLabelAndPlainURL.matches(firstLine) ||
         reLabelAndBracketedURL.matches(firstLine)) {
-        lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, firstLine, nextLine));
+        lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, firstLine, nextLine, m_linkRefMap));
     }
 }
 
 RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
                                                                const VfmdLine &firstLine,
-                                                               const VfmdLine &nextLine)
-    : VfmdBlockLineSequence(parent), m_numOfLinesSeen(0), m_numOfLinesInSequence(0)
+                                                               const VfmdLine &nextLine,
+                                                               VfmdLinkRefMap *linkRefMap)
+    : VfmdBlockLineSequence(parent)
+    , m_linkRefMap(linkRefMap)
+    , m_numOfLinesSeen(0)
+    , m_numOfLinesInSequence(0)
 {
     VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
     VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
@@ -93,11 +102,10 @@ VfmdElementTreeNode* RefResolutionBlockLineSequence::endBlock()
             }
         }
     }
-    // TODO: Add data to link-ref mapping dictionary
-    printf("Ref id: \"%s\"\n", refId.c_str());
-    printf("Link url: \"%s\"\n", linkUrl.c_str());
-    if (linkTitle.isValid()) {
-        printf("Link title: \"%s\"\n", linkTitle.c_str());
+
+    if ((refId.size() > 0) && (linkUrl.size() > 0)) {
+        m_linkRefMap->add(refId.toLowerCase(), linkUrl, linkTitle);
     }
+
     return 0;
 }

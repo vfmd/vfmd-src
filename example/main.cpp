@@ -2,6 +2,7 @@
 #include <string.h>
 #include "vfmddocument.h"
 #include "vfmdelementregistry.h"
+#include "core/vfmdlinkrefmap.h"
 #include "vfmdelementtreenode.h"
 #include "vfmdscopedpointer.h"
 #include "vfmdoutputdevice.h"
@@ -11,7 +12,8 @@
 
 int main(int argc, char *argv[])
 {
-    VfmdScopedPointer<VfmdElementRegistry> registry(VfmdElementRegistry::createRegistryWithDefaultElements());
+    VfmdLinkRefMap linkRefMap;
+    VfmdScopedPointer<VfmdElementRegistry> registry(VfmdElementRegistry::createRegistryWithDefaultElements(&linkRefMap));
     VfmdDocument document(registry.data());
 
     FILE *inputFile = 0;

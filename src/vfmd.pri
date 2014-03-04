@@ -21,7 +21,8 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/core/vfmdspanelementsprocessor.cpp \
            $$PWD/core/vfmdcommonregexps.cpp \
            $$PWD/core/vfmdcodespanfilter.cpp \
-           $$PWD/core/htmlstatewatcher.cpp
+           $$PWD/core/htmlstatewatcher.cpp \
+           $$PWD/core/vfmdlinkrefmap.cpp
 
 HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/vfmdline.h \
@@ -47,7 +48,8 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/core/vfmddictionary.h \
            $$PWD/core/vfmdcommonregexps.h \
            $$PWD/core/vfmdcodespanfilter.h \
-           $$PWD/core/htmlstatewatcher.h
+           $$PWD/core/htmlstatewatcher.h \
+           $$PWD/core/vfmdlinkrefmap.h
 
 BLK = $$PWD/blockelements
 
