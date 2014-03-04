@@ -113,6 +113,12 @@ bool VfmdByteArray::isInvalid() const
     return (d->data == 0);
 }
 
+void VfmdByteArray::invalidate()
+{
+    deref();
+    d = new Private();
+}
+
 void VfmdByteArray::append(const char *data, int length)
 {
     copyOnWrite(length);
@@ -1062,10 +1068,4 @@ VfmdByteArray VfmdByteArray::toUpperCase() const
 VfmdByteArray VfmdByteArray::toLowerCase() const
 {
     return caseFlipCodePointsOfCategory(VfmdUnicodeProperties::ucp_Lu);
-}
-
-void VfmdByteArray::invalidate()
-{
-    deref();
-    d = new Private();
 }
