@@ -109,7 +109,7 @@ private:
         RBDelete(m_redBlackTree, node);
     }
 
-    void printDictKeys() {
+    void printDictKeys() const {
         RBTreePrint(m_redBlackTree);
     }
 
