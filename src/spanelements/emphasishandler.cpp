@@ -20,67 +20,150 @@ static int vfmd_min(int a, int b)
     return b;
 }
 
+static int fringeRankForCategory(VfmdUnicodeProperties::GeneralCategory category)
+{
+    switch(category) {
+    case VfmdUnicodeProperties::ucp_Zs:
+    case VfmdUnicodeProperties::ucp_Zl:
+    case VfmdUnicodeProperties::ucp_Zp:
+    case VfmdUnicodeProperties::ucp_Cc:
+    case VfmdUnicodeProperties::ucp_Cf:
+        return 0;
+    case VfmdUnicodeProperties::ucp_Pc:
+    case VfmdUnicodeProperties::ucp_Pd:
+    case VfmdUnicodeProperties::ucp_Ps:
+    case VfmdUnicodeProperties::ucp_Pe:
+    case VfmdUnicodeProperties::ucp_Pi:
+    case VfmdUnicodeProperties::ucp_Pf:
+    case VfmdUnicodeProperties::ucp_Po:
+        return 1;
+    default:
+        return 2;
+    }
+}
+
+static void handlePossibleOpenEmphasisTag(const VfmdByteArray &emphTagString, VfmdSpanTagStack *stack)
+{
+    assert(emphTagString.size() > 0);
+    char firstByte = emphTagString.byteAt(0);
+    assert(firstByte == '*' || firstByte == '_');
+    stack->push(new OpeningEmphasisTagStackNode(firstByte, emphTagString.size()));
+}
+
+static void handlePossibleCloseEmphasisTag(const VfmdByteArray &emphTagString, VfmdSpanTagStack *stack)
+{
+    assert(emphTagString.size() > 0);
+    char firstByte = emphTagString.byteAt(0);
+    assert(firstByte == '*' || firstByte == '_');
+    int remainingTagStringLength = (int) emphTagString.size();
+    while (remainingTagStringLength > 0) {
+
+        VfmdConstants::VfmdOpeningSpanTagStackNodeType stackNodeType = VfmdConstants::UNDEFINED_STACK_NODE;
+        if (firstByte == '*') {
+            stackNodeType = VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE;
+        } else if (firstByte == '_') {
+            stackNodeType = VfmdConstants::UNDERSCORE_EMPHASIS_STACK_NODE;
+        } else {
+            assert(false);
+            return;
+        }
+        int topMostMatchingNodeIndex = stack->indexOfTopmostNodeOfType(stackNodeType);
+
+        if (topMostMatchingNodeIndex >= 0) {
+
+            // There exists a matching opening emphasis tag.
+            // So, this is indeed a close emphasis tag.
+            stack->popNodesAboveIndexAsTextFragments(topMostMatchingNodeIndex);
+            OpeningEmphasisTagStackNode *emphStackNode = dynamic_cast<OpeningEmphasisTagStackNode *>(stack->topNode());
+            assert(emphStackNode != 0);
+            assert(emphStackNode->character == firstByte);
+            EmphasisTreeNode *emphNode = new EmphasisTreeNode(emphStackNode->character,
+                                                              vfmd_min(remainingTagStringLength, emphStackNode->repetitionCount));
+            emphNode->adoptContainedElements(emphStackNode);
+            if (emphStackNode->repetitionCount > remainingTagStringLength) {
+                // The open emph is not fully closed. Retain the node in the stack.
+                emphStackNode->repetitionCount -= remainingTagStringLength;
+                remainingTagStringLength = 0;
+            } else {
+                // The open emph is fully closed. Remove from the stack.
+                remainingTagStringLength -= emphStackNode->repetitionCount;
+                VfmdOpeningSpanTagStackNode *poppedNode = stack->pop();
+                assert(poppedNode != 0);
+                assert(poppedNode->type() == stackNodeType);
+                delete poppedNode;
+            }
+            stack->topNode()->appendToContainedElements(emphNode);
+
+        } else {
+
+            // No matching opening emphasis tag.
+            // So, this is a text fragment.
+            stack->topNode()->appendToContainedElements(emphTagString.right(remainingTagStringLength));
+            remainingTagStringLength = 0;
+
+        }
+
+    } // end of while(remainingTagStringLength > 0)
+}
+
 void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const
 {
-    VfmdLineArrayIterator startOfTag = (*iterator);
-    char nextByte = iterator->nextByte();
-    if (nextByte != '*') {
+    VfmdLineArrayIterator startIter = (*iterator);
+    VfmdLineArrayIterator endIter = (*iterator);
+
+    endIter.moveForwardOverBytesInString("*_");
+    if (startIter == endIter) {
+        // If no '*' or '_' character is found, then this is not an emphasis tag
         return;
     }
-    iterator->moveForwardOverBytesInString("*");
-    unsigned int numberOfAsterisks = startOfTag.numberOfBytesTill(*iterator);
-    bool leftFlankedBySpace = (startOfTag.previousByte() == ' ');
-    bool rightFlankedBySpace = (iterator->nextByte() == ' ');
-    if (leftFlankedBySpace) {
-        // Can only be an opening emphasis tag
-        stack->push(new OpeningEmphasisTagStackNode('*', numberOfAsterisks));
+    if (startIter.isNextByteEscaped()) {
+        // If the '*' or '_' is escaped, then this is not an emphasis tag
         return;
-    } else if (rightFlankedBySpace) {
-        // Can be closing emphasis tags or text fragments, depending on what's on the stack
-        unsigned int remainingTagStringLength = numberOfAsterisks;
-        while (remainingTagStringLength > 0) {
-            int topMostMatchingNodeIndex = stack->indexOfTopmostNodeOfType(VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE);
-            if (topMostMatchingNodeIndex >= 0) {
-                // A closing emphasis tag
-                OpeningEmphasisTagStackNode *emphStackNode = dynamic_cast<OpeningEmphasisTagStackNode *>(stack->nodeAt(topMostMatchingNodeIndex));
-                assert(emphStackNode != 0);
-                assert(emphStackNode->character == '*');
-                stack->popNodesAboveIndexAsTextFragments(topMostMatchingNodeIndex);
-                EmphasisTreeNode *emphNode = new EmphasisTreeNode(emphStackNode->character,
-                                                                  vfmd_min(remainingTagStringLength, emphStackNode->repetitionCount));
-                emphNode->adoptContainedElements(emphStackNode);
+    }
 
-                if (emphStackNode->repetitionCount > remainingTagStringLength) {
-                    // The open emph is not fully closed. Retain the node in the stack.
-                    emphStackNode->repetitionCount -= remainingTagStringLength;
-                    remainingTagStringLength = 0;
+    VfmdByteArray emphIndicatorString = startIter.bytesTill(endIter);
+    int leftFringeRank  = (startIter.isAtBeginning()?
+                               0 : fringeRankForCategory(startIter.categoryOfPreviousCharacter()));
+    int rightFringeRank = (endIter.isAtEnd()?
+                               0 : fringeRankForCategory(endIter.categoryOfNextCharacter()));
+
+    if (leftFringeRank == rightFringeRank) {
+        // Non-flanking. So, not an emphasis tag.
+        // Append the text to the partially formed tree.
+        stack->topNode()->appendToContainedElements(emphIndicatorString);
+        iterator->moveTo(endIter);
+        return;
+    }
+
+    int sz = (int) emphIndicatorString.size();
+    assert(sz > 0);
+    if (sz > 0) {
+        int emphTagStartPos = 0;
+        for (int i = 1; i < sz; i++) {
+            if (emphIndicatorString.byteAt(i) != emphIndicatorString.byteAt(i - 1)) {
+                VfmdByteArray emphTagString = emphIndicatorString.mid(emphTagStartPos, i - emphTagStartPos);
+                emphTagStartPos = i;
+                if (leftFringeRank < rightFringeRank) {
+                    // Left-flanking
+                    handlePossibleOpenEmphasisTag(emphTagString, stack);
                 } else {
-                    // The open emph is fully closed. Remove from the stack.
-                    remainingTagStringLength -= emphStackNode->repetitionCount;
-                    VfmdOpeningSpanTagStackNode *poppedNode = stack->pop();
-                    assert(poppedNode != 0);
-                    assert(poppedNode->type() == VfmdConstants::ASTERISK_EMPHASIS_STACK_NODE);
-                    delete poppedNode;
+                    // Right-flanking
+                    handlePossibleCloseEmphasisTag(emphTagString, stack);
                 }
-
-                stack->topNode()->appendToContainedElements(emphNode);
-
-            } else {
-                // A text fragment
-                VfmdByteArray ba;
-                ba.reserve(remainingTagStringLength);
-                while (remainingTagStringLength--) {
-                    ba.appendByte('*');
-                }
-                stack->topNode()->appendToContainedElements(ba);
-                break;
             }
         }
-        return;
+        VfmdByteArray lastEmphTagString = emphIndicatorString.mid(emphTagStartPos, sz - emphTagStartPos);
+        if (leftFringeRank < rightFringeRank) {
+            // Left-flanking
+            handlePossibleOpenEmphasisTag(lastEmphTagString, stack);
+        } else {
+            // Right-flanking
+            handlePossibleCloseEmphasisTag(lastEmphTagString, stack);
+        }
     }
 
-    // Not an emph tag. Move the iterator back to the original position.
-    iterator->moveTo(startOfTag);
+    iterator->moveTo(endIter);
+    return;
 }
 
 OpeningEmphasisTagStackNode::OpeningEmphasisTagStackNode(char c, int n)

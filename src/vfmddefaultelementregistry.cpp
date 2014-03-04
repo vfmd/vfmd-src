@@ -32,7 +32,7 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
 
     // Span elements
     registry->appendSpanElement(VfmdConstants::EMPHASIS_ELEMENT, new EmphasisHandler,
-                                "*", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
+                                "*_", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
 
     return registry;
 }
