@@ -33,6 +33,9 @@ const char *VfmdSpanElementHandler::description() const
 
 void VfmdOpeningSpanTagStackNode::appendToContainedElements(VfmdElementTreeNode *elementsToAppend)
 {
+    if (elementsToAppend == 0) {
+        return;
+    }
     if (m_containedElements) {
         m_containedElements->appendSubtreeToEndOfSequence(elementsToAppend);
     } else {
