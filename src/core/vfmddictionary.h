@@ -30,11 +30,8 @@ public:
         RBTreeDestroy(m_redBlackTree);
     }
 
-    /* Insert key-value pair only if 'key' is not already in the dictionary */
-    bool insert(const VfmdByteArray &key, const T *value) {
-        if (contains(key)) {
-            return false;
-        }
+    /* Insert key-value pair even if 'key' is already in the dictionary */
+    bool insertMulti(const VfmdByteArray &key, const T *value) {
         add(key, value);
         return true;
     }
