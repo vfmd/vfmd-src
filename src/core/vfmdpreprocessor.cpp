@@ -195,7 +195,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
             p++; // The byte should be consumed only if it's an LF
             if (m_lineCallback) {
                 m_line.appendByte(0x0a); // LF
-                (*m_lineCallback)(m_lineCallbackContext, m_line);
+                VfmdLine line(m_line.data(), m_line.size());
+                (*m_lineCallback)(m_lineCallbackContext, line);
             }
             m_line.clear();
             m_line.reserve(LINE_DEFAULT_RESERVE_SIZE);
@@ -225,7 +226,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
             if (c == 0x0a) { // LF
                 if (m_lineCallback) {
                     m_line.appendByte(0x0a); // LF
-                    (*m_lineCallback)(m_lineCallbackContext, m_line);
+                    VfmdLine line(m_line.data(), m_line.size());
+                    (*m_lineCallback)(m_lineCallbackContext, line);
                 }
                 m_line.clear();
                 m_line.reserve(LINE_DEFAULT_RESERVE_SIZE);
@@ -239,7 +241,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                         p++; // The byte should be consumed only if it's an LF
                         if (m_lineCallback) {
                             m_line.appendByte(0x0a); // LF
-                            (*m_lineCallback)(m_lineCallbackContext, m_line);
+                            VfmdLine line(m_line.data(), m_line.size());
+                            (*m_lineCallback)(m_lineCallbackContext, line);
                         }
                         m_line.clear();
                         m_line.reserve(LINE_DEFAULT_RESERVE_SIZE);
@@ -470,7 +473,8 @@ void VfmdPreprocessor::end()
     if (m_line.size() > 0) {
         if (m_lineCallback) {
             m_line.appendByte(0x0a); // LF
-            (*m_lineCallback)(m_lineCallbackContext, m_line);
+            VfmdLine line(m_line.data(), m_line.size());
+            (*m_lineCallback)(m_lineCallbackContext, line);
         }
         m_line.clear();
         m_line.squeeze(); // free the internal storage
