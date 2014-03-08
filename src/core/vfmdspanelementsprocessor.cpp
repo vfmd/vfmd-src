@@ -8,26 +8,28 @@
 #include "vfmdspanelementhandler.h"
 #include "vfmdelementtreenode.h"
 
-static void closeTextFragmentIfOpen(VfmdLineArrayIterator *textFragmentStart,
-                                    const VfmdLineArrayIterator &iterator,
-                                    VfmdSpanTagStack *stack)
+static inline void closeTextFragmentIfOpen(const VfmdByteArray &text, int currentPos,
+                                           int *textFragmentStartPosPtr,
+                                           VfmdSpanTagStack *stack)
 {
-    if (textFragmentStart->isValid()) {
-        if (textFragmentStart->isBefore(&iterator)) {
-            VfmdByteArray textFragment = textFragmentStart->bytesTill(iterator);
+    int textFragmentStartPos = (*textFragmentStartPosPtr);
+    if (textFragmentStartPos >= 0) {
+        if (textFragmentStartPos < currentPos) {
+            VfmdByteArray textFragment = text.mid(textFragmentStartPos, currentPos - textFragmentStartPos);
             stack->topNode()->appendToContainedElements(textFragment);
         }
-        (*textFragmentStart) = VfmdLineArrayIterator(); // invalid iterator
+        (*textFragmentStartPosPtr) = -1;
     }
 }
 
-static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHandler, int triggerOptions,
-                                                VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack,
-                                                VfmdLineArrayIterator *textFragmentStart)
+static inline int applySpanHandler(const VfmdByteArray &text, int currentPos,
+                                    int textFragmentStartPos,
+                                    VfmdSpanTagStack *stack,
+                                    VfmdSpanElementHandler *spanHandler, int triggerOptions)
 {
     bool shouldInvokeEvenIfEscaped = ((triggerOptions & VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED) ==
                                       VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED);
-    if (!shouldInvokeEvenIfEscaped && iterator->isNextByteEscaped()) {
+    if (!shouldInvokeEvenIfEscaped && text.isEscapedAtPosition(currentPos)) {
         return false;
     }
     bool shouldInvokeBeforeTriggerByte = ((triggerOptions & VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE) ==
@@ -36,91 +38,62 @@ static bool applySpanHandlerOnLineArrayIterator(VfmdSpanElementHandler *spanHand
                                       VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
 
     if (shouldInvokeBeforeTriggerByte) {
-
-        VfmdLineArrayIterator fromIter;
-        if (textFragmentStart->isValid()) {
-            fromIter = (*textFragmentStart);
-        } else {
-            fromIter = (*iterator);
+        int fromPos = textFragmentStartPos;
+        if (fromPos < 0) {
+            fromPos = currentPos;
         }
-        VfmdLineArrayIterator toIter = (*iterator);
-        if (!toIter.isAtEnd()) {
-            toIter.moveForward(1); // move past the trigger byte
-        }
-        bool identified = spanHandler->identifySpanTagStartingBetween(&fromIter, &toIter, stack);
-
-        assert((*iterator)          <= toIter);
-        assert(fromIter             <= toIter);
-
-        if (  ((*iterator)          <= toIter)   ||
-              (fromIter             <= toIter)) {
-            return false;
-        }
-
-        if (identified) {
-            assert(fromIter < toIter);
-            if (fromIter >= toIter) {
-                return false;
-            }
-            iterator->moveTo(toIter);
-            return true;
-        }
-
+        return spanHandler->identifySpanTagStartingBetween(text, fromPos, currentPos, stack);
     } else if (shouldInvokeAtTriggerByte) {
-
-        VfmdLineArrayIterator endOfTag = (*iterator);
-        spanHandler->identifySpanTagStartingAt(&endOfTag, stack);
-        bool identified = endOfTag.isAfter(iterator);
-        if (identified) {
-            iterator->moveTo(endOfTag);
-            return true;
-        }
-
+        return spanHandler->identifySpanTagStartingAt(text, currentPos, stack);
     }
 
-    return false;
+    return 0;
 }
 
-VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdLineArray *lineArray, const VfmdElementRegistry *registry)
+VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdByteArray &text, const VfmdElementRegistry *registry)
 {
     VfmdSpanTagStack stack;
-    VfmdLineArrayIterator iterator = lineArray->begin();
-    VfmdLineArrayIterator textFragmentStart;
-    assert(textFragmentStart.isValid() == false); // initially invalid
 
-    while (!iterator.isAtEnd()) {
-        char currentByte = iterator.nextByte();
+    int currentPos = 0;
+    int endPos = (int) text.size();
+    int textFragmentStartPos = -1;
+
+    while (currentPos < endPos) {
+        char currentByte = text.byteAt(currentPos);
         bool isTagIdentifiedAtCurrentPos = false;
-        assert(iterator.isAtUTF8Boundary());
+        assert(text.isUTF8CharStartingAt(currentPos));
 
         // Ask the span element handlers pertaining to this trigger byte
         int n = registry->spanElementCountForTriggerByte(currentByte);
         if (n > 0) {
-            closeTextFragmentIfOpen(&textFragmentStart, iterator, &stack);
+            closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, &stack);
         }
         for (int i = 0; i < n; i++) {
             VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
             int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
-            isTagIdentifiedAtCurrentPos = applySpanHandlerOnLineArrayIterator(spanHandler, triggerOptions,
-                                                                              &iterator, &stack, &textFragmentStart);
-            if (isTagIdentifiedAtCurrentPos) {
-                iterator.ensureIsAtUTF8Boundary();
+            int consumedBytes = applySpanHandler(text, currentPos, textFragmentStartPos, &stack, spanHandler, triggerOptions);
+            if (consumedBytes > 0) {
+                currentPos += consumedBytes;
+                while ((currentPos < endPos) && (!text.isUTF8CharStartingAt(currentPos))) {
+                    currentPos++;
+                }
+                isTagIdentifiedAtCurrentPos = true;
                 break;
             }
         }
 
         // All span element handlers rejected this position => text fragment
         if (!isTagIdentifiedAtCurrentPos) {
-            if (!textFragmentStart.isValid()) { // If no text fragment is open
+            if (textFragmentStartPos < 0) { // If no text fragment is open
                 // Open a text fragment
-                textFragmentStart = iterator;
+                textFragmentStartPos = currentPos;
             }
-            assert(textFragmentStart.isValid());
-            iterator.moveForwardOneCharacter();
+            assert(textFragmentStartPos >= 0);
+            currentPos++;
         }
     }
 
-    closeTextFragmentIfOpen(&textFragmentStart, iterator, &stack);
+    closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, &stack);
 
     VfmdElementTreeNode *parseTree = stack.collapse();
     return parseTree;
