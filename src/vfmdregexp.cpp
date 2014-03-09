@@ -10,7 +10,6 @@
 class VfmdRegexp::Private {
 public:
     Private(const char *patternStr) : refCount(1) {
-        // TODO: Optimize using pcre_study
         // TODO: Check that there are no backrefs using pcre_fullinfo
         const char *errorMsg = 0;
         int errorOffsetInString = 0;
@@ -23,6 +22,7 @@ public:
                                   &errorMsg, &errorOffsetInString,
                                   0 /* use default character tables */);
         if (pcreRegexp) {
+            pcreExtra = pcre_study(pcreRegexp, 0, &errorMsg);
             pcre_refcount(pcreRegexp, 1);
         } else {
             printf("VfmdRegexp: Bad regexp pattern [%s]. Error \"%s\" at position %d.\n", patternStr, errorMsg, errorOffsetInString);
@@ -31,8 +31,9 @@ public:
         matchFound = false;
     }
 
-    Private(pcre *p, const VfmdByteArray &s, int ctc, int *cd) : refCount(1) {
+    Private(pcre *p, pcre_extra *e, const VfmdByteArray &s, int ctc, int *cd) : refCount(1) {
         pcreRegexp = p;
+        pcreExtra = e;
         subjectBa = s;
         for (int i = 0; i < ctc; i++) {
             captureData[i] = cd[i];
@@ -46,12 +47,16 @@ public:
     ~Private() {
         if (pcre_refcount(pcreRegexp, -1) == 0) {
             free(pcreRegexp);
+            if (pcreExtra) {
+                pcre_free_study(pcreExtra);
+            }
         }
     }
 
     unsigned int refCount;
 
     pcre *pcreRegexp;
+    pcre_extra *pcreExtra;
     VfmdByteArray subjectBa;
     int capturedTextCount;
     int captureData[MAX_CAPTURE_COUNT * 3];
@@ -93,7 +98,7 @@ int VfmdRegexp::indexIn(const VfmdByteArray &ba, int offset)
         options = (options | PCRE_NO_UTF8_CHECK);
 #endif
     int matchCode = pcre_exec(d->pcreRegexp,
-                              0 /*pcre_study data*/,
+                              d->pcreExtra,
                               ba.data(), ba.size(), offset,
                               options,
                               d->captureData, (MAX_CAPTURE_COUNT * 3));
@@ -162,7 +167,7 @@ bool VfmdRegexp::moveIteratorForward(VfmdLineArrayIterator *iterator) const
             optionsForDfaMatch = (optionsForDfaMatch | PCRE_DFA_RESTART);
         }
         int matchCode = pcre_dfa_exec(d->pcreRegexp,
-                                      0 /*pcre_study data*/,
+                                      d->pcreExtra,
                                       fragment.data(), fragment.size(), 0 /* offset */,
                                       optionsForDfaMatch,
                                       captureData, 2,
@@ -255,6 +260,6 @@ void VfmdRegexp::copyOnWrite() {
     if (d->refCount > 1) {
         deref(); // dereference existing data
         // copy data (refCount will be 1 for new copy)
-        d = new Private(d->pcreRegexp, d->subjectBa, d->capturedTextCount, d->captureData);
+        d = new Private(d->pcreRegexp, d->pcreExtra, d->subjectBa, d->capturedTextCount, d->captureData);
     }
 }
