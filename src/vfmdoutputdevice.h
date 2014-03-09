@@ -46,7 +46,7 @@ public:
 class VfmdBufferOutputDevice : public VfmdOutputDevice
 {
 public:
-    VfmdBufferOutputDevice();
+    VfmdBufferOutputDevice(VfmdByteArray *buffer);
     virtual ~VfmdBufferOutputDevice();
     int bytesWritten() const;
     const VfmdByteArray& buffer() const;
@@ -54,7 +54,7 @@ public:
 
 protected:
     virtual bool writeData(const char *data, int len);
-    VfmdByteArray m_buffer;
+    VfmdByteArray *m_buffer;
 };
 
 #endif // VFMDOUTPUTDEVICE_H

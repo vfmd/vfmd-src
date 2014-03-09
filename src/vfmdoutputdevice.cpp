@@ -90,8 +90,10 @@ VfmdConsoleOutputDevice::~VfmdConsoleOutputDevice()
 
 // VfmdBufferOutputDevice
 
-VfmdBufferOutputDevice::VfmdBufferOutputDevice()
+VfmdBufferOutputDevice::VfmdBufferOutputDevice(VfmdByteArray *buffer)
+    : m_buffer(buffer)
 {
+    m_buffer->clear();
 }
 
 VfmdBufferOutputDevice::~VfmdBufferOutputDevice()
@@ -100,21 +102,11 @@ VfmdBufferOutputDevice::~VfmdBufferOutputDevice()
 
 int VfmdBufferOutputDevice::bytesWritten() const
 {
-    return m_buffer.size();
-}
-
-const VfmdByteArray& VfmdBufferOutputDevice::buffer() const
-{
-    return m_buffer;
-}
-
-void VfmdBufferOutputDevice::squeezeBuffer()
-{
-    m_buffer.squeeze();
+    return m_buffer->size();
 }
 
 bool VfmdBufferOutputDevice::writeData(const char *data, int len)
 {
-    m_buffer.append(data, len);
+    m_buffer->append(data, len);
     return true;
 }
