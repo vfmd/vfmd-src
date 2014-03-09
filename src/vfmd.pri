@@ -86,4 +86,10 @@ HEADERS += \
 
 INCLUDEPATH += $$PWD $$PWD/core
 
-DEFINES += VFMD_DEBUG
+contains(CONFIG, debug) {
+    DEFINES += VFMD_DEBUG
+}
+
+contains(CONFIG, release) {
+    DEFINES += NDEBUG
+}
