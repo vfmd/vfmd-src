@@ -33,8 +33,7 @@ public:
     static VfmdRegexp& atxHeaderLineWithoutHeaderText();
 
     // Blockquote
-    static VfmdRegexp& blockquotePrefixWithEndingSpace();
-    static VfmdRegexp& blockquotePrefixWithoutEndingSpace();
+    static VfmdRegexp& blockquotePrefix();
 
     // Horizontal rule
     static VfmdRegexp& horizontalRule();

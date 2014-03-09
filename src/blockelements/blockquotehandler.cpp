@@ -3,6 +3,7 @@
 #include "blockquotehandler.h"
 #include "vfmdinputlinesequence.h"
 #include "vfmdcommonregexps.h"
+#include "core/vfmdblockutils.h"
 
 void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
@@ -36,20 +37,14 @@ void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine, const
         }
     }
 
-    VfmdRegexp rePrefixWithEndingSpace = VfmdCommonRegexps::blockquotePrefixWithEndingSpace();
-    VfmdRegexp rePrefixWithoutEndingSpace = VfmdCommonRegexps::blockquotePrefixWithoutEndingSpace();
-
-    VfmdLine line = currentLine;
-    unsigned int lengthOfMatch = 0;
-    if (rePrefixWithEndingSpace.matches(line)) {
-        lengthOfMatch = rePrefixWithEndingSpace.capturedText(0).size();
-    } else if (rePrefixWithoutEndingSpace.matches(line)) {
-        lengthOfMatch = rePrefixWithoutEndingSpace.capturedText(0).size();
-    }
+    int lengthOfMatch = numOfBlockquotePrefixBytes(currentLine);
     if (lengthOfMatch > 0) {
+        VfmdLine line = currentLine;
         line.chopLeft(lengthOfMatch);
+        m_childSequence->addLine(line);
+    } else {
+        m_childSequence->addLine(currentLine);
     }
-    m_childSequence->addLine(line);
 }
 
 bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
@@ -62,17 +57,12 @@ bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfm
         if (nextLine.isBlankLine()) {
             return true;
         }
-        if (nextLine.startsWith("    ")) {
-            return true;
-        }
-        if (nextLine.firstNonSpace() != '>') {
+        if (numOfBlockquotePrefixBytes(nextLine) == 0) {
             return true;
         }
     } else {
         // current line is not a blank line
-        VfmdRegexp reHorizontalRule = VfmdCommonRegexps::horizontalRule();
-        if ((!nextLine.startsWith("    ")) &&
-            (reHorizontalRule.matches(nextLine.chomped())) ) {
+        if ((!nextLine.startsWith("    ")) && (isHorizontalRuleLine(nextLine))) {
             return true;
         }
     }

@@ -66,24 +66,6 @@ VfmdRegexp& VfmdCommonRegexps::atxHeaderLineWithoutHeaderText()
     return re;
 }
 
-VfmdRegexp& VfmdCommonRegexps::blockquotePrefixWithEndingSpace()
-{
-    static VfmdRegexp re("^ *> ");
-    return re;
-}
-
-VfmdRegexp& VfmdCommonRegexps::blockquotePrefixWithoutEndingSpace()
-{
-    static VfmdRegexp re("^ *>");
-    return re;
-}
-
-VfmdRegexp& VfmdCommonRegexps::horizontalRule()
-{
-    static VfmdRegexp re("^ *((\\* *\\* *\\* *[\\* ]*)|(\\- *\\- *\\- *[\\- ]*)|(_ *_ *_ *[_ ]*))$");
-    return re;
-}
-
 VfmdRegexp& VfmdCommonRegexps::unorderedListStarter()
 {
     static VfmdRegexp re("^( *[\\*\\-\\+] +)[^ ]");

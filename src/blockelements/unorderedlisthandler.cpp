@@ -1,5 +1,6 @@
 #include "unorderedlisthandler.h"
 #include "vfmdcommonregexps.h"
+#include "core/vfmdblockutils.h"
 
 void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
@@ -128,10 +129,9 @@ bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const 
                 nextLineChomped.chomp();
                 VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
                 VfmdRegexp reOrderedListStarterPattern = VfmdCommonRegexps::orderedListStarter();
-                VfmdRegexp reHorizontalRulePattern = VfmdCommonRegexps::horizontalRule();
                 if (reUnorderedListStarterPattern.matches(nextLineChomped) ||
                     reOrderedListStarterPattern.matches(nextLineChomped) ||
-                    reHorizontalRulePattern.matches(nextLineChomped)) {
+                    isHorizontalRuleLine(nextLineChomped)) {
                     return true;
                 }
             }

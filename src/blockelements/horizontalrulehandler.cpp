@@ -1,12 +1,12 @@
 #include "horizontalrulehandler.h"
 #include "vfmdregexp.h"
 #include "vfmdcommonregexps.h"
+#include "core/vfmdblockutils.h"
 
 void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
     UNUSED_ARG(nextLine);
-    VfmdRegexp reHorizontalRule = VfmdCommonRegexps::horizontalRule();
-    if (reHorizontalRule.matches(firstLine)) {
+    if (isHorizontalRuleLine(firstLine)) {
         lineSequence->setChildSequence(new HorizontalRuleLineSequence(lineSequence));
     }
 }
