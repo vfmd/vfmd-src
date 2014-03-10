@@ -20,6 +20,7 @@ void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
     , m_containingBlockType(VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
+    , m_lines(new VfmdPointerArray<const VfmdLine>(128))
     , m_isAtEndOfParagraph(false)
     , m_isLookingAhead(false)
     , m_lookaheadLines(0)
@@ -32,14 +33,19 @@ ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent
 
 ParagraphLineSequence::~ParagraphLineSequence()
 {
+    if (m_lines) {
+        m_lines->freeItemsAndClear();
+    }
+    delete m_lines;
+    delete m_lookaheadLines;
 }
 
-static void appendToLineArray(VfmdLineArray *lineArray, VfmdPointerArray<const VfmdLine> *lines)
+static void appendLines(VfmdPointerArray<const VfmdLine> *dst, VfmdPointerArray<const VfmdLine> *src)
 {
-    if (lineArray && lines && (lines->size() > 0)) {
-        unsigned int sz = lines->size();
+    if (dst && src && (src->size() > 0)) {
+        unsigned int sz = src->size();
         for (unsigned int i = 0; i < sz; i++) {
-            lineArray->addLine(*(lines->itemAt(i)));
+            dst->append(new VfmdLine(*src->itemAt(i)));
         }
     }
 }
@@ -86,7 +92,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const 
     if (!m_isLookingAhead) {
 
         // Not in lookahead mode
-        m_lineArray.addLine(currentLine);
+        m_lines->append(new VfmdLine(currentLine));
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
         m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine, &m_htmlStateWatcher);
         HtmlStateWatcher::State htmlState = m_htmlStateWatcher.state();
@@ -126,7 +132,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const 
             (state == HtmlStateWatcher::HTML_TAG_STATE) ||
             (state == HtmlStateWatcher::CONTENT_OF_WELL_FORMED_VERBATIM_HTML_ELEMENT_STATE)) {
             // Paragraph should not end at the point where lookahead started
-            appendToLineArray(&m_lineArray, m_lookaheadLines); // Consume lookahead lines
+            appendLines(m_lines, m_lookaheadLines); // Consume lookahead lines
             m_lookaheadLines->freeItemsAndClear();
             m_htmlStateWatcher.endLookahead(true /* consumeLookaheadLines */);
             HtmlStateWatcher::State updatedHtmlState = m_htmlStateWatcher.state();
@@ -168,9 +174,24 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vfmd
 
 VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
-    m_lineArray.trim();
+    unsigned int sz = m_lines->size();
+    unsigned int textSize = 0;
+    for (unsigned int i = 0; i < sz; i++) {
+        textSize += m_lines->itemAt(i)->size();
+    }
+    VfmdByteArray text;
+    text.reserve(textSize);
+    for (unsigned int i = 0; i < sz; i++) {
+        const VfmdLine *line = m_lines->itemAt(i);
+        text.append(*line);
+        delete line;
+    }
+    assert(text.size() == text.capacity());
+    m_lines->clear();
+    text.trim();
+
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
-    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(&m_lineArray, registry());
+    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(text, registry());
     bool ok = paragraphNode->setChildNodeIfNotSet(spanParseTree);
     assert(ok);
     return paragraphNode;

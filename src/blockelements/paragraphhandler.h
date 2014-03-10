@@ -2,7 +2,6 @@
 #define PARAGRAPHHANDLER_H
 
 #include "vfmdblockelementhandler.h"
-#include "vfmdlinearray.h"
 #include "core/vfmdcodespanfilter.h"
 #include "core/htmlstatewatcher.h"
 
@@ -25,8 +24,8 @@ public:
     virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock() const;
 
 private:
-    VfmdLineArray m_lineArray;
     int m_containingBlockType;
+    VfmdPointerArray<const VfmdLine> * m_lines;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     VfmdCodeSpanFilter m_codeSpanFilter;
     HtmlStateWatcher m_htmlStateWatcher;
