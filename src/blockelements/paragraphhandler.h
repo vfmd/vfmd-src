@@ -26,6 +26,7 @@ public:
 
 private:
     VfmdLineArray m_lineArray;
+    int m_containingBlockType;
     VfmdCodeSpanFilter m_codeSpanFilter;
     HtmlStateWatcher m_htmlStateWatcher;
     bool m_isAtEndOfParagraph, m_isLookingAhead;

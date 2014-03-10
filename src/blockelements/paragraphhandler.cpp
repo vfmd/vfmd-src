@@ -18,10 +18,15 @@ void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, 
 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
+    , m_containingBlockType(VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
     , m_isAtEndOfParagraph(false)
     , m_isLookingAhead(false)
     , m_lookaheadLines(0)
 {
+    const VfmdBlockLineSequence *containingBlockSequence = (parent? parent->parentLineSequence() : 0);
+    if (containingBlockSequence) {
+        m_containingBlockType = containingBlockSequence->elementType();
+    }
 }
 
 ParagraphLineSequence::~ParagraphLineSequence()
@@ -38,7 +43,7 @@ static void appendToLineArray(VfmdLineArray *lineArray, VfmdPointerArray<const V
     }
 }
 
-static bool isPotentialEndOfParagraph(const VfmdInputLineSequence *parentSequence, const VfmdLine &nextLine)
+static bool isPotentialEndOfParagraph(const VfmdLine &nextLine, int containingBlockType)
 {
     if (nextLine.isBlankLine()) {
         return true;
@@ -51,27 +56,23 @@ static bool isPotentialEndOfParagraph(const VfmdInputLineSequence *parentSequenc
         return true;
     }
 
-    int containerType = VfmdConstants::UNDEFINED_BLOCK_ELEMENT;
-    const VfmdBlockLineSequence *containingBlockSequence = (parentSequence? parentSequence->parentLineSequence() : 0);
-    if (containingBlockSequence) {
-        containerType = containingBlockSequence->elementType();
-    }
-
-    if ((nextLine.firstNonSpace() == '>') &&
-        (containerType == VfmdConstants::BLOCKQUOTE_ELEMENT)) {
+    if ((containingBlockType == VfmdConstants::BLOCKQUOTE_ELEMENT) &&
+        (nextLine.firstNonSpace() == '>')) {
         return true;
     }
 
-    VfmdRegexp reOrderedListStarter = VfmdCommonRegexps::orderedListStarter();
-    VfmdRegexp reUnorderedListStarter = VfmdCommonRegexps::unorderedListStarter();
-
-    if ((reUnorderedListStarter.matches(nextLine)) &&
-        (containerType == VfmdConstants::UNORDERED_LIST_ELEMENT)) {
-        return true;
+    if (containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT) {
+        VfmdRegexp reUnorderedListStarter = VfmdCommonRegexps::unorderedListStarter();
+        if (reUnorderedListStarter.matches(nextLine)) {
+            return true;
+        }
     }
-    if ((reOrderedListStarter.matches(nextLine)) &&
-        (containerType == VfmdConstants::ORDERED_LIST_ELEMENT)) {
-        return true;
+
+    if (containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT) {
+        VfmdRegexp reOrderedListStarter = VfmdCommonRegexps::orderedListStarter();
+        if (reOrderedListStarter.matches(nextLine)) {
+            return true;
+        }
     }
 
     return false;
@@ -87,7 +88,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const 
         m_lineArray.addLine(currentLine);
         m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine, &m_htmlStateWatcher);
         HtmlStateWatcher::State htmlState = m_htmlStateWatcher.state();
-        bool isPotentialEnd = isPotentialEndOfParagraph(parentLineSequence(), nextLine);
+        bool isPotentialEnd = isPotentialEndOfParagraph(nextLine, m_containingBlockType);
         if (isPotentialEnd) {
             if (htmlState == HtmlStateWatcher::TEXT_STATE) {
                 m_isAtEndOfParagraph = true;
@@ -130,7 +131,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const 
                 m_lookaheadLines = 0;
                 m_isLookingAhead = false;
                 if (updatedHtmlState == HtmlStateWatcher::TEXT_STATE) {
-                    m_isAtEndOfParagraph = isPotentialEndOfParagraph(parentLineSequence(), nextLine);
+                    m_isAtEndOfParagraph = isPotentialEndOfParagraph(nextLine, m_containingBlockType);
                 } else {
                     // No other states are possible at this point
                     assert(false);
