@@ -61,6 +61,7 @@ public:
     int indexOfFirstNonSpace() const;
     int indexOfLastNonSpace() const;
     int indexOf(char byte, int offset = 0) const;
+    bool isEscapedAtPosition(int pos) const;
 
     /* Return the left 'count' bytes as a bytearray (without any data-replication) */
     VfmdByteArray left(unsigned int count) const;

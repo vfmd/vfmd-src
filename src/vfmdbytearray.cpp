@@ -315,6 +315,23 @@ int VfmdByteArray::indexOf(char byte, int offset) const
     return -1;
 }
 
+bool VfmdByteArray::isEscapedAtPosition(int pos) const
+{
+    if (pos <= 0) {
+        return false;
+    }
+    assert(pos > 0);
+    assert(pos < size());
+    const char *data_ptr = data();
+    unsigned int numOfPrecedingBackslashes = 0;
+    int i = pos - 1;
+    while ((i >= 0) && (data_ptr[i] == '\\')) {
+        i--;
+        numOfPrecedingBackslashes++;
+    }
+    return ((numOfPrecedingBackslashes % 2) == 1);
+}
+
 VfmdByteArray VfmdByteArray::left(unsigned int count) const
 {
     VfmdByteArray ba = *this;
