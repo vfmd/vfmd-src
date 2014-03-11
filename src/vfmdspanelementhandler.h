@@ -5,7 +5,6 @@
 #include "vfmdconstants.h"
 #include "vfmdelementtreenode.h"
 
-class VfmdLineArrayIterator;
 class VfmdSpanTagStack;
 class VfmdElementTreeNode;
 
@@ -19,37 +18,36 @@ public:
     virtual ~VfmdSpanElementHandler();
 
     /* identifySpanTagStartingAt():
-     * If this handler identifies a span tag starting just after the 'iterator'
-     * position, then this method should handle the tag and move 'iterator' to
-     * be just after the end of the identified tag.
+     * If this handler identifies a span tag starting just after 'currentPos',
+     * then this method should handle the tag and return the number of bytes consumed.
+     * The stack can be inspected and modified.
      *
-     * If no span tag is identified, the 'iterator' should not be moved at all.
-     *
-     * The stack can be inspected and modified in this method.
+     * If no span tag is identified, this method should not modify the stack and
+     * return 0.
      *
      * This method is invoked in the case where the handler is registered with the
      * TRIGGER_AT_TRIGGER_BYTE trigger option (which is the default option). */
 
-    virtual void identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const;
+    virtual int identifySpanTagStartingAt(const VfmdByteArray &text,
+                                                   int currentPos,
+                                                   VfmdSpanTagStack *stack) const;
 
     /* identifySpanTagStartingBetween():
-     * If this handler identifies a span tag that starts between the 'fromIterator'
-     * position and the 'toIterator' position, this method should identify the part before
+     * If this handler identifies a span tag that starts between 'fromPos' and 'toPos',
+     * this method should identify the part before
      * the start of the span tag as a text fragment, handle the span tag, and
-     * move the 'toIterator' position to just after the end of the identified tag,
-     * and return 'true'. This method should not move 'toIterator' backwards.
+     * return the number of bytes consumed.
+     * The stack can be inspected and modified.
      *
-     * If no span tag is identified, between 'fromIterator' and 'toIterator', then
-     * this method should return 'false'.
-     *
-     * The stack can be inspected / pushed to / popped from in this method.
+     * If no span tag is identified, this method should not modify the stack and
+     * return 0.
      *
      * This method is invoked in the case where the handler is registered with the
      * TRIGGER_BEFORE_TRIGGER_BYTE trigger option. */
 
-    virtual bool identifySpanTagStartingBetween(const VfmdLineArrayIterator *fromIterator,
-                                                VfmdLineArrayIterator *toIterator,
-                                                VfmdSpanTagStack *stack) const;
+    virtual int identifySpanTagStartingBetween(const VfmdByteArray &text,
+                                                        int fromPos, int toPos,
+                                                        VfmdSpanTagStack *stack) const;
 
     /* A short text describing this syntax (eg. "emphasis", "strikethrough") */
     virtual const char *description() const;

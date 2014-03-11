@@ -10,20 +10,25 @@ VfmdSpanElementHandler::~VfmdSpanElementHandler()
 {
 }
 
-void VfmdSpanElementHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const
+int VfmdSpanElementHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
+                                                               int currentPos,
+                                                               VfmdSpanTagStack *stack) const
 {
-    UNUSED_ARG(iterator);
+    UNUSED_ARG(text);
+    UNUSED_ARG(currentPos);
     UNUSED_ARG(stack);
+    return 0;
 }
 
-bool VfmdSpanElementHandler::identifySpanTagStartingBetween(const VfmdLineArrayIterator *fromIterator,
-                                                            VfmdLineArrayIterator *toIterator,
-                                                            VfmdSpanTagStack *stack) const
+int VfmdSpanElementHandler::identifySpanTagStartingBetween(const VfmdByteArray &text,
+                                                                    int fromPos, int toPos,
+                                                                    VfmdSpanTagStack *stack) const
 {
-    UNUSED_ARG(fromIterator);
-    UNUSED_ARG(toIterator);
+    UNUSED_ARG(text);
+    UNUSED_ARG(fromPos);
+    UNUSED_ARG(toPos);
     UNUSED_ARG(stack);
-    return false;
+    return 0;
 }
 
 const char *VfmdSpanElementHandler::description() const
