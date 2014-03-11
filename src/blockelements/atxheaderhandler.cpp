@@ -20,7 +20,6 @@ void AtxHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, const 
 {
     UNUSED_ARG(nextLine);
     m_headerLine = currentLine;
-    m_headerLine.chomp(); // Remove trailing newline
 }
 
 bool AtxHeaderLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const

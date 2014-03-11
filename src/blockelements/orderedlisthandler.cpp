@@ -135,11 +135,9 @@ bool OrderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const Vf
             VfmdByteArray nextLineStart = nextLine.left(m_listStarterStringLength);
             bool nextLineStartHasNonSpace = (nextLineStart.indexOfFirstNonSpace() >= 0);
             if (nextLineStartHasNonSpace && !nextLine.startsWith("    ")) {
-                VfmdLine nextLineChomped = nextLine;
-                nextLineChomped.chomp();
                 VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-                if (reUnorderedListStarterPattern.matches(nextLineChomped) ||
-                    isHorizontalRuleLine(nextLineChomped)) {
+                if (reUnorderedListStarterPattern.matches(nextLine) ||
+                    isHorizontalRuleLine(nextLine)) {
                     return true;
                 }
             }

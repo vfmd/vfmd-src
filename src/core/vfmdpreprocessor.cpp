@@ -194,7 +194,6 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
         if (nextByte == 0x0a) { // LF
             p++; // The byte should be consumed only if it's an LF
             if (m_lineCallback) {
-                m_line.appendByte(0x0a); // LF
                 VfmdLine line(m_line.data(), m_line.size());
                 (*m_lineCallback)(m_lineCallbackContext, line);
             }
@@ -225,7 +224,6 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                                             /* No continuation bytes */
             if (c == 0x0a) { // LF
                 if (m_lineCallback) {
-                    m_line.appendByte(0x0a); // LF
                     VfmdLine line(m_line.data(), m_line.size());
                     (*m_lineCallback)(m_lineCallbackContext, line);
                 }
@@ -240,7 +238,6 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                     if (nextByte == 0x0a) { // LF
                         p++; // The byte should be consumed only if it's an LF
                         if (m_lineCallback) {
-                            m_line.appendByte(0x0a); // LF
                             VfmdLine line(m_line.data(), m_line.size());
                             (*m_lineCallback)(m_lineCallbackContext, line);
                         }
@@ -472,7 +469,6 @@ void VfmdPreprocessor::end()
 {
     if (m_line.size() > 0) {
         if (m_lineCallback) {
-            m_line.appendByte(0x0a); // LF
             VfmdLine line(m_line.data(), m_line.size());
             (*m_lineCallback)(m_lineCallbackContext, line);
         }

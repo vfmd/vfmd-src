@@ -177,13 +177,14 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
     unsigned int sz = m_lines->size();
     unsigned int textSize = 0;
     for (unsigned int i = 0; i < sz; i++) {
-        textSize += m_lines->itemAt(i)->size();
+        textSize += m_lines->itemAt(i)->size() + 1;
     }
     VfmdByteArray text;
     text.reserve(textSize);
     for (unsigned int i = 0; i < sz; i++) {
         const VfmdLine *line = m_lines->itemAt(i);
         text.append(*line);
+        text.appendByte(0x0a /* LF */);
         delete line;
     }
     assert(text.size() == text.capacity());

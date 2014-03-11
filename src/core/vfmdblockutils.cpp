@@ -13,7 +13,7 @@ bool isHorizontalRuleLine(const VfmdLine &line)
                 const char c = data[i];
                 if (c == hrByte) {
                     numOfHrBytes++;
-                } else if (c == ' ' || c == '\n') {
+                } else if (c == ' ') {
                     // Nothing to do
                 } else {
                     return false;

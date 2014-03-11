@@ -49,7 +49,6 @@ RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLi
     assert(m_numOfLinesInSequence > 0);
     m_linkDefText = firstLine;
     if (m_numOfLinesInSequence == 2) {
-        m_linkDefText.chomp(); // Remove trailing newline
         m_linkDefText.append(nextLine);
     }
 }
