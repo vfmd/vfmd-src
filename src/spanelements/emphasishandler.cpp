@@ -106,33 +106,37 @@ static void handlePossibleCloseEmphasisTag(const VfmdByteArray &emphTagString, V
     } // end of while(remainingTagStringLength > 0)
 }
 
-void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const
+int EmphasisHandler::identifySpanTagStartingAt(const VfmdByteArray &text, int currentPos, VfmdSpanTagStack *stack) const
 {
-    VfmdLineArrayIterator startIter = (*iterator);
-    VfmdLineArrayIterator endIter = (*iterator);
+    const char *data_ptr = text.data();
+    unsigned int i = currentPos;
+    for (i = currentPos; i < text.size(); i++) {
+        const char c = data_ptr[i];
+        if (c != '*' && c != '_') {
+            break;
+        }
+    }
+    unsigned int lengthOfEmphIndicatorString = (i - currentPos);
 
-    endIter.moveForwardOverBytesInString("*_");
-    if (startIter == endIter) {
+    if (lengthOfEmphIndicatorString == 0) {
         // If no '*' or '_' character is found, then this is not an emphasis tag
-        return;
+        return 0;
     }
-    if (startIter.isNextByteEscaped()) {
-        // If the '*' or '_' is escaped, then this is not an emphasis tag
-        return;
-    }
+    assert(!text.isEscapedAtPosition(currentPos));
 
-    VfmdByteArray emphIndicatorString = startIter.bytesTill(endIter);
-    int leftFringeRank  = (startIter.isAtBeginning()?
-                               0 : fringeRankForCategory(startIter.categoryOfPreviousCharacter()));
-    int rightFringeRank = (endIter.isAtEnd()?
-                               0 : fringeRankForCategory(endIter.categoryOfNextCharacter()));
+    VfmdByteArray emphIndicatorString = text.mid(currentPos, lengthOfEmphIndicatorString);
+    int beforeEmphIndicatorPos = text.previousUTF8CharStartsAt(currentPos);
+    int afterEmphIndicatorPos = currentPos + lengthOfEmphIndicatorString;
+    int leftFringeRank  = ((beforeEmphIndicatorPos < 0)?
+                               0 : fringeRankForCategory(text.categoryOfUTF8CharStartingAt(beforeEmphIndicatorPos)));
+    int rightFringeRank = ((afterEmphIndicatorPos >= text.size())?
+                               0 : fringeRankForCategory(text.categoryOfUTF8CharStartingAt(afterEmphIndicatorPos)));
 
     if (leftFringeRank == rightFringeRank) {
         // Non-flanking. So, not an emphasis tag.
         // Append the text to the partially formed tree.
         stack->topNode()->appendToContainedElements(emphIndicatorString);
-        iterator->moveTo(endIter);
-        return;
+        return emphIndicatorString.size();
     }
 
     int sz = (int) emphIndicatorString.size();
@@ -162,8 +166,7 @@ void EmphasisHandler::identifySpanTagStartingAt(VfmdLineArrayIterator *iterator,
         }
     }
 
-    iterator->moveTo(endIter);
-    return;
+    return emphIndicatorString.size();
 }
 
 OpeningEmphasisTagStackNode::OpeningEmphasisTagStackNode(char c, int n)

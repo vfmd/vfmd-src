@@ -11,7 +11,9 @@ public:
 
     virtual ~EmphasisHandler();
 
-    virtual void identifySpanTagStartingAt(VfmdLineArrayIterator *iterator, VfmdSpanTagStack *stack) const;
+    virtual int identifySpanTagStartingAt(const VfmdByteArray &text,
+                                                   int currentPos,
+                                                   VfmdSpanTagStack *stack) const;
 
     virtual const char *description() const { return "emphasis"; }
 };
