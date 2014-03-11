@@ -10,7 +10,7 @@ VfmdPreprocessor::VfmdPreprocessor()
     , m_isUnfinishedCRLF(false)
     , m_codePointCount(0)
 {
-    m_line.reserve(LINE_DEFAULT_RESERVE_SIZE);
+    m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
 }
 
 VfmdPreprocessor::~VfmdPreprocessor()
@@ -153,25 +153,25 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
         int ab = (m_unfinishedCodePoint.bytesSeen + m_unfinishedCodePoint.bytesRemaining);
         switch (invalidByteIndex) {
             case 0: /* No error. It's a valid code point continuation */
-                m_line.appendBytes(c, d, e);
+                m_buffer.appendBytes(c, d, e);
                 if (ab == 4) {
-                    m_line.appendByte(f);
+                    m_buffer.appendByte(f);
                 }
                 m_codePointCount++;
                 break;
 
             case 3: /* Error in the 3rd byte of the code point */
-                CONVERT_FROM_ISO_8859_1(m_line, c);
-                CONVERT_FROM_ISO_8859_1(m_line, d);
-                CONVERT_FROM_ISO_8859_1(m_line, e);
+                CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                CONVERT_FROM_ISO_8859_1(m_buffer, d);
+                CONVERT_FROM_ISO_8859_1(m_buffer, e);
                 m_codePointCount += 3;
                 break;
 
             case 4: /* Error in the 4th byte of the code point */
-                CONVERT_FROM_ISO_8859_1(m_line, c);
-                CONVERT_FROM_ISO_8859_1(m_line, d);
-                CONVERT_FROM_ISO_8859_1(m_line, e);
-                CONVERT_FROM_ISO_8859_1(m_line, f);
+                CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                CONVERT_FROM_ISO_8859_1(m_buffer, d);
+                CONVERT_FROM_ISO_8859_1(m_buffer, e);
+                CONVERT_FROM_ISO_8859_1(m_buffer, f);
                 m_codePointCount += 4;
                 break;
         }
@@ -194,14 +194,14 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
         if (nextByte == 0x0a) { // LF
             p++; // The byte should be consumed only if it's an LF
             if (m_lineCallback) {
-                VfmdLine line(m_line.data(), m_line.size());
+                VfmdLine line(m_buffer.data(), m_buffer.size());
                 (*m_lineCallback)(m_lineCallbackContext, line);
             }
-            m_line.clear();
-            m_line.reserve(LINE_DEFAULT_RESERVE_SIZE);
+            m_buffer.clear();
+            m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
             m_codePointCount = 0;
         } else {
-            m_line.appendByte(0x0d); // CR from last call
+            m_buffer.appendByte(0x0d); // CR from last call
         }
         m_isUnfinishedCRLF = false;
     }
@@ -224,11 +224,11 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                                             /* No continuation bytes */
             if (c == 0x0a) { // LF
                 if (m_lineCallback) {
-                    VfmdLine line(m_line.data(), m_line.size());
+                    VfmdLine line(m_buffer.data(), m_buffer.size());
                     (*m_lineCallback)(m_lineCallbackContext, line);
                 }
-                m_line.clear();
-                m_line.reserve(LINE_DEFAULT_RESERVE_SIZE);
+                m_buffer.clear();
+                m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
                 m_codePointCount = 0;
                 continue;
             }
@@ -238,14 +238,14 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                     if (nextByte == 0x0a) { // LF
                         p++; // The byte should be consumed only if it's an LF
                         if (m_lineCallback) {
-                            VfmdLine line(m_line.data(), m_line.size());
+                            VfmdLine line(m_buffer.data(), m_buffer.size());
                             (*m_lineCallback)(m_lineCallbackContext, line);
                         }
-                        m_line.clear();
-                        m_line.reserve(LINE_DEFAULT_RESERVE_SIZE);
+                        m_buffer.clear();
+                        m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
                         m_codePointCount = 0;
                     } else {
-                        m_line.appendByte(c);
+                        m_buffer.appendByte(c);
                     }
                     continue;
                 } else {
@@ -258,25 +258,25 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
             if (c == 0x09) { // TAB
                 register int spacesToInsert = 4 - (m_codePointCount % 4);
                 while (spacesToInsert--) {
-                    m_line.appendByte(0x20); // space
+                    m_buffer.appendByte(0x20); // space
                     m_codePointCount++;
                 }
                 continue;
             }
-            m_line.appendByte(c);
+            m_buffer.appendByte(c);
             m_codePointCount++;
             continue;
         }
 
         if (c < 0xc0) {                     /* Isolated UTF-8 continuation byte */
                                             /* without a leading byte */
-            CONVERT_FROM_ISO_8859_1(m_line, c);
+            CONVERT_FROM_ISO_8859_1(m_buffer, c);
             continue;
         }
 
         if (c >= 0xfe) {                    /* Bytes 0xfe and 0xff */
                                             /* are invalid in UTF-8 */
-            CONVERT_FROM_ISO_8859_1(m_line, c);
+            CONVERT_FROM_ISO_8859_1(m_buffer, c);
             continue;
         }
 
@@ -289,7 +289,7 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
         if (ab > 3) {
             // Assume first byte to be in ISO-8859-1 encoding.
             // Rest of the bytes are not consumed.
-            CONVERT_FROM_ISO_8859_1(m_line, c);
+            CONVERT_FROM_ISO_8859_1(m_buffer, c);
             m_codePointCount++;
             continue;
         }
@@ -312,7 +312,7 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                 if ((c & 0x3e) == 0) {                  /* Overlong sequence */
                     // Assume first byte to be in ISO-8859-1 encoding
                     // First continuation byte is not consumed
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
                     m_codePointCount++;
                     continue;
                 }
@@ -333,8 +333,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                    ) {
                     // Assume first 2 bytes to be in ISO-8859-1 encoding.
                     // Third byte is not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
                     m_codePointCount += 2;
                     continue;
                 }
@@ -353,8 +353,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                    ) {
                     // Assume first 2 bytes to be in ISO-8859-1 encoding.
                     // Last 2 bytes are not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
                     m_codePointCount += 2;
                     continue;
                 }
@@ -369,8 +369,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
             case 1:
                 if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
                     // Assume both bytes to be in ISO-8859-1 encoding.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
                     m_codePointCount += 2;
                     continue;
                 }
@@ -380,8 +380,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                 if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
                     // Assume first 2 bytes to be in ISO-8859-1 encoding.
                     // Third byte is not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
                     m_codePointCount += 2;
                     continue;
                 }
@@ -392,9 +392,9 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                 e = *p++; // Third byte
                 if ((e & 0xc0) != 0x80) {   /* Third byte not of the form 10xx xxxx */
                     // Assume all 3 bytes to be in ISO-8859-1 encoding.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
-                    CONVERT_FROM_ISO_8859_1(m_line, e);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, e);
                     m_codePointCount += 3;
                     continue;
                 }
@@ -404,8 +404,8 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                 if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
                     // Assume first 2 bytes to be in ISO-8859-1 encoding.
                     // Last 2 bytes are not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
                     m_codePointCount += 2;
                     continue;
                 }
@@ -417,9 +417,9 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                 if ((e & 0xc0) != 0x80) {   /* Third byte not of the form 10xx xxxx */
                     // Assume first 3 bytes to be in ISO-8859-1 encoding.
                     // Fourth byte is not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
-                    CONVERT_FROM_ISO_8859_1(m_line, e);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, e);
                     m_codePointCount += 3;
                     continue;
                 }
@@ -430,10 +430,10 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
                 f = *p++; // Fourth byte
                 if ((e & 0xc0) != 0x80) {   /* Fourth byte not of the form 10xx xxxx */
                     // Assume all 4 bytes to be in ISO-8859-1 encoding.
-                    CONVERT_FROM_ISO_8859_1(m_line, c);
-                    CONVERT_FROM_ISO_8859_1(m_line, d);
-                    CONVERT_FROM_ISO_8859_1(m_line, e);
-                    CONVERT_FROM_ISO_8859_1(m_line, f);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, e);
+                    CONVERT_FROM_ISO_8859_1(m_buffer, f);
                     m_codePointCount += 4;
                     continue;
                 }
@@ -446,16 +446,16 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
 
         switch (ab) {
             case 0:
-                m_line.appendByte(c);
+                m_buffer.appendByte(c);
                 break;
             case 1:
-                m_line.appendBytes(c, d);
+                m_buffer.appendBytes(c, d);
                 break;
             case 2:
-                m_line.appendBytes(c, d, e);
+                m_buffer.appendBytes(c, d, e);
                 break;
             case 3:
-                m_line.appendBytes(c, d, e, f);
+                m_buffer.appendBytes(c, d, e, f);
                 break;
         }
         m_codePointCount++;
@@ -467,12 +467,12 @@ int VfmdPreprocessor::addBytes(const char *_data, int length)
 
 void VfmdPreprocessor::end()
 {
-    if (m_line.size() > 0) {
+    if (m_buffer.size() > 0) {
         if (m_lineCallback) {
-            VfmdLine line(m_line.data(), m_line.size());
+            VfmdLine line(m_buffer.data(), m_buffer.size());
             (*m_lineCallback)(m_lineCallbackContext, line);
         }
-        m_line.clear();
-        m_line.squeeze(); // free the internal storage
+        m_buffer.clear();
+        m_buffer.squeeze(); // free the internal storage
     }
 }

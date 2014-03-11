@@ -24,7 +24,7 @@ public:
 private:
     void ensureBufferAllocated();
 
-    VfmdLine m_line;
+    VfmdByteArray m_buffer;
     LineCallbackFunc m_lineCallback;
     void *m_lineCallbackContext;
 
