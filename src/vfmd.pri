@@ -4,8 +4,6 @@ CONFIG += c++11
 SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/vfmdline.cpp \
            $$PWD/vfmdspantagstack.cpp \
-           $$PWD/vfmdlinearray.cpp \
-           $$PWD/vfmdlinearrayiterator.cpp \
            $$PWD/vfmddocument.cpp \
            $$PWD/vfmdelementregistry.cpp \
            $$PWD/vfmddefaultelementregistry.cpp \
@@ -28,8 +26,6 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
 HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/vfmdline.h \
            $$PWD/vfmdspantagstack.h \
-           $$PWD/vfmdlinearray.h \
-           $$PWD/vfmdlinearrayiterator.h \
            $$PWD/vfmddocument.h \
            $$PWD/vfmdelementregistry.h \
            $$PWD/vfmdinputlinesequence.h \

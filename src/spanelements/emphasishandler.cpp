@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "emphasishandler.h"
-#include "vfmdlinearrayiterator.h"
 #include "vfmdspantagstack.h"
 #include "vfmdscopedpointer.h"
 

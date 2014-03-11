@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include "vfmdspanelementsprocessor.h"
-#include "vfmdlinearray.h"
-#include "vfmdlinearrayiterator.h"
 #include "vfmdelementregistry.h"
 #include "vfmdspantagstack.h"
 #include "vfmdscopedpointer.h"
