@@ -1,6 +1,5 @@
 #include "atxheaderhandler.h"
 #include "core/vfmdcommonregexps.h"
-#include "vfmdlinearray.h"
 #include "vfmdspanelementsprocessor.h"
 
 void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
@@ -37,7 +36,7 @@ VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
     VfmdRegexp reLineWithHeaderText = VfmdCommonRegexps::atxHeaderLineWithHeaderText();
     VfmdRegexp reLineWithoutHeaderText = VfmdCommonRegexps::atxHeaderLineWithoutHeaderText();
     int headingLevel = 0;
-    VfmdLine headerContent;
+    VfmdByteArray headerContent;
     if (reLineWithHeaderText.matches(m_headerLine)) {
         headingLevel = reLineWithHeaderText.capturedText(1).size();
         int numOfTrailingHashes = reLineWithHeaderText.capturedText(2).size();
@@ -55,10 +54,8 @@ VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
 
     VfmdElementTreeNode *atxNode = new AtxHeaderTreeNode(headingLevel);
     if (headerContent.size() > 0) {
-        VfmdLineArray lineArray;
-        lineArray.addLine(headerContent);
-        lineArray.trim();
-        VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(&lineArray, registry());
+        headerContent.trim();
+        VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(headerContent, registry());
         bool ok = atxNode->setChildNodeIfNotSet(spanParseTree);
         assert(ok);
     }
