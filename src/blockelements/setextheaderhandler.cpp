@@ -1,6 +1,5 @@
 #include "setextheaderhandler.h"
 #include "vfmdcommonregexps.h"
-#include "vfmdlinearray.h"
 #include "vfmdspanelementsprocessor.h"
 #include "vfmdoutputdevice.h"
 #include "vfmdelementtreenodestack.h"
@@ -46,11 +45,8 @@ bool SetextHeaderLineSequence::isEndOfBlock(const VfmdLine &currentLine, const V
 
 VfmdElementTreeNode* SetextHeaderLineSequence::endBlock()
 {
-    VfmdLineArray lineArray;
-    lineArray.addLine(m_firstLine);
-    lineArray.trim();
     VfmdElementTreeNode *setextNode = new SetextHeaderTreeNode(m_headingLevel);
-    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(&lineArray, registry());
+    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(m_firstLine.trimmed(), registry());
     bool ok = setextNode->setChildNodeIfNotSet(spanParseTree);
     assert(ok);
     return setextNode;
