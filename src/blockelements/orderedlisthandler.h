@@ -36,6 +36,7 @@ private:
     int m_numOfClosedListItems;
     VfmdLine m_previousLine;
     bool m_isCurrentListItemPrecededByABlankLine;
+    int m_nextLineListItemStartPrefixLength;
 };
 
 class OrderedListTreeNode : public VfmdElementTreeNode {

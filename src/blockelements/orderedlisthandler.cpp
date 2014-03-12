@@ -23,6 +23,7 @@ OrderedListLineSequence::OrderedListLineSequence(const VfmdInputLineSequence *pa
     , m_listNode(new OrderedListTreeNode(startingNumber))
     , m_numOfClosedListItems(0)
 {
+    m_nextLineListItemStartPrefixLength = listStarterStringLength;
 }
 
 OrderedListLineSequence::~OrderedListLineSequence()
@@ -80,23 +81,35 @@ bool OrderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
     return isBottomPacked;
 }
 
+static unsigned int listItemStartPrefixLength(const VfmdLine &line, int listStarterStringLength)
+{
+    int indexOfFirstNonSpace = line.indexOfFirstNonSpace();
+    const char firstNonSpaceByte = line.firstNonSpace();
+
+    if ((indexOfFirstNonSpace < listStarterStringLength) && // Not a sub-list
+        (firstNonSpaceByte >= '0') && // Starts with a digit
+        (firstNonSpaceByte <= '9')) {
+        VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
+        if (reStarterPattern.matches(line)) {
+            return reStarterPattern.capturedText(1).size();
+        }
+    }
+    return 0;
+}
+
 void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
 {
     UNUSED_ARG(nextLine);
     VfmdLine line = currentLine;
-    VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
 
-    VfmdByteArray lineStart = currentLine.left(m_listStarterStringLength);
-    bool lineStartHasNonSpace = (lineStart.indexOfFirstNonSpace() >= 0);
+    unsigned int currentLineStartPrefixLength = m_nextLineListItemStartPrefixLength;
 
-    bool isListItemStartLine = (reStarterPattern.matches(currentLine) && lineStartHasNonSpace);
-    if (isListItemStartLine) {
+    if (currentLineStartPrefixLength > 0) {
         // current line is the starting line of a list item
         closeListItem(false /* not the end of the list */);
         m_childSequence = new VfmdInputLineSequence(registry(), this);
         m_isCurrentListItemPrecededByABlankLine = m_previousLine.isBlankLine();
-        int matchLength = (int) reStarterPattern.capturedText(1).size();
-        line.chopLeft(matchLength);
+        line.chopLeft(currentLineStartPrefixLength);
     } else {
         // current line is not the starting line of a list item
         int numOfPrefixedSpaces = line.indexOfFirstNonSpace();
@@ -112,37 +125,41 @@ void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, cons
     }
     m_childSequence->addLine(line);
     m_previousLine = currentLine;
+
+    m_nextLineListItemStartPrefixLength = listItemStartPrefixLength(nextLine, m_listStarterStringLength);
 }
 
 bool OrderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
 {
-    VfmdRegexp reOrderedListStarterPattern = VfmdCommonRegexps::orderedListStarter();
-    if (currentLine.isBlankLine()) {
-        // current line is a blank line
-        if (nextLine.isBlankLine()) {
-            return true;
-        }
-        if (!reOrderedListStarterPattern.matches(nextLine)) {
-            VfmdByteArray nextLineStart = nextLine.left(m_listStarterStringLength);
-            bool nextLineStartHasNonSpace = (nextLineStart.indexOfFirstNonSpace() >= 0);
-            if (nextLineStartHasNonSpace) {
+    bool currentLineIsABlankLine = currentLine.isBlankLine();
+    if (currentLineIsABlankLine && nextLine.isBlankLine()) {
+        return true;
+    }
+
+    bool isListItemStartingAtNextLine = (m_nextLineListItemStartPrefixLength > 0);
+
+    if (!isListItemStartingAtNextLine) {
+        int indexOfFirstNonSpace = nextLine.indexOfFirstNonSpace();
+        if (indexOfFirstNonSpace < m_listStarterStringLength) { // Should be indented less than a list item
+            if (currentLineIsABlankLine) {
                 return true;
-            }
-        }
-    } else {
-        // current line is not a blank line
-        if (!reOrderedListStarterPattern.matches(nextLine)) {
-            VfmdByteArray nextLineStart = nextLine.left(m_listStarterStringLength);
-            bool nextLineStartHasNonSpace = (nextLineStart.indexOfFirstNonSpace() >= 0);
-            if (nextLineStartHasNonSpace && !nextLine.startsWith("    ")) {
-                VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-                if (reUnorderedListStarterPattern.matches(nextLine) ||
-                    isHorizontalRuleLine(nextLine)) {
-                    return true;
+            } else {
+                if (indexOfFirstNonSpace < 4) { // Not a code span
+                    if (isHorizontalRuleLine(nextLine)) {
+                        return true;
+                    }
+                    const char firstNonSpaceByte = nextLine.firstNonSpace();
+                    if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
+                        VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
+                        if (reUnorderedListStarterPattern.matches(nextLine)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
     }
+
     return false;
 }
 
