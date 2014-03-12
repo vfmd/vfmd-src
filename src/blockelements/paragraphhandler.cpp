@@ -63,19 +63,23 @@ static bool isPotentialEndOfParagraph(const VfmdLine &nextLine, int containingBl
         return true;
     }
 
+    const char firstNonSpaceByte = nextLine.firstNonSpace();
+
     if ((containingBlockType == VfmdConstants::BLOCKQUOTE_ELEMENT) &&
-        (nextLine.firstNonSpace() == '>')) {
+        (firstNonSpaceByte == '>')) {
         return true;
     }
 
-    if (containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT) {
+    if ((containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT) &&
+        (firstNonSpaceByte == '*' || firstNonSpaceByte == '+' || firstNonSpaceByte == '-')) {
         VfmdRegexp reUnorderedListStarter = VfmdCommonRegexps::unorderedListStarter();
         if (reUnorderedListStarter.matches(nextLine)) {
             return true;
         }
     }
 
-    if (containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT) {
+    if ((containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT) &&
+        (firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9')) {
         VfmdRegexp reOrderedListStarter = VfmdCommonRegexps::orderedListStarter();
         if (reOrderedListStarter.matches(nextLine)) {
             return true;
