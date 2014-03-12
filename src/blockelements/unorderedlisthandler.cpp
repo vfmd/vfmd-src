@@ -20,6 +20,7 @@ UnorderedListLineSequence::UnorderedListLineSequence(const VfmdInputLineSequence
     , m_listNode(new UnorderedListTreeNode)
     , m_numOfClosedListItems(0)
 {
+    m_nextLineStartsWithListStarterString = true;
 }
 
 UnorderedListLineSequence::~UnorderedListLineSequence()
@@ -81,7 +82,7 @@ void UnorderedListLineSequence::processBlockLine(const VfmdLine &currentLine, co
 {
     UNUSED_ARG(nextLine);
     VfmdLine line = currentLine;
-    bool isListItemStartLine = (currentLine.startsWith(m_listStarterString));
+    bool isListItemStartLine = m_nextLineStartsWithListStarterString; // is current line starting with m_listStarterString
     if (isListItemStartLine) {
         // current line is the starting line of a list item
         closeListItem(false /* not the end of the list */);
@@ -103,38 +104,45 @@ void UnorderedListLineSequence::processBlockLine(const VfmdLine &currentLine, co
     }
     m_childSequence->addLine(line);
     m_previousLine = currentLine;
+    m_nextLineStartsWithListStarterString = (nextLine.startsWith(m_listStarterString));
 }
 
 bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
 {
-    if (currentLine.isBlankLine()) {
-        // current line is a blank line
-        if (nextLine.isBlankLine()) {
-            return true;
-        }
-        if (!nextLine.startsWith(m_listStarterString)) {
-            VfmdByteArray nextLineStart = nextLine.left(m_listStarterString.size());
-            bool nextLineStartHasNonSpace = (nextLineStart.indexOfFirstNonSpace() >= 0);
-            if (nextLineStartHasNonSpace) {
+    bool currentLineIsABlankLine = currentLine.isBlankLine();
+
+    if (currentLineIsABlankLine && nextLine.isBlankLine()) {
+        return true;
+    }
+
+    if (!m_nextLineStartsWithListStarterString) {
+        int indexOfFirstNonSpace = nextLine.indexOfFirstNonSpace();
+        if (indexOfFirstNonSpace < m_listStarterString.size()) { // Should be indented less than a list item
+            if (currentLineIsABlankLine) {
                 return true;
-            }
-        }
-    } else {
-        // current line is not a blank line
-        if (!nextLine.startsWith(m_listStarterString)) {
-            VfmdByteArray nextLineStart = nextLine.left(m_listStarterString.size());
-            bool nextLineStartHasNonSpace = (nextLineStart.indexOfFirstNonSpace() >= 0);
-            if (nextLineStartHasNonSpace && !nextLine.startsWith("    ")) {
-                VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-                VfmdRegexp reOrderedListStarterPattern = VfmdCommonRegexps::orderedListStarter();
-                if (reUnorderedListStarterPattern.matches(nextLine) ||
-                    reOrderedListStarterPattern.matches(nextLine) ||
-                    isHorizontalRuleLine(nextLine)) {
-                    return true;
+            } else {
+                if (indexOfFirstNonSpace < 4) { // Not a code span
+                    if (isHorizontalRuleLine(nextLine)) {
+                        return true;
+                    }
+                    const char firstNonSpaceByte = nextLine.firstNonSpace();
+                    if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
+                        VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
+                        if (reUnorderedListStarterPattern.matches(nextLine)) {
+                            return true;
+                        }
+                    }
+                    if (firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9') {
+                        VfmdRegexp reOrderedListStarterPattern = VfmdCommonRegexps::orderedListStarter();
+                        if (reOrderedListStarterPattern.matches(nextLine)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
     }
+
     return false;
 }
 

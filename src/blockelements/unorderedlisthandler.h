@@ -33,6 +33,7 @@ private:
     int m_numOfClosedListItems;
     VfmdLine m_previousLine;
     bool m_isCurrentListItemPrecededByABlankLine;
+    bool m_nextLineStartsWithListStarterString;
 };
 
 class UnorderedListTreeNode : public VfmdElementTreeNode {
