@@ -7,12 +7,15 @@
 void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
 {
     UNUSED_ARG(firstLine);
-    if (!nextLine.isValid()) {
+    if (nextLine.isInvalid() || nextLine.size() == 0) {
         return;
     }
-    VfmdRegexp reUnderline = VfmdCommonRegexps::setextHeaderUnderline();
-    if (reUnderline.matches(nextLine)) {
-        lineSequence->setChildSequence(new SetextHeaderLineSequence(lineSequence));
+    const char firstByte = nextLine.byteAt(0);
+    if (firstByte == '=' || firstByte == '-') {
+        VfmdRegexp reUnderline = VfmdCommonRegexps::setextHeaderUnderline();
+        if (reUnderline.matches(nextLine)) {
+            lineSequence->setChildSequence(new SetextHeaderLineSequence(lineSequence));
+        }
     }
 }
 
