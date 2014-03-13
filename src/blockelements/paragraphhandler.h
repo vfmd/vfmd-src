@@ -8,7 +8,7 @@
 class ParagraphHandler : public VfmdBlockElementHandler {
 public:
     ParagraphHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
     virtual ~ParagraphHandler() { }
     virtual const char *description() const { return "paragraph"; }
 };

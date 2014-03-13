@@ -4,7 +4,7 @@
 #include "vfmdoutputdevice.h"
 #include "vfmdelementtreenodestack.h"
 
-void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
+void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
 {
     UNUSED_ARG(firstLine);
     if (nextLine.isInvalid() || nextLine.size() == 0) {

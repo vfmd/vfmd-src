@@ -7,7 +7,7 @@
 class SetextHeaderHandler : public VfmdBlockElementHandler {
 public:
     SetextHeaderHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
     virtual ~SetextHeaderHandler() { }
     virtual const char *description() const { return "setext-header"; }
 };

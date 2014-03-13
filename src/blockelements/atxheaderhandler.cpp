@@ -2,7 +2,7 @@
 #include "core/vfmdcommonregexps.h"
 #include "vfmdspanelementsprocessor.h"
 
-void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
+void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
 {
     UNUSED_ARG(nextLine);
     if ((firstLine.size() > 0) &&

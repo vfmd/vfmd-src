@@ -5,7 +5,7 @@
 #include "vfmdcommonregexps.h"
 #include "core/vfmdblockutils.h"
 
-void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
+void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
 {
     UNUSED_ARG(nextLine);
     if (firstLine.firstNonSpace() == '>') {

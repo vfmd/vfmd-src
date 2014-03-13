@@ -1,6 +1,6 @@
 #include "codeblockhandler.h"
 
-void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
+void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
 {
     UNUSED_ARG(nextLine);
     if (firstLine.startsWith("    ")) {

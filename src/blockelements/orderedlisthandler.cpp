@@ -2,7 +2,7 @@
 #include "vfmdcommonregexps.h"
 #include "core/vfmdblockutils.h"
 
-void OrderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
+void OrderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
 {
     UNUSED_ARG(nextLine);
     VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();

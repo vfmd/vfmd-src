@@ -6,7 +6,7 @@
 class AtxHeaderHandler : public VfmdBlockElementHandler {
 public:
     AtxHeaderHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
     virtual ~AtxHeaderHandler() { }
     virtual const char *description() const { return "atx-header"; }
 };

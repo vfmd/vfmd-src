@@ -2,7 +2,7 @@
 #include "vfmdcommonregexps.h"
 #include "core/vfmdblockutils.h"
 
-void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
+void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
 {
     UNUSED_ARG(nextLine);
     VfmdRegexp reStarterPattern = VfmdCommonRegexps::unorderedListStarter();

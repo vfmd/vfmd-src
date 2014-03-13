@@ -8,7 +8,7 @@ class NullBlockHandler : public VfmdBlockElementHandler
 public:
     NullBlockHandler() { }
 
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
 
     virtual ~NullBlockHandler() { }
 

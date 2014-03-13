@@ -9,7 +9,7 @@
 #include "unorderedlisthandler.h"
 #include "core/vfmdblockutils.h"
 
-void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine)
+void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
 {
     UNUSED_ARG(firstLine);
     UNUSED_ARG(nextLine);

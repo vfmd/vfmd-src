@@ -6,7 +6,7 @@
 class OrderedListHandler : public VfmdBlockElementHandler {
 public:
     OrderedListHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
     virtual ~OrderedListHandler() { }
     virtual const char *description() const { return "ordered-list"; }
 };

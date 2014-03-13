@@ -7,7 +7,7 @@
 class RefResolutionBlockHandler : public VfmdBlockElementHandler {
 public:
     RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap);
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine);
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
     virtual ~RefResolutionBlockHandler() { }
     virtual const char *description() const { return "ref-resolution-block"; }
 
