@@ -40,6 +40,7 @@ public:
     void appendBytes(char byte1, char byte2);
     void appendBytes(char byte1, char byte2, char byte3);
     void appendBytes(char byte1, char byte2, char byte3, char byte4);
+    void appendByteNtimes(char byte1, int n);
 
     /* Remove the left 'count' bytes (without any data-replication) */
     bool chopLeft(unsigned int count);

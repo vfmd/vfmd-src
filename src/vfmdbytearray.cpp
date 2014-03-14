@@ -53,8 +53,8 @@ public:
         size += len;
     }
 
-    void appendByte(char byte) {
-        size_t requiredSize = (size + 1);
+    void appendByte(char byte, int ntimes = 1) {
+        size_t requiredSize = (size + ntimes);
         if (requiredSize > allocatedSize) {
             // Better to allocate in chunks
             if (requiredSize < REALLOC_CHUNK_SIZE) {
@@ -64,8 +64,9 @@ public:
             }
             reallocateBuffer(requiredSize);
         }
-        data[size] = byte;
-        size++;
+        while (ntimes--) {
+            data[size++] = byte;
+        }
     }
 
     unsigned int refCount;
@@ -158,6 +159,12 @@ void VfmdByteArray::appendBytes(char byte1, char byte2, char byte3, char byte4)
     d->appendByte(byte2);
     d->appendByte(byte3);
     d->appendByte(byte4);
+}
+
+void VfmdByteArray::appendByteNtimes(char byte, int n)
+{
+    copyOnWrite(n);
+    d->appendByte(byte, n);
 }
 
 bool VfmdByteArray::chopLeft(unsigned int count)
