@@ -23,10 +23,9 @@ VfmdDocument::~VfmdDocument()
     delete m_documentLineSequence;
 }
 
-bool VfmdDocument::addBytes(const char *data, int length)
+void VfmdDocument::addBytes(const char *data, int length)
 {
-    int addedBytes = m_preprocessor->addBytes(data, length);
-    return (addedBytes > 0);
+    m_preprocessor->addBytes(data, length);
 }
 
 VfmdElementTreeNode* VfmdDocument::end()

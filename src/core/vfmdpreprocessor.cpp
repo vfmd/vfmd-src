@@ -1,16 +1,12 @@
 #include "vfmdpreprocessor.h"
+#include "scanline.h"
 #include <stdlib.h>
 #include <stdio.h>
-
-#define LINE_DEFAULT_RESERVE_SIZE 256 /* bytes */
 
 VfmdPreprocessor::VfmdPreprocessor()
     : m_lineCallback(0)
     , m_lineCallbackContext(0)
-    , m_isUnfinishedCRLF(false)
-    , m_codePointCount(0)
 {
-    m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
 }
 
 VfmdPreprocessor::~VfmdPreprocessor()
@@ -27,452 +23,144 @@ void VfmdPreprocessor::setLineCallbackContext(void *context)
     m_lineCallbackContext = context;
 }
 
-/* The following code is adapted from pcre_valid_utf8.c
- * from the PCRE project (http://www.pcre.org/)
- */
-
-/*
------------------------------------------------------------------------------
-                       Written by Philip Hazel
-           Copyright (c) 1997-2013 University of Cambridge
-
-                 Adapted for vfmd by Roopesh Chander
-        Copyright (c) 2013 Roopesh Chander <roop@forwardbias.in>
------------------------------------------------------------------------------
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice,
-      this list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-
-    * Neither the name of the University of Cambridge nor the names of its
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
------------------------------------------------------------------------------
-*/
-
-/* Table of the number of extra bytes, indexed by the first byte masked with
-0x3f. The highest number for a valid UTF-8 first byte is in fact 0x3d. */
-
-const unsigned char utf8_table4[] = {
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-  3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5 };
-
-// int addBytes(data, length);
-//
-// Adds length bytes from data to the preprocessor.
-// Returns the number of bytes of data consumed from data.
-// If length is greater than the bufferSize, then
-// the return value can be less than length. Otherwise,
-// the return value is equal to length.
-// It is recommended that length <= (bufferSize / 4)
-
-#define BYTES_TO_READ (data + length - p)
-#define CONVERT_FROM_ISO_8859_1(ba, c) \
-        if (c < 128) { \
-            ba.appendByte(c); \
-        } else { \
-            ba.appendBytes((0xc0 | (((c) >> 6) & 0x03)), (0x80 | ((c) & 0x3f))); \
-        }
-
-int VfmdPreprocessor::addBytes(const char *_data, int length)
+static inline bool locateLFByte(const unsigned char *ptr, int length, int *indexOfLF, int *numOfTabsTillLF)
 {
-    const unsigned char *data = reinterpret_cast<const unsigned char *>(_data);
-    register const unsigned char *p = data;
-
-    if (m_unfinishedCodePoint.bytesSeen >= 2 && m_unfinishedCodePoint.bytesRemaining > 0) {
-
-        // The last call ended with an incomplete code point, with
-        // 2 or 3 bytes consumed in the last call itself.
-
-        if (BYTES_TO_READ < 2) {
-            // Can't split a code point across 3 or more addBytes() calls.
-            return 0;
+    int tabCount = 0;
+    for (int i = 0; i < length; i++) {
+        if (*ptr == 0x09 /* Tab */) {
+            tabCount += 3;
         }
-
-        // Check whether the remaining trailing bytes are of the form 10xx xxxx
-        unsigned char c; // Leading byte
-        unsigned char d, e, f; // Trailing bytes
-        int invalidByteIndex = 0;
-        switch (m_unfinishedCodePoint.bytesSeen) {
-            case 2:
-                c = m_unfinishedCodePoint.c;
-                d = m_unfinishedCodePoint.d;
-                switch (m_unfinishedCodePoint.bytesRemaining) {
-                    case 1:
-                        e = *p++;
-                        if ((e & 0xc0) != 0x80) {
-                            invalidByteIndex = 3;
-                        }
-                        break;
-                    case 2:
-                        e = *p++;
-                        if ((e & 0xc0) != 0x80) {
-                            invalidByteIndex = 3;
-                        }
-                        f = *p++;
-                        if ((f & 0xc0) != 0x80) {
-                            invalidByteIndex = 4;
-                        }
-                        break;
-                }
-                break;
-            case 3:
-                c = m_unfinishedCodePoint.c;
-                d = m_unfinishedCodePoint.d;
-                e = m_unfinishedCodePoint.e;
-                switch (m_unfinishedCodePoint.bytesRemaining) {
-                    case 1:
-                        f = *p++;
-                        if ((f & 0xc0) != 0x80) {
-                            invalidByteIndex = 4;
-                        }
-                        break;
-                }
-                break;
+        if (*ptr == 0x0a /* LF */) {
+            (*indexOfLF) = i;
+            (*numOfTabsTillLF) = tabCount;
+            return true;
         }
+        ptr++;
+    }
+    (*indexOfLF) = -1;
+    (*numOfTabsTillLF) = tabCount;
+    return false;
+}
 
-        int ab = (m_unfinishedCodePoint.bytesSeen + m_unfinishedCodePoint.bytesRemaining);
-        switch (invalidByteIndex) {
-            case 0: /* No error. It's a valid code point continuation */
-                m_buffer.appendBytes(c, d, e);
-                if (ab == 4) {
-                    m_buffer.appendByte(f);
-                }
-                m_codePointCount++;
-                break;
+static inline int consumeLines(const unsigned char *data, int length, VfmdPreprocessor::LineCallbackFunc callbackFunc, void *callbackContext)
+{
+    register const unsigned char* p = data;
+    register const unsigned char* const end = data + length;
 
-            case 3: /* Error in the 3rd byte of the code point */
-                CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                CONVERT_FROM_ISO_8859_1(m_buffer, e);
-                m_codePointCount += 3;
-                break;
+    while (p < end) {
 
-            case 4: /* Error in the 4th byte of the code point */
-                CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                CONVERT_FROM_ISO_8859_1(m_buffer, e);
-                CONVERT_FROM_ISO_8859_1(m_buffer, f);
-                m_codePointCount += 4;
-                break;
-        }
+        int indexOfLFByte, numOfTabsTillLFByte;
+        locateLFByte(p, (int) (end - p), &indexOfLFByte, &numOfTabsTillLFByte);
 
-        m_unfinishedCodePoint.bytesSeen = 0;
-        m_unfinishedCodePoint.bytesRemaining = 0;
-
-    } // End of if (m_unfinishedCodePoint.bytesSeen >= 2)
-
-    if (m_isUnfinishedCRLF) {
-
-        // The last call ended with a CR byte
-        // If this call starts with an LF byte, it indicates a line break
-
-        if (BYTES_TO_READ == 0) {
-            return 0;
-        }
-
-        unsigned char nextByte = *p;
-        if (nextByte == 0x0a) { // LF
-            p++; // The byte should be consumed only if it's an LF
-            if (m_lineCallback) {
-                VfmdLine line(m_buffer.data(), m_buffer.size());
-                (*m_lineCallback)(m_lineCallbackContext, line);
+        if (indexOfLFByte < 0) {
+            // LF byte not found. Therefore, we cannot consume any more lines.
+            return (int) (p - data);
+        } else if (indexOfLFByte == 0) {
+            // First byte is LF byte
+            if (callbackFunc) {
+                (*callbackFunc)(callbackContext, VfmdLine(""));
             }
-            m_buffer.clear();
-            m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
-            m_codePointCount = 0;
+            p++;
         } else {
-            m_buffer.appendByte(0x0d); // CR from last call
+            // indexOfLF > 0
+
+            VfmdLine line;
+            line.reserve(indexOfLFByte + numOfTabsTillLFByte * 3);
+
+            register const unsigned char* const ptrToLFByte = (p + indexOfLFByte);
+            int codePointsCount = 0;
+            int result;
+            while (1) {
+                int numOfBytesScanned;
+                int numOfCodePointsScanned;
+                result = scan_line(p, (int) (ptrToLFByte - p), &numOfBytesScanned, &numOfCodePointsScanned);
+                if (numOfBytesScanned > 0) {
+                    line.append(reinterpret_cast<const char *>(p), numOfBytesScanned);
+                    p += numOfBytesScanned;
+                    codePointsCount += numOfCodePointsScanned;
+                }
+                if (result != SCANLINE_EOL) {
+                    if (result == SCANLINE_TAB_BYTE) {
+                        // Expand tabs
+                        register unsigned int spacesToInsert = 0;
+                        while (*p == 0x09 /* Tab */) {
+                            int equivalentSpaces = (4 - (codePointsCount % 4));
+                            spacesToInsert += equivalentSpaces;
+                            codePointsCount += equivalentSpaces;
+                            p++;
+                        }
+                        line.appendByteNtimes(' ', spacesToInsert);
+                    } else {
+                        // Bad UTF-8 byte. Assume it's in ISO-8859-1 and convert to UTF-8.
+                        unsigned char c = *p++;
+                        line.appendBytes((0xc0 | (((c) >> 6) & 0x03)), (0x80 | ((c) & 0x3f)));
+                        codePointsCount++;
+                    }
+                } else {
+                    p++;
+                    break;
+                }
+            }
+
+            if (line.size() > 0 && line.lastByte() == '\r') { // Convert CRLF to LF
+                line.chopRight(1);
+            }
+            if (callbackFunc) {
+                (*callbackFunc)(callbackContext, line);
+            }
         }
-        m_isUnfinishedCRLF = false;
+
+    } // while (p < end)
+
+    return (int) (p - data);
+}
+
+static inline int indexOfLFByte(const char *p, int length)
+{
+    for (int i = 0; i < length; i++) {
+        if (*p++ == '\n') {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void VfmdPreprocessor::addBytes(const char *data, int length)
+{
+    if (m_unconsumedBytes.size() > 0) {
+        int indexOfLF = indexOfLFByte(data, length);
+        if (indexOfLF < 0) {
+            // LF still not found
+            m_unconsumedBytes.append(data, length);
+            return;
+        } else {
+            // LF found
+            if (indexOfLF > 0) {
+                m_unconsumedBytes.append(data, indexOfLF + 1);
+            }
+            consumeLines(reinterpret_cast<const unsigned char *>(m_unconsumedBytes.data()), m_unconsumedBytes.size(),
+                         m_lineCallback, m_lineCallbackContext);
+            m_unconsumedBytes.clear();
+            data += indexOfLF + 1;
+            length -= indexOfLF + 1;
+        }
     }
 
-    while (BYTES_TO_READ > 0) {
-        register unsigned char ab, c, d;
-
-        if (m_unfinishedCodePoint.bytesSeen == 1 && m_unfinishedCodePoint.bytesRemaining > 0) {
-            // The last call ended with an incomplete code point, with
-            // only the leading byte consumed in the last call.
-            c = m_unfinishedCodePoint.c; // First byte
-        } else {
-            c = *p++; // First byte
-        }
-
-        m_unfinishedCodePoint.bytesSeen = 0;
-        m_unfinishedCodePoint.bytesRemaining = 0;
-
-        if (c < 128) {                      /* ASCII character */
-                                            /* No continuation bytes */
-            if (c == 0x0a) { // LF
-                if (m_lineCallback) {
-                    VfmdLine line(m_buffer.data(), m_buffer.size());
-                    (*m_lineCallback)(m_lineCallbackContext, line);
-                }
-                m_buffer.clear();
-                m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
-                m_codePointCount = 0;
-                continue;
-            }
-            if (c == 0x0d) { // CR
-                if (BYTES_TO_READ > 0) {
-                    unsigned char nextByte = *p;
-                    if (nextByte == 0x0a) { // LF
-                        p++; // The byte should be consumed only if it's an LF
-                        if (m_lineCallback) {
-                            VfmdLine line(m_buffer.data(), m_buffer.size());
-                            (*m_lineCallback)(m_lineCallbackContext, line);
-                        }
-                        m_buffer.clear();
-                        m_buffer.reserve(LINE_DEFAULT_RESERVE_SIZE);
-                        m_codePointCount = 0;
-                    } else {
-                        m_buffer.appendByte(c);
-                    }
-                    continue;
-                } else {
-                    // The data ends with a CR byte.
-                    // We should look for a LF byte in the next call's data
-                    m_isUnfinishedCRLF = true;
-                    continue;
-                }
-            }
-            if (c == 0x09) { // TAB
-                register int spacesToInsert = 4 - (m_codePointCount % 4);
-                while (spacesToInsert--) {
-                    m_buffer.appendByte(0x20); // space
-                    m_codePointCount++;
-                }
-                continue;
-            }
-            m_buffer.appendByte(c);
-            m_codePointCount++;
-            continue;
-        }
-
-        if (c < 0xc0) {                     /* Isolated UTF-8 continuation byte */
-                                            /* without a leading byte */
-            CONVERT_FROM_ISO_8859_1(m_buffer, c);
-            continue;
-        }
-
-        if (c >= 0xfe) {                    /* Bytes 0xfe and 0xff */
-                                            /* are invalid in UTF-8 */
-            CONVERT_FROM_ISO_8859_1(m_buffer, c);
-            continue;
-        }
-
-        // ab is the number of additional bytes
-        // or continuation bytes (1 <= ab <= 5)
-        ab = utf8_table4[c & 0x3f];
-
-        // 5-byte and 6-byte sequences are not valid UTF-8 as per RFC 3629
-
-        if (ab > 3) {
-            // Assume first byte to be in ISO-8859-1 encoding.
-            // Rest of the bytes are not consumed.
-            CONVERT_FROM_ISO_8859_1(m_buffer, c);
-            m_codePointCount++;
-            continue;
-        }
-
-        if (BYTES_TO_READ == 0) {
-            // There ought to be additional bytes in the code point,
-            // but we're at the end of the data passed to us.
-            m_unfinishedCodePoint.set(c, 0, 0, 1, ab);
-            return (p - data);
-        }
-
-        // Overlong sequences and invalid code points
-
-        switch (ab) {
-
-            /* 2-byte character.
-             * Check first byte for xx00 000x (overlong sequence) */
-
-            case 1:
-                if ((c & 0x3e) == 0) {                  /* Overlong sequence */
-                    // Assume first byte to be in ISO-8859-1 encoding
-                    // First continuation byte is not consumed
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    m_codePointCount++;
-                    continue;
-                }
-                d = *p++; // Second byte
-                break;
-
-            /* 3-byte character.
-             * Check first 2 bytes for 1110 0000, xx0x xxxx (overlong sequence)
-             * Check first 2 bytes for 1110 1101, 1010 xxxx (0xd800 - 0xdfff) */
-
-            case 2:
-                d = *p++; // Second byte
-                if (
-                    (c == 0xe0 && (d & 0x20) == 0) ||   /* Overlong sequence */
-                    (c == 0xed && d >= 0xa0)    /* Code points between U+D800 and U+DFFF */
-                                                /* are prohibited in UTF-8 */
-
-                   ) {
-                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
-                    // Third byte is not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    m_codePointCount += 2;
-                    continue;
-                }
-                break;
-
-            /* 4-byte character.
-             * Check first 2 bytes for for 1111 0000, xx00 xxxx (overlong sequence)
-             * Check for code point greater than 0x0010ffff (f4 8f bf bf) */
-
-            case 3:
-                d = *p++; // Second byte
-                if (
-                    (c == 0xf0 && (d & 0x30) == 0) ||       /* Overlong sequence */
-                    (c > 0xf4 || (c == 0xf4 && d > 0x8f))   /* Code points above 0x0010ffff */
-                                                            /* are invalid */
-                   ) {
-                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
-                    // Last 2 bytes are not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    m_codePointCount += 2;
-                    continue;
-                }
-                break;
-        }
-
-        // Each trailing byte should be of the form 10xx xxxx
-
-        unsigned char e, f;
-        switch (ab) {
-
-            case 1:
-                if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
-                    // Assume both bytes to be in ISO-8859-1 encoding.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    m_codePointCount += 2;
-                    continue;
-                }
-                break;
-
-            case 2:
-                if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
-                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
-                    // Third byte is not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    m_codePointCount += 2;
-                    continue;
-                }
-                if (BYTES_TO_READ == 0) {
-                    m_unfinishedCodePoint.set(c, d, 0, 2, ab - 1);
-                    return (p - data);
-                }
-                e = *p++; // Third byte
-                if ((e & 0xc0) != 0x80) {   /* Third byte not of the form 10xx xxxx */
-                    // Assume all 3 bytes to be in ISO-8859-1 encoding.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, e);
-                    m_codePointCount += 3;
-                    continue;
-                }
-                break;
-
-            case 3:
-                if ((d & 0xc0) != 0x80) {   /* Second byte not of the form 10xx xxxx */
-                    // Assume first 2 bytes to be in ISO-8859-1 encoding.
-                    // Last 2 bytes are not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    m_codePointCount += 2;
-                    continue;
-                }
-                if (BYTES_TO_READ == 0) {
-                    m_unfinishedCodePoint.set(c, d, 0, 2, ab - 1);
-                    return (p - data);
-                }
-                e = *p++; // Third byte
-                if ((e & 0xc0) != 0x80) {   /* Third byte not of the form 10xx xxxx */
-                    // Assume first 3 bytes to be in ISO-8859-1 encoding.
-                    // Fourth byte is not consumed.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, e);
-                    m_codePointCount += 3;
-                    continue;
-                }
-                if (BYTES_TO_READ == 0) {
-                    m_unfinishedCodePoint.set(c, d, e, 3, ab - 2);
-                    return (p - data);
-                }
-                f = *p++; // Fourth byte
-                if ((e & 0xc0) != 0x80) {   /* Fourth byte not of the form 10xx xxxx */
-                    // Assume all 4 bytes to be in ISO-8859-1 encoding.
-                    CONVERT_FROM_ISO_8859_1(m_buffer, c);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, d);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, e);
-                    CONVERT_FROM_ISO_8859_1(m_buffer, f);
-                    m_codePointCount += 4;
-                    continue;
-                }
-                break;
-
-        }
-
-        // If we're here, this is a valid UTF-8 code point.
-        // Just copy it.
-
-        switch (ab) {
-            case 0:
-                m_buffer.appendByte(c);
-                break;
-            case 1:
-                m_buffer.appendBytes(c, d);
-                break;
-            case 2:
-                m_buffer.appendBytes(c, d, e);
-                break;
-            case 3:
-                m_buffer.appendBytes(c, d, e, f);
-                break;
-        }
-        m_codePointCount++;
-
-    } // End of while (BYTES_TO_READ > 0)
-
-    return (p - data);
+    int bytesConsumed = consumeLines(reinterpret_cast<const unsigned char *>(data), length,
+                                     m_lineCallback, m_lineCallbackContext);
+    if (bytesConsumed < length) {
+        m_unconsumedBytes = VfmdByteArray(data + bytesConsumed, length - bytesConsumed);
+    }
 }
 
 void VfmdPreprocessor::end()
 {
-    if (m_buffer.size() > 0) {
+    if (m_unconsumedBytes.size() > 0) {
         if (m_lineCallback) {
-            VfmdLine line(m_buffer.data(), m_buffer.size());
+            VfmdLine line(m_unconsumedBytes.data(), m_unconsumedBytes.size());
             (*m_lineCallback)(m_lineCallbackContext, line);
         }
-        m_buffer.clear();
-        m_buffer.squeeze(); // free the internal storage
+        m_unconsumedBytes.clear();
     }
+    m_unconsumedBytes.squeeze(); // free the internal storage
 }

@@ -16,6 +16,7 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/vfmdoutputdevice.cpp \
            $$PWD/vfmdelementtreenodestack.cpp \
            $$PWD/core/vfmdpreprocessor.cpp \
+           $$PWD/core/scanline.c \
            $$PWD/core/vfmdspanelementsprocessor.cpp \
            $$PWD/core/vfmdcommonregexps.cpp \
            $$PWD/core/vfmdcodespanfilter.cpp \

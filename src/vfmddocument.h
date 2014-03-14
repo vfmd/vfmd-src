@@ -8,7 +8,7 @@ public:
     VfmdDocument(const VfmdElementRegistry *registry);
     ~VfmdDocument();
 
-    bool addBytes(const char *data, int length);
+    void addBytes(const char *data, int length);
     VfmdElementTreeNode* end();
 
 private:
