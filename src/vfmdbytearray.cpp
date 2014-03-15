@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <stdint.h>
 
-#define REALLOC_CHUNK_SIZE (1024)
+#define DEFAULT_REALLOC_CHUNK_SIZE (128)
 
 class VfmdByteArray::Private {
 public:
@@ -41,13 +41,9 @@ public:
     void append(const char *str, size_t len) {
         size_t requiredSize = (size + len);
         if (requiredSize > allocatedSize) {
-            // Better to allocate in chunks
-            if (requiredSize < REALLOC_CHUNK_SIZE) {
-                requiredSize = REALLOC_CHUNK_SIZE;
-            } else {
-                requiredSize += REALLOC_CHUNK_SIZE - (requiredSize % REALLOC_CHUNK_SIZE);
-            }
-            reallocateBuffer(requiredSize);
+            // Allocate memory in chunks
+            size_t chunkSize = (size? size : DEFAULT_REALLOC_CHUNK_SIZE);
+            reallocateBuffer((size_t(requiredSize / chunkSize) + 1) * chunkSize);
         }
         memcpy(data + size, str, len);
         size += len;
@@ -56,13 +52,9 @@ public:
     void appendByte(char byte, int ntimes = 1) {
         size_t requiredSize = (size + ntimes);
         if (requiredSize > allocatedSize) {
-            // Better to allocate in chunks
-            if (requiredSize < REALLOC_CHUNK_SIZE) {
-                requiredSize = REALLOC_CHUNK_SIZE;
-            } else {
-                requiredSize += REALLOC_CHUNK_SIZE - (requiredSize % REALLOC_CHUNK_SIZE);
-            }
-            reallocateBuffer(requiredSize);
+            // Allocate memory in chunks
+            size_t chunkSize = (size? size : DEFAULT_REALLOC_CHUNK_SIZE);
+            reallocateBuffer((size_t(requiredSize / chunkSize) + 1) * chunkSize);
         }
         while (ntimes--) {
             data[size++] = byte;
