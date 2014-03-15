@@ -1,26 +1,16 @@
 #include "vfmdpreprocessor.h"
 #include "scanline.h"
+#include "vfmdinputlinesequence.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-VfmdPreprocessor::VfmdPreprocessor()
-    : m_lineCallback(0)
-    , m_lineCallbackContext(0)
+VfmdPreprocessor::VfmdPreprocessor(VfmdInputLineSequence *lineSequence)
+    : m_lineSequence(lineSequence)
 {
 }
 
 VfmdPreprocessor::~VfmdPreprocessor()
 {
-}
-
-void VfmdPreprocessor::setLineCallback(LineCallbackFunc fn)
-{
-    m_lineCallback = fn;
-}
-
-void VfmdPreprocessor::setLineCallbackContext(void *context)
-{
-    m_lineCallbackContext = context;
 }
 
 static inline bool locateLFByte(const unsigned char *ptr, int length, int *indexOfLF, int *numOfTabsTillLF)
@@ -42,7 +32,7 @@ static inline bool locateLFByte(const unsigned char *ptr, int length, int *index
     return false;
 }
 
-static inline int consumeLines(const unsigned char *data, int length, VfmdPreprocessor::LineCallbackFunc callbackFunc, void *callbackContext)
+static inline int consumeLines(const unsigned char *data, int length, VfmdInputLineSequence *lineSeq)
 {
     register const unsigned char* p = data;
     register const unsigned char* const end = data + length;
@@ -57,9 +47,7 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdPrepro
             return (int) (p - data);
         } else if (indexOfLFByte == 0) {
             // First byte is LF byte
-            if (callbackFunc) {
-                (*callbackFunc)(callbackContext, VfmdLine(""));
-            }
+            lineSeq->addLine(VfmdLine(""));
             p++;
         } else {
             // indexOfLF > 0
@@ -105,9 +93,7 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdPrepro
             if (line.size() > 0 && line.lastByte() == '\r') { // Convert CRLF to LF
                 line.chopRight(1);
             }
-            if (callbackFunc) {
-                (*callbackFunc)(callbackContext, line);
-            }
+            lineSeq->addLine(line);
         }
 
     } // while (p < end)
@@ -138,29 +124,26 @@ void VfmdPreprocessor::addBytes(const char *data, int length)
             if (indexOfLF > 0) {
                 m_unconsumedBytes.append(data, indexOfLF + 1);
             }
-            consumeLines(reinterpret_cast<const unsigned char *>(m_unconsumedBytes.data()), m_unconsumedBytes.size(),
-                         m_lineCallback, m_lineCallbackContext);
+            consumeLines(reinterpret_cast<const unsigned char *>(m_unconsumedBytes.data()),
+                         m_unconsumedBytes.size(), m_lineSequence);
             m_unconsumedBytes.clear();
             data += indexOfLF + 1;
             length -= indexOfLF + 1;
         }
     }
 
-    int bytesConsumed = consumeLines(reinterpret_cast<const unsigned char *>(data), length,
-                                     m_lineCallback, m_lineCallbackContext);
+    int bytesConsumed = consumeLines(reinterpret_cast<const unsigned char *>(data),
+                                     length, m_lineSequence);
     if (bytesConsumed < length) {
-        m_unconsumedBytes = VfmdByteArray(data + bytesConsumed, length - bytesConsumed);
+        m_unconsumedBytes = VfmdLine(data + bytesConsumed, length - bytesConsumed);
     }
 }
 
 void VfmdPreprocessor::end()
 {
+    m_unconsumedBytes.squeeze();
     if (m_unconsumedBytes.size() > 0) {
-        if (m_lineCallback) {
-            VfmdLine line(m_unconsumedBytes.data(), m_unconsumedBytes.size());
-            (*m_lineCallback)(m_lineCallbackContext, line);
-        }
+        m_lineSequence->addLine(m_unconsumedBytes);
         m_unconsumedBytes.clear();
     }
-    m_unconsumedBytes.squeeze(); // free the internal storage
 }

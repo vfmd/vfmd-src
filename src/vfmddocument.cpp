@@ -4,17 +4,10 @@
 #include "vfmdpreprocessor.h"
 #include "vfmdinputlinesequence.h"
 
-void preprocessorLineCallback(void *context, const VfmdLine &line) {
-    VfmdInputLineSequence *documentLineSequence = (VfmdInputLineSequence *) context;
-    documentLineSequence->addLine(line);
-}
-
 VfmdDocument::VfmdDocument(const VfmdElementRegistry *registry)
 {
-    m_preprocessor = new VfmdPreprocessor;
     m_documentLineSequence = new VfmdInputLineSequence(registry);
-    m_preprocessor->setLineCallback(preprocessorLineCallback);
-    m_preprocessor->setLineCallbackContext(m_documentLineSequence);
+    m_preprocessor = new VfmdPreprocessor(m_documentLineSequence);
 }
 
 VfmdDocument::~VfmdDocument()
