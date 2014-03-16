@@ -15,8 +15,7 @@ public:
     void end();
 
 private:
-    void ensureBufferAllocated();
-
+    VfmdByteArray m_text;
     VfmdByteArray m_unconsumedBytes;
     VfmdInputLineSequence *m_lineSequence;
 };

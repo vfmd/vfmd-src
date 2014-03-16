@@ -32,7 +32,7 @@ static inline bool locateLFByte(const unsigned char *ptr, int length, int *index
     return false;
 }
 
-static inline int consumeLines(const unsigned char *data, int length, VfmdInputLineSequence *lineSeq)
+static inline int consumeLines(const unsigned char *data, int length, VfmdByteArray *ba, VfmdInputLineSequence *lineSeq)
 {
     register const unsigned char* p = data;
     register const unsigned char* const end = data + length;
@@ -47,14 +47,14 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
             return (int) (p - data);
         } else if (indexOfLFByte == 0) {
             // First byte is LF byte
-            lineSeq->addLine(new VfmdLine(""));
+            VfmdByteArray lineContent = ba->mid(ba->size(), 0);
+            lineSeq->addLine(new VfmdLine(lineContent));
+            ba->appendByte('\n');
             p++;
         } else {
             // indexOfLF > 0
 
-            VfmdByteArray lineContent;
-            lineContent.reserve(indexOfLFByte + numOfTabsTillLFByte * 3);
-
+            int lineStartPos = ba->size();
             register const unsigned char* const ptrToLFByte = (p + indexOfLFByte);
             int codePointsCount = 0;
             int result;
@@ -63,7 +63,7 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
                 int numOfCodePointsScanned;
                 result = scan_line(p, (int) (ptrToLFByte - p), &numOfBytesScanned, &numOfCodePointsScanned);
                 if (numOfBytesScanned > 0) {
-                    lineContent.append(reinterpret_cast<const char *>(p), numOfBytesScanned);
+                    ba->append(reinterpret_cast<const char *>(p), numOfBytesScanned);
                     p += numOfBytesScanned;
                     codePointsCount += numOfCodePointsScanned;
                 }
@@ -77,11 +77,11 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
                             codePointsCount += equivalentSpaces;
                             p++;
                         }
-                        lineContent.appendByteNtimes(' ', spacesToInsert);
+                        ba->appendByteNtimes(' ', spacesToInsert);
                     } else {
                         // Bad UTF-8 byte. Assume it's in ISO-8859-1 and convert to UTF-8.
                         unsigned char c = *p++;
-                        lineContent.appendBytes((0xc0 | (((c) >> 6) & 0x03)), (0x80 | ((c) & 0x3f)));
+                        ba->appendBytes((0xc0 | (((c) >> 6) & 0x03)), (0x80 | ((c) & 0x3f)));
                         codePointsCount++;
                     }
                 } else {
@@ -90,10 +90,14 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
                 }
             }
 
+            int lineLength = ba->size() - lineStartPos;
+            VfmdByteArray lineContent = ba->mid(lineStartPos, lineLength);
             if (lineContent.size() > 0 && lineContent.lastByte() == '\r') { // Convert CRLF to LF
                 lineContent.chopRight(1);
             }
             lineSeq->addLine(new VfmdLine(lineContent));
+
+            ba->appendByte('\n');
         }
 
     } // while (p < end)
@@ -113,6 +117,7 @@ static inline int indexOfLFByte(const char *p, int length)
 
 void VfmdPreprocessor::addBytes(const char *data, int length)
 {
+    m_text.reserveAdditionalBytes(length);
     if (m_unconsumedBytes.size() > 0) {
         int indexOfLF = indexOfLFByte(data, length);
         if (indexOfLF < 0) {
@@ -125,7 +130,7 @@ void VfmdPreprocessor::addBytes(const char *data, int length)
                 m_unconsumedBytes.append(data, indexOfLF + 1);
             }
             consumeLines(reinterpret_cast<const unsigned char *>(m_unconsumedBytes.data()),
-                         m_unconsumedBytes.size(), m_lineSequence);
+                         m_unconsumedBytes.size(), &m_text, m_lineSequence);
             m_unconsumedBytes.clear();
             data += indexOfLF + 1;
             length -= indexOfLF + 1;
@@ -133,7 +138,7 @@ void VfmdPreprocessor::addBytes(const char *data, int length)
     }
 
     int bytesConsumed = consumeLines(reinterpret_cast<const unsigned char *>(data),
-                                     length, m_lineSequence);
+                                     length, &m_text, m_lineSequence);
     if (bytesConsumed < length) {
         m_unconsumedBytes = VfmdByteArray(data + bytesConsumed, length - bytesConsumed);
     }
