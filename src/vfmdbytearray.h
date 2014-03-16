@@ -98,6 +98,8 @@ public:
      * This can cause an internal realloc and/or data copy. */
     void reserve(size_t length);
 
+    void reserveAdditionalBytes(size_t length);
+
     /* Find out what the reserved space is. */
     size_t capacity() const;
 

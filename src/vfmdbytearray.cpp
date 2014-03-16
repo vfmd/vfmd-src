@@ -38,24 +38,23 @@ public:
         allocatedSize = requestedAllocatedSize;
     }
 
-    void append(const char *str, size_t len) {
-        size_t requiredSize = (size + len);
+    void increaseReserveMemory(size_t minAdditionalSpace) {
+        size_t requiredSize = (size + minAdditionalSpace);
         if (requiredSize > allocatedSize) {
             // Allocate memory in chunks
             size_t chunkSize = (size? size : DEFAULT_REALLOC_CHUNK_SIZE);
             reallocateBuffer((size_t(requiredSize / chunkSize) + 1) * chunkSize);
         }
+    }
+
+    void append(const char *str, size_t len) {
+        increaseReserveMemory(len);
         memcpy(data + size, str, len);
         size += len;
     }
 
     void appendByte(char byte, int ntimes = 1) {
-        size_t requiredSize = (size + ntimes);
-        if (requiredSize > allocatedSize) {
-            // Allocate memory in chunks
-            size_t chunkSize = (size? size : DEFAULT_REALLOC_CHUNK_SIZE);
-            reallocateBuffer((size_t(requiredSize / chunkSize) + 1) * chunkSize);
-        }
+        increaseReserveMemory(ntimes);
         while (ntimes--) {
             data[size++] = byte;
         }
@@ -572,6 +571,11 @@ void VfmdByteArray::reserve(size_t length)
     if (d->allocatedSize < length) {
         d->reallocateBuffer(length);
     }
+}
+
+void VfmdByteArray::reserveAdditionalBytes(size_t minAdditionalSpace)
+{
+    d->increaseReserveMemory(minAdditionalSpace);
 }
 
 size_t VfmdByteArray::capacity() const
