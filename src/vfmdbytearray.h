@@ -178,8 +178,8 @@ private:
     class Private;
     Private *d;
 
-    size_t m_leftOffset;
-    size_t m_rightOffset;
+    size_t m_offset;
+    size_t m_length;
 };
 
 #endif // VFMDBYTEARRAY_H

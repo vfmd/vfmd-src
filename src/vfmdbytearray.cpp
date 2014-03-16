@@ -69,21 +69,24 @@ public:
 };
 
 VfmdByteArray::VfmdByteArray()
-    : d(new Private()), m_leftOffset(0), m_rightOffset(0)
+    : d(new Private()), m_offset(0), m_length(0)
 {
     assert(d);
     assert(d->refCount);
 }
 
 VfmdByteArray::VfmdByteArray(const char *str)
-    : d(new Private(str, strlen(str))), m_leftOffset(0), m_rightOffset(0)
 {
+    int len = strlen(str);
+    d = new Private(str, len);
+    m_offset = 0;
+    m_length = len;
     assert(d);
     assert(d->refCount);
 }
 
 VfmdByteArray::VfmdByteArray(const char *data, int length)
-    : d(new Private(data, length)), m_leftOffset(0), m_rightOffset(0)
+    : d(new Private(data, length)), m_offset(0), m_length(length)
 {
     assert(d);
     assert(d->refCount);
@@ -114,8 +117,11 @@ void VfmdByteArray::invalidate()
 
 void VfmdByteArray::append(const char *data, int length)
 {
-    copyOnWrite(length);
+    if ((m_offset + m_length) < d->size) {
+        copyOnWrite(length);
+    }
     d->append(data, length);
+    m_length += length;
 }
 
 void VfmdByteArray::append(const VfmdByteArray &other)
@@ -125,75 +131,91 @@ void VfmdByteArray::append(const VfmdByteArray &other)
 
 void VfmdByteArray::appendByte(char byte1)
 {
-    copyOnWrite(1);
+    if ((m_offset + m_length) < d->size) {
+        copyOnWrite(1);
+    }
     d->appendByte(byte1);
+    m_length++;
 }
 
 void VfmdByteArray::appendBytes(char byte1, char byte2)
 {
-    copyOnWrite(2);
+    if ((m_offset + m_length) < d->size) {
+        copyOnWrite(2);
+    }
     d->appendByte(byte1);
     d->appendByte(byte2);
+    m_length += 2;
 }
 
 void VfmdByteArray::appendBytes(char byte1, char byte2, char byte3)
 {
-    copyOnWrite(3);
+    if ((m_offset + m_length) < d->size) {
+        copyOnWrite(3);
+    }
     d->appendByte(byte1);
     d->appendByte(byte2);
     d->appendByte(byte3);
+    m_length += 3;
 }
 
 void VfmdByteArray::appendBytes(char byte1, char byte2, char byte3, char byte4)
 {
-    copyOnWrite(4);
+    if ((m_offset + m_length) < d->size) {
+        copyOnWrite(4);
+    }
     d->appendByte(byte1);
     d->appendByte(byte2);
     d->appendByte(byte3);
     d->appendByte(byte4);
+    m_length += 4;
 }
 
 void VfmdByteArray::appendByteNtimes(char byte, int n)
 {
-    copyOnWrite(n);
+    if ((m_offset + m_length) < d->size) {
+        copyOnWrite(n);
+    }
     d->appendByte(byte, n);
+    m_length += n;
 }
 
 bool VfmdByteArray::chopLeft(unsigned int count)
 {
-    if (count > size()) {
+    if (count > m_length) {
         return false;
     }
-    m_leftOffset += count;
+    m_offset += count;
+    m_length -= count;
     return true;
 }
 
 bool VfmdByteArray::chopRight(unsigned int count)
 {
-    if (count > size()) {
+    if (count > m_length) {
         return false;
     }
-    if (d->refCount > 1) {
-        // Some other instance is using the same data.
-        // Let's not modify d.
-        m_rightOffset += count;
-    } else {
+    if (d->refCount == 1) {
         // No other instance is using the same data.
         // We can modify d.
-        d->size -= (count + m_rightOffset);
-        m_rightOffset = 0;
+        if ((m_offset + m_length) < d->size) {
+            d->size = (m_offset + m_length);
+        }
+        assert((m_offset + m_length) == d->size);
+        d->size -= count;
     }
+    m_length -= count;
     return true;
 }
 
 const char* VfmdByteArray::data() const
 {
-    return (d->data + m_leftOffset);
+    return (d->data + m_offset);
 }
 
 size_t VfmdByteArray::size() const
 {
-    return (d->size - m_leftOffset - m_rightOffset);
+    return m_length;
 }
 
 char VfmdByteArray::byteAt(unsigned int pos) const
@@ -569,8 +591,8 @@ void VfmdByteArray::clear()
         // No other instance is using the same data.
         d->size = 0;
     }
-    m_leftOffset = 0;
-    m_rightOffset = 0;
+    m_offset = 0;
+    m_length = 0;
     assert(d);
     assert(d->refCount);
 }
@@ -582,8 +604,8 @@ VfmdByteArray::VfmdByteArray(const VfmdByteArray &other)
     assert(d);
     assert(d->refCount);
     ref();
-    m_leftOffset = other.m_leftOffset;
-    m_rightOffset = other.m_rightOffset;
+    m_offset = other.m_offset;
+    m_length = other.m_length;
     assert(d);
     assert(d->refCount);
 }
@@ -595,8 +617,8 @@ VfmdByteArray& VfmdByteArray::operator=(const VfmdByteArray &other) {
         deref(); // dereference existing data
         d = other.d;
         ref();   // reference new data
-        m_leftOffset = other.m_leftOffset;
-        m_rightOffset = other.m_rightOffset;
+        m_offset = other.m_offset;
+        m_length = other.m_length;
     }
     assert(d);
     assert(d->refCount);
@@ -616,8 +638,8 @@ void VfmdByteArray::deref() {
     if (d->refCount == 0) {
         delete d;
         d = 0;
-        m_leftOffset = 0;
-        m_rightOffset = 0;
+        m_offset = 0;
+        m_length = 0;
     }
 }
 
@@ -630,19 +652,18 @@ void VfmdByteArray::copyOnWrite(size_t additionalSpaceRequired) {
         deref(); // dereference existing data
         // copy data (refCount will be 1 for new copy)
         d = new Private(data(), size(), size() + additionalSpaceRequired);
-        m_leftOffset = 0;
-        m_rightOffset = 0;
+        m_offset = 0;
     } else if (d->refCount == 1) {
         // This is the only copy that uses this data,
-        // so canonicalize the rightOffset.
-        if (m_rightOffset > 0) {
-            d->size -= m_rightOffset;
-            m_rightOffset = 0;
+        // so use this opportunity to trim any unused bytes
+        // at the right end of our data storage.
+        if ((m_offset + m_length) < d->size) {
+            d->size = (m_offset + m_length);
         }
     }
     assert(d);
     assert(d->refCount);
-    assert(m_rightOffset == 0);
+    assert((m_offset + m_length) == d->size);
 }
 
 VfmdByteArray *VfmdByteArray::copy() const
@@ -664,24 +685,21 @@ void VfmdByteArray::squeeze()
         // Let's make a copy of the data, so that the other instance is not affected.
         deref();
         d = new Private(data(), size());
-        m_leftOffset = 0;
-        m_rightOffset = 0;
+        m_offset = 0;
         assert(d);
         assert(d->refCount);
     } else {
         // No other instance is using the same data.
         // We can realloc the data we hold.
         assert(d->refCount == 1);
-        if (m_leftOffset > 0) {
-            memmove(d->data, d->data + m_leftOffset, d->size - m_leftOffset - m_rightOffset);
-            d->size = d->size - m_leftOffset - m_rightOffset;
-            m_leftOffset = 0;
-            m_rightOffset = 0;
+        if (m_offset > 0) {
+            memmove(d->data, d->data + m_offset, m_length);
+            m_offset = 0;
         }
-        d->reallocateBuffer(size());
-        d->size = d->size - m_rightOffset;
-        m_rightOffset = 0;
+        d->size = m_length;
+        d->reallocateBuffer(m_length);
     }
+    assert(size() == capacity());
 }
 
 bool VfmdByteArray::isEqualTo(const char *str, int len) const
@@ -911,8 +929,8 @@ void VfmdByteArray::appendCharAsUTF8(int32_t codePointValue)
     assert(i <= 6);
     unsigned int additionalBytes = i + 1;
     copyOnWrite(additionalBytes);
-    assert(m_rightOffset == 0);
-    unsigned int sizeAfterAddingCodePoint = m_leftOffset + size() + additionalBytes;
+    assert((m_offset + m_length) == d->size);
+    unsigned int sizeAfterAddingCodePoint = d->size + additionalBytes;
     if (capacity() < sizeAfterAddingCodePoint) {
         reserve(sizeAfterAddingCodePoint);
     }
@@ -923,6 +941,7 @@ void VfmdByteArray::appendCharAsUTF8(int32_t codePointValue)
     }
     *ucdata = PRIV(utf8_table2)[i] | cvalue;
     d->size += additionalBytes;
+    m_length += additionalBytes;
 }
 
 // End of code adapted from pcre_ord2utf8.c
