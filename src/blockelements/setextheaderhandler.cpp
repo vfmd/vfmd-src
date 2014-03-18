@@ -4,16 +4,16 @@
 #include "vfmdoutputdevice.h"
 #include "vfmdelementtreenodestack.h"
 
-void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(firstLine);
-    if (nextLine.isInvalid() || nextLine.size() == 0) {
+    if (nextLine == 0) {
         return;
     }
-    const char firstByte = nextLine.byteAt(0);
-    if (firstByte == '=' || firstByte == '-') {
+    const char firstUnderlineByte = nextLine->firstByte();
+    if (firstUnderlineByte == '=' || firstUnderlineByte == '-') {
         VfmdRegexp reUnderline = VfmdCommonRegexps::setextHeaderUnderline();
-        if (reUnderline.matches(nextLine)) {
+        if (reUnderline.matches(nextLine->content())) {
             lineSequence->setChildSequence(new SetextHeaderLineSequence(lineSequence));
         }
     }
@@ -24,13 +24,13 @@ SetextHeaderLineSequence::SetextHeaderLineSequence(const VfmdInputLineSequence *
 {
 }
 
-void SetextHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void SetextHeaderLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
     if (m_numOfLinesSeen == 0) {
-        m_firstLine = currentLine;
+        m_firstLineContent = currentLine->content();
     } else if (m_numOfLinesSeen == 1) {
-        char firstByteOfSecondLine = currentLine.byteAt(0);
+        char firstByteOfSecondLine = currentLine->firstByte();
         assert(firstByteOfSecondLine == '-' || firstByteOfSecondLine == '=');
         if (firstByteOfSecondLine == '=') {
             m_headingLevel = 1;
@@ -41,7 +41,7 @@ void SetextHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, con
     m_numOfLinesSeen++;
 }
 
-bool SetextHeaderLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool SetextHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     return (m_numOfLinesSeen == 2);
 }
@@ -49,7 +49,7 @@ bool SetextHeaderLineSequence::isEndOfBlock(const VfmdLine &currentLine, const V
 VfmdElementTreeNode* SetextHeaderLineSequence::endBlock()
 {
     VfmdElementTreeNode *setextNode = new SetextHeaderTreeNode(m_headingLevel);
-    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(m_firstLine.trimmed(), registry());
+    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(m_firstLineContent.trimmed(), registry());
     bool ok = setextNode->setChildNodeIfNotSet(spanParseTree);
     assert(ok);
     return setextNode;

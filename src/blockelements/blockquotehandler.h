@@ -6,7 +6,7 @@
 class BlockquoteHandler : public VfmdBlockElementHandler {
 public:
     BlockquoteHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual ~BlockquoteHandler() { }
     virtual const char *description() const { return "blockquote"; }
 };
@@ -16,8 +16,8 @@ public:
     BlockquoteLineSequence(const VfmdInputLineSequence *parent);
     virtual ~BlockquoteLineSequence();
     virtual int elementType() const { return VfmdConstants::BLOCKQUOTE_ELEMENT; }
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 private:
     VfmdInputLineSequence *m_childSequence;

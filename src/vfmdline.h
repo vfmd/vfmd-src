@@ -3,23 +3,36 @@
 
 #include "vfmdbytearray.h"
 
-/* Conceptually represents a line in a vfmd document.
- * All lines must end with an LF character at creation time. */
+/* Conceptually represents a line in a vfmd document. */
 
-class VfmdLine : public VfmdByteArray
+class VfmdLine
 {
 public:
-    /* Create an empty and invalid line */
-    VfmdLine();
+    /* Create a line encapsulating the given bytearray */
+    VfmdLine(const VfmdByteArray &ba);
 
-    /* Create a line with a copy of the null-terminated string 'str' */
-    VfmdLine(const char *str);
+    /* Return the bytes encapsulated by the line */
+    VfmdByteArray content() const;
 
-    /* Create a line with a copy of 'length' bytes starting from 'data' */
-    VfmdLine(const char *data, int length);
+    unsigned int size() const;
+    char firstByte() const; // If the line has bytes, returns the first byte. Else returns 0.
 
     /* Is this line composed of only whitespace? */
     bool isBlankLine() const;
+
+    VfmdLine *copy() const;
+
+    unsigned int leadingSpacesCount() const;
+    char firstNonSpace() const;
+    void chopLeft(unsigned int n);
+    void chopRight(unsigned int n);
+
+private:
+    /* Disable copying instances of this class */
+    VfmdLine(const VfmdLine &);
+    VfmdLine& operator=(const VfmdLine &);
+
+    VfmdByteArray m_lineContent;
 };
 
 #endif // VFMDLINE_H

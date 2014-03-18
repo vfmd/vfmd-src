@@ -1,11 +1,11 @@
 #include "vfmdblockutils.h"
 
-bool isHorizontalRuleLine(const VfmdLine &line)
+bool isHorizontalRuleLine(const VfmdByteArray &lineContent)
 {
-    int index = line.indexOfFirstNonSpace();
+    int index = lineContent.indexOfFirstNonSpace();
     if (index >= 0) {
-        const char *data = line.data();
-        unsigned int sz = line.size();
+        const char *data = lineContent.data();
+        unsigned int sz = lineContent.size();
         const char hrByte = data[index];
         if (hrByte == '*' || hrByte == '-' || hrByte == '_') {
             int numOfHrBytes = 0;
@@ -27,13 +27,13 @@ bool isHorizontalRuleLine(const VfmdLine &line)
     return false;
 }
 
-int numOfBlockquotePrefixBytes(const VfmdLine &line)
+int numOfBlockquotePrefixBytes(const VfmdByteArray &lineContent)
 {
-    int index = line.indexOfFirstNonSpace();
+    int index = lineContent.indexOfFirstNonSpace();
     if (index >= 0 && index < 4) {
-        const char bqByte = line.byteAt(index);
+        const char bqByte = lineContent.byteAt(index);
         if (bqByte == '>') {
-            if (((index + 1) < line.size()) && (line.byteAt(index + 1) == ' ')) {
+            if (((index + 1) < lineContent.size()) && (lineContent.byteAt(index + 1) == ' ')) {
                 return (index + 2);
             }
             return (index + 1);

@@ -6,7 +6,7 @@
 class CodeBlockHandler : public VfmdBlockElementHandler {
 public:
     CodeBlockHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual ~CodeBlockHandler() { }
     virtual const char *description() const { return "code-block"; }
 };
@@ -16,8 +16,8 @@ public:
     CodeBlockLineSequence(const VfmdInputLineSequence *parent);
     virtual ~CodeBlockLineSequence() { }
     virtual int elementType() const { return VfmdConstants::CODE_BLOCK_ELEMENT; }
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 
 private:

@@ -5,10 +5,10 @@
 #include "vfmdcommonregexps.h"
 #include "core/vfmdblockutils.h"
 
-void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    if (firstLine.firstNonSpace() == '>') {
+    if (firstLine->content().firstNonSpace() == '>') {
         lineSequence->setChildSequence(new BlockquoteLineSequence(lineSequence));
     }
 }
@@ -24,10 +24,10 @@ BlockquoteLineSequence::~BlockquoteLineSequence()
     delete m_childSequence;
 }
 
-void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void BlockquoteLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    bool isEndOfParentLineSequence = nextLine.isInvalid();
-    if (currentLine.isBlankLine()) {
+    bool isEndOfParentLineSequence = (nextLine == 0);
+    if (currentLine->isBlankLine()) {
         // If the last line is a blank line, ignore it
         if (isEndOfParentLineSequence) {
             return;
@@ -37,32 +37,32 @@ void BlockquoteLineSequence::processBlockLine(const VfmdLine &currentLine, const
         }
     }
 
-    int lengthOfMatch = numOfBlockquotePrefixBytes(currentLine);
+    int lengthOfMatch = numOfBlockquotePrefixBytes(currentLine->content());
     if (lengthOfMatch > 0) {
-        VfmdLine line = currentLine;
-        line.chopLeft(lengthOfMatch);
+        VfmdLine *line = currentLine->copy();
+        line->chopLeft(lengthOfMatch);
         m_childSequence->addLine(line);
     } else {
         m_childSequence->addLine(currentLine);
     }
 }
 
-bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
-    if (!nextLine.isValid()) {
+    if (nextLine == 0) {
         return true;
     }
-    if (currentLine.isBlankLine()) {
+    if (currentLine->isBlankLine()) {
         // current line is a blank line
-        if (nextLine.isBlankLine()) {
+        if (nextLine->isBlankLine()) {
             return true;
         }
-        if (numOfBlockquotePrefixBytes(nextLine) == 0) {
+        if (numOfBlockquotePrefixBytes(nextLine->content()) == 0) {
             return true;
         }
     } else {
         // current line is not a blank line
-        if ((!nextLine.startsWith("    ")) && (isHorizontalRuleLine(nextLine))) {
+        if ((nextLine->leadingSpacesCount() < 4) && (isHorizontalRuleLine(nextLine->content()))) {
             return true;
         }
     }

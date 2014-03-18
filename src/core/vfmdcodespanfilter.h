@@ -12,7 +12,7 @@ public:
     VfmdCodeSpanFilter();
 
     void reset();
-    void addFilteredLineToHtmlStateWatcher(const VfmdLine &line, HtmlStateWatcher *watcher);
+    void addFilteredLineToHtmlStateWatcher(const VfmdByteArray &lineContent, HtmlStateWatcher *watcher);
 
 private:
     const VfmdRegexp m_reCodeSpanMark;

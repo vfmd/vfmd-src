@@ -2,11 +2,10 @@
 #include "core/vfmdcommonregexps.h"
 #include "vfmdspanelementsprocessor.h"
 
-void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    if ((firstLine.size() > 0) &&
-        (firstLine.byteAt(0) == '#')) {
+    if (firstLine->firstByte() == '#') {
         lineSequence->setChildSequence(new AtxHeaderLineSequence(lineSequence));
     }
 }
@@ -16,13 +15,13 @@ AtxHeaderLineSequence::AtxHeaderLineSequence(const VfmdInputLineSequence *parent
 {
 }
 
-void AtxHeaderLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void AtxHeaderLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
-    m_headerLine = currentLine;
+    m_headerLineText = currentLine->content();
 }
 
-bool AtxHeaderLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool AtxHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
@@ -36,14 +35,14 @@ VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
     VfmdRegexp reLineWithoutHeaderText = VfmdCommonRegexps::atxHeaderLineWithoutHeaderText();
     int headingLevel = 0;
     VfmdByteArray headerContent;
-    if (reLineWithHeaderText.matches(m_headerLine)) {
+    if (reLineWithHeaderText.matches(m_headerLineText)) {
         headingLevel = reLineWithHeaderText.capturedText(1).size();
         int numOfTrailingHashes = reLineWithHeaderText.capturedText(2).size();
-        headerContent = m_headerLine;
+        headerContent = m_headerLineText;
         headerContent.chopLeft(headingLevel);
         headerContent.chopRight(numOfTrailingHashes);
         headerContent.trim();
-    } else if (reLineWithoutHeaderText.matches(m_headerLine)) {
+    } else if (reLineWithoutHeaderText.matches(m_headerLineText)) {
         headingLevel = reLineWithoutHeaderText.capturedText(1).size();
     }
     assert(headingLevel > 0);

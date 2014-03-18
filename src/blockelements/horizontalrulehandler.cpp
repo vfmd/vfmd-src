@@ -3,10 +3,10 @@
 #include "vfmdcommonregexps.h"
 #include "core/vfmdblockutils.h"
 
-void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    if (isHorizontalRuleLine(firstLine)) {
+    if (isHorizontalRuleLine(firstLine->content())) {
         lineSequence->setChildSequence(new HorizontalRuleLineSequence(lineSequence));
     }
 }
@@ -16,13 +16,13 @@ HorizontalRuleLineSequence::HorizontalRuleLineSequence(const VfmdInputLineSequen
 {
 }
 
-void HorizontalRuleLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void HorizontalRuleLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
 }
 
-bool HorizontalRuleLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool HorizontalRuleLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

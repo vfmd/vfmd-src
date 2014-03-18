@@ -6,7 +6,7 @@
 class OrderedListHandler : public VfmdBlockElementHandler {
 public:
     OrderedListHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual ~OrderedListHandler() { }
     virtual const char *description() const { return "ordered-list"; }
 };
@@ -20,8 +20,8 @@ public:
                             const VfmdByteArray& startingNumber);
     virtual ~OrderedListLineSequence();
     virtual int elementType() const { return VfmdConstants::ORDERED_LIST_ELEMENT; }
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 
     void closeListItem(bool isEndOfList);
@@ -34,7 +34,7 @@ private:
     VfmdInputLineSequence *m_childSequence;
     OrderedListTreeNode *m_listNode;
     int m_numOfClosedListItems;
-    VfmdLine m_previousLine;
+    const VfmdLine *m_previousLine;
     bool m_isCurrentListItemPrecededByABlankLine;
     int m_nextLineListItemStartPrefixLength;
 };

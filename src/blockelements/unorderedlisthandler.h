@@ -6,7 +6,7 @@
 class UnorderedListHandler : public VfmdBlockElementHandler {
 public:
     UnorderedListHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual ~UnorderedListHandler() { }
     virtual const char *description() const { return "unordered-list"; }
 };
@@ -18,8 +18,8 @@ public:
     UnorderedListLineSequence(const VfmdInputLineSequence *parent, const VfmdByteArray &starterString);
     virtual ~UnorderedListLineSequence();
     virtual int elementType() const { return VfmdConstants::UNORDERED_LIST_ELEMENT; }
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 
     void closeListItem(bool isEndOfList);
@@ -31,7 +31,7 @@ private:
     VfmdInputLineSequence *m_childSequence;
     UnorderedListTreeNode *m_listNode;
     int m_numOfClosedListItems;
-    VfmdLine m_previousLine;
+    const VfmdLine *m_previousLine;
     bool m_isCurrentListItemPrecededByABlankLine;
     bool m_nextLineStartsWithListStarterString;
 };

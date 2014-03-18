@@ -62,20 +62,20 @@ static bool findBackticksSpan(const VfmdByteArray &ba, unsigned int offset, int 
     return false;
 }
 
-void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdLine &line, HtmlStateWatcher *watcher)
+void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdByteArray &lineContent, HtmlStateWatcher *watcher)
 {
     unsigned int offset = 0;
-    unsigned int sz = line.size();
+    unsigned int sz = lineContent.size();
 
     while (offset < sz) {
 
         int backticksStartIndex, backticksCount;
-        bool backtickFound = findBackticksSpan(line, offset, &backticksStartIndex, &backticksCount);
+        bool backtickFound = findBackticksSpan(lineContent, offset, &backticksStartIndex, &backticksCount);
 
         if (!backtickFound) {
             if (m_openBackticksCount == 0) {
                 // No backticks found and we're not in a code span. Output the part after the offset.
-                watcher->addText(line.mid(offset));
+                watcher->addText(lineContent.mid(offset));
             } else {
                 // No backticks found and we're in a code span. Output nothing.
             }
@@ -87,7 +87,7 @@ void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdLine &line,
                 // We've found the start of a code span
                 // Output the part of the line before the start of the code span
                 if (backticksStartIndex > offset) {
-                    watcher->addText(line.mid(offset, backticksStartIndex - offset));
+                    watcher->addText(lineContent.mid(offset, backticksStartIndex - offset));
                 }
                 m_openBackticksCount = backticksCount;
             } else {

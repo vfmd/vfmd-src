@@ -2,14 +2,17 @@
 #include "vfmdcommonregexps.h"
 #include "core/vfmdblockutils.h"
 
-void OrderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void OrderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
-    if (reStarterPattern.matches(firstLine)) {
-        VfmdByteArray listStarterString = reStarterPattern.capturedText(1);
-        VfmdByteArray startingNumber = reStarterPattern.capturedText(2);
-        lineSequence->setChildSequence(new OrderedListLineSequence(lineSequence, listStarterString.size(), startingNumber));
+    char firstNonSpaceByte = firstLine->firstNonSpace();
+    if (firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9') {
+        VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
+        if (reStarterPattern.matches(firstLine->content())) {
+            VfmdByteArray listStarterString = reStarterPattern.capturedText(1);
+            VfmdByteArray startingNumber = reStarterPattern.capturedText(2);
+            lineSequence->setChildSequence(new OrderedListLineSequence(lineSequence, listStarterString.size(), startingNumber));
+        }
     }
 }
 
@@ -22,6 +25,7 @@ OrderedListLineSequence::OrderedListLineSequence(const VfmdInputLineSequence *pa
     , m_childSequence(0)
     , m_listNode(new OrderedListTreeNode(startingNumber))
     , m_numOfClosedListItems(0)
+    , m_previousLine(0)
 {
     m_nextLineListItemStartPrefixLength = listStarterStringLength;
 }
@@ -50,13 +54,13 @@ void OrderedListLineSequence::closeListItem(bool isEndOfList)
 bool OrderedListLineSequence::isTopPackedListItem(bool isEndOfList) const
 {
     // This method is assumed to be called only from closeListItem()
-    VfmdLine lastLineOfListItem = m_previousLine;
+    const VfmdLine *lastLineOfListItem = m_previousLine;
     bool isFirstListItem = (m_numOfClosedListItems == 0);
     bool isLastListItem = isEndOfList;
     bool isTopPacked = false;
     if (isFirstListItem && isLastListItem) {
         isTopPacked = true;
-    } else if (isFirstListItem && !lastLineOfListItem.isBlankLine()) {
+    } else if (isFirstListItem && !lastLineOfListItem->isBlankLine()) {
         isTopPacked = true;
     } else if (!isFirstListItem && !m_isCurrentListItemPrecededByABlankLine) {
         isTopPacked = true;
@@ -67,13 +71,13 @@ bool OrderedListLineSequence::isTopPackedListItem(bool isEndOfList) const
 bool OrderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
 {
     // This method is assumed to be called only from closeListItem()
-    VfmdLine lastLineOfListItem = m_previousLine;
+    const VfmdLine *lastLineOfListItem = m_previousLine;
     bool isFirstListItem = (m_numOfClosedListItems == 0);
     bool isLastListItem = isEndOfList;
     bool isBottomPacked = false;
     if (isFirstListItem && isLastListItem) {
         isBottomPacked = true;
-    } else if (!lastLineOfListItem.isBlankLine()) {
+    } else if (!lastLineOfListItem->isBlankLine()) {
         isBottomPacked = true;
     } else if (!isLastListItem && !m_isCurrentListItemPrecededByABlankLine) {
         isBottomPacked = true;
@@ -81,26 +85,26 @@ bool OrderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
     return isBottomPacked;
 }
 
-static unsigned int listItemStartPrefixLength(const VfmdLine &line, int listStarterStringLength)
+static unsigned int listItemStartPrefixLength(const VfmdByteArray &lineContent, int listStarterStringLength)
 {
-    int indexOfFirstNonSpace = line.indexOfFirstNonSpace();
-    const char firstNonSpaceByte = line.firstNonSpace();
+    int indexOfFirstNonSpace = lineContent.indexOfFirstNonSpace();
+    const char firstNonSpaceByte = lineContent.firstNonSpace();
 
     if ((indexOfFirstNonSpace < listStarterStringLength) && // Not a sub-list
         (firstNonSpaceByte >= '0') && // Starts with a digit
         (firstNonSpaceByte <= '9')) {
         VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
-        if (reStarterPattern.matches(line)) {
+        if (reStarterPattern.matches(lineContent)) {
             return reStarterPattern.capturedText(1).size();
         }
     }
     return 0;
 }
 
-void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void OrderedListLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
-    VfmdLine line = currentLine;
+    VfmdLine *line = currentLine->copy();
 
     unsigned int currentLineStartPrefixLength = m_nextLineListItemStartPrefixLength;
 
@@ -108,50 +112,45 @@ void OrderedListLineSequence::processBlockLine(const VfmdLine &currentLine, cons
         // current line is the starting line of a list item
         closeListItem(false /* not the end of the list */);
         m_childSequence = new VfmdInputLineSequence(registry(), this);
-        m_isCurrentListItemPrecededByABlankLine = m_previousLine.isBlankLine();
-        line.chopLeft(currentLineStartPrefixLength);
+        m_isCurrentListItemPrecededByABlankLine = (m_previousLine && m_previousLine->isBlankLine());
+        line->chopLeft(currentLineStartPrefixLength);
     } else {
         // current line is not the starting line of a list item
-        int numOfPrefixedSpaces = line.indexOfFirstNonSpace();
-        if (numOfPrefixedSpaces < 0) {
-            // current line is a blank line
-            numOfPrefixedSpaces = line.size();
-        }
-        int prefixedSpacesToRemove = numOfPrefixedSpaces;
+        int prefixedSpacesToRemove = line->leadingSpacesCount();
         if (prefixedSpacesToRemove > m_listStarterStringLength) {
             prefixedSpacesToRemove = m_listStarterStringLength;
         }
-        line.chopLeft(prefixedSpacesToRemove);
+        line->chopLeft(prefixedSpacesToRemove);
     }
     m_childSequence->addLine(line);
-    m_previousLine = currentLine;
+    m_previousLine = currentLine->copy();
 
-    m_nextLineListItemStartPrefixLength = listItemStartPrefixLength(nextLine, m_listStarterStringLength);
+    m_nextLineListItemStartPrefixLength = (nextLine == 0? 0 : listItemStartPrefixLength(nextLine->content(), m_listStarterStringLength));
 }
 
-bool OrderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool OrderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
-    bool currentLineIsABlankLine = currentLine.isBlankLine();
-    if (currentLineIsABlankLine && nextLine.isBlankLine()) {
+    bool currentLineIsABlankLine = currentLine->isBlankLine();
+    if (currentLineIsABlankLine && nextLine->isBlankLine()) {
         return true;
     }
 
     bool isListItemStartingAtNextLine = (m_nextLineListItemStartPrefixLength > 0);
 
     if (!isListItemStartingAtNextLine) {
-        int indexOfFirstNonSpace = nextLine.indexOfFirstNonSpace();
+        int indexOfFirstNonSpace = nextLine->leadingSpacesCount();
         if (indexOfFirstNonSpace < m_listStarterStringLength) { // Should be indented less than a list item
             if (currentLineIsABlankLine) {
                 return true;
             } else {
                 if (indexOfFirstNonSpace < 4) { // Not a code span
-                    if (isHorizontalRuleLine(nextLine)) {
+                    if (isHorizontalRuleLine(nextLine->content())) {
                         return true;
                     }
-                    const char firstNonSpaceByte = nextLine.firstNonSpace();
+                    const char firstNonSpaceByte = nextLine->firstNonSpace();
                     if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
                         VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-                        if (reUnorderedListStarterPattern.matches(nextLine)) {
+                        if (reUnorderedListStarterPattern.matches(nextLine->content())) {
                             return true;
                         }
                     }

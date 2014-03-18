@@ -8,7 +8,7 @@
 class ParagraphHandler : public VfmdBlockElementHandler {
 public:
     ParagraphHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual ~ParagraphHandler() { }
     virtual const char *description() const { return "paragraph"; }
 };
@@ -18,14 +18,14 @@ public:
     ParagraphLineSequence(const VfmdInputLineSequence *parent);
     virtual ~ParagraphLineSequence();
     virtual int elementType() const { return VfmdConstants::PARAGRAPH_ELEMENT; }
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
     virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock() const;
 
 private:
     int m_containingBlockType;
-    VfmdPointerArray<const VfmdLine> * m_lines;
+    VfmdPointerArray<const VfmdByteArray> *m_lines;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     VfmdCodeSpanFilter m_codeSpanFilter;
     HtmlStateWatcher m_htmlStateWatcher;

@@ -2,24 +2,30 @@
 #include <string.h>
 #include "vfmdline.h"
 
-VfmdLine::VfmdLine()
+VfmdLine::VfmdLine(const VfmdByteArray &ba)
+    : m_lineContent(ba)
 {
 }
 
-VfmdLine::VfmdLine(const char *str)
-    : VfmdByteArray(str)
+VfmdByteArray VfmdLine::content() const
 {
+    return m_lineContent;
 }
 
-VfmdLine::VfmdLine(const char *data, int length)
-    : VfmdByteArray(data, length)
+unsigned int VfmdLine::size() const
 {
+    return m_lineContent.size();
+}
+
+char VfmdLine::firstByte() const
+{
+    return ((size() > 0)? (*m_lineContent.data()) : 0);
 }
 
 bool VfmdLine::isBlankLine() const
 {
-    const char *data_ptr = data();
-    size_t sz = size();
+    const char *data_ptr = m_lineContent.data();
+    size_t sz = m_lineContent.size();
     for (unsigned int i = 0; i < sz; i++) {
         const char c = data_ptr[i];
         if (c != 0x09 /* Tab */ &&
@@ -31,4 +37,40 @@ bool VfmdLine::isBlankLine() const
         }
     }
     return true;
+}
+
+VfmdLine *VfmdLine::copy() const
+{
+    return new VfmdLine(m_lineContent);
+}
+
+unsigned int VfmdLine::leadingSpacesCount() const
+{
+    const char *p = m_lineContent.data();
+    size_t sz = m_lineContent.size();
+    for (unsigned int i = 0; i < sz; i++) {
+        if (*p++ != ' ') {
+            return i;
+        }
+    }
+    return sz;
+}
+
+char VfmdLine::firstNonSpace() const
+{
+    unsigned int i = leadingSpacesCount();
+    if (i < size()) {
+        return *(m_lineContent.data() + i);
+    }
+    return 0;
+}
+
+void VfmdLine::chopLeft(unsigned int n)
+{
+    m_lineContent.chopLeft(n);
+}
+
+void VfmdLine::chopRight(unsigned int n)
+{
+    m_lineContent.chopRight(n);
 }

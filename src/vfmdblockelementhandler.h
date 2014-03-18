@@ -16,7 +16,7 @@ class VfmdElementRegistry;
 class VfmdBlockElementHandler {
 public:
     VfmdBlockElementHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual ~VfmdBlockElementHandler() { }
 
     /* A short text describing this syntax (eg. "paragraph", "code-block") */
@@ -33,8 +33,8 @@ public:
     VfmdBlockLineSequence(const VfmdInputLineSequence *parentLineSequence);
     virtual ~VfmdBlockLineSequence();
     virtual int elementType() const;
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
     const VfmdInputLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;

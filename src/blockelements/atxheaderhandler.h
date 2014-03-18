@@ -6,7 +6,7 @@
 class AtxHeaderHandler : public VfmdBlockElementHandler {
 public:
     AtxHeaderHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual ~AtxHeaderHandler() { }
     virtual const char *description() const { return "atx-header"; }
 };
@@ -16,11 +16,11 @@ public:
     AtxHeaderLineSequence(const VfmdInputLineSequence *parent);
     virtual ~AtxHeaderLineSequence() { }
     virtual int elementType() const { return VfmdConstants::ATX_HEADER_ELEMENT; }
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 private:
-    VfmdLine m_headerLine;
+    VfmdByteArray m_headerLineText;
 };
 
 class AtxHeaderTreeNode : public VfmdElementTreeNode {

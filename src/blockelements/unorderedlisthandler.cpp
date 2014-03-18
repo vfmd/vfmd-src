@@ -2,13 +2,16 @@
 #include "vfmdcommonregexps.h"
 #include "core/vfmdblockutils.h"
 
-void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    VfmdRegexp reStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-    if (reStarterPattern.matches(firstLine)) {
-        VfmdByteArray listStarterString = reStarterPattern.capturedText(1);
-        lineSequence->setChildSequence(new UnorderedListLineSequence(lineSequence, listStarterString));
+    char firstNonSpaceByte = firstLine->firstNonSpace();
+    if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
+        VfmdRegexp reStarterPattern = VfmdCommonRegexps::unorderedListStarter();
+        if (reStarterPattern.matches(firstLine->content())) {
+            VfmdByteArray listStarterString = reStarterPattern.capturedText(1);
+            lineSequence->setChildSequence(new UnorderedListLineSequence(lineSequence, listStarterString));
+        }
     }
 }
 
@@ -19,6 +22,7 @@ UnorderedListLineSequence::UnorderedListLineSequence(const VfmdInputLineSequence
     , m_childSequence(0)
     , m_listNode(new UnorderedListTreeNode)
     , m_numOfClosedListItems(0)
+    , m_previousLine(0)
 {
     m_nextLineStartsWithListStarterString = true;
 }
@@ -47,13 +51,13 @@ void UnorderedListLineSequence::closeListItem(bool isEndOfList)
 bool UnorderedListLineSequence::isTopPackedListItem(bool isEndOfList) const
 {
     // This method is assumed to be called only from closeListItem()
-    VfmdLine lastLineOfListItem = m_previousLine;
+    const VfmdLine *lastLineOfListItem = m_previousLine;
     bool isFirstListItem = (m_numOfClosedListItems == 0);
     bool isLastListItem = isEndOfList;
     bool isTopPacked = false;
     if (isFirstListItem && isLastListItem) {
         isTopPacked = true;
-    } else if (isFirstListItem && !lastLineOfListItem.isBlankLine()) {
+    } else if (isFirstListItem && !lastLineOfListItem->isBlankLine()) {
         isTopPacked = true;
     } else if (!isFirstListItem && !m_isCurrentListItemPrecededByABlankLine) {
         isTopPacked = true;
@@ -64,13 +68,13 @@ bool UnorderedListLineSequence::isTopPackedListItem(bool isEndOfList) const
 bool UnorderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
 {
     // This method is assumed to be called only from closeListItem()
-    VfmdLine lastLineOfListItem = m_previousLine;
+    const VfmdLine *lastLineOfListItem = m_previousLine;
     bool isFirstListItem = (m_numOfClosedListItems == 0);
     bool isLastListItem = isEndOfList;
     bool isBottomPacked = false;
     if (isFirstListItem && isLastListItem) {
         isBottomPacked = true;
-    } else if (!lastLineOfListItem.isBlankLine()) {
+    } else if (!lastLineOfListItem->isBlankLine()) {
         isBottomPacked = true;
     } else if (!isLastListItem && !m_isCurrentListItemPrecededByABlankLine) {
         isBottomPacked = true;
@@ -78,63 +82,58 @@ bool UnorderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
     return isBottomPacked;
 }
 
-void UnorderedListLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void UnorderedListLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
-    VfmdLine line = currentLine;
+    VfmdLine *line = currentLine->copy();
     bool isListItemStartLine = m_nextLineStartsWithListStarterString; // is current line starting with m_listStarterString
     if (isListItemStartLine) {
         // current line is the starting line of a list item
         closeListItem(false /* not the end of the list */);
         m_childSequence = new VfmdInputLineSequence(registry(), this);
-        m_isCurrentListItemPrecededByABlankLine = m_previousLine.isBlankLine();
-        line.chopLeft(m_listStarterString.size());
+        m_isCurrentListItemPrecededByABlankLine = (m_previousLine && m_previousLine->isBlankLine());
+        line->chopLeft(m_listStarterString.size());
     } else {
         // current line is not the starting line of a list item
-        int numOfPrefixedSpaces = line.indexOfFirstNonSpace();
-        if (numOfPrefixedSpaces < 0) {
-            // current line is a blank line
-            numOfPrefixedSpaces = line.size();
-        }
-        int prefixedSpacesToRemove = numOfPrefixedSpaces;
+        int prefixedSpacesToRemove = line->leadingSpacesCount();
         if (prefixedSpacesToRemove > m_listStarterString.size()) {
             prefixedSpacesToRemove = m_listStarterString.size();
         }
-        line.chopLeft(prefixedSpacesToRemove);
+        line->chopLeft(prefixedSpacesToRemove);
     }
     m_childSequence->addLine(line);
-    m_previousLine = currentLine;
-    m_nextLineStartsWithListStarterString = (nextLine.startsWith(m_listStarterString));
+    m_previousLine = currentLine->copy();
+    m_nextLineStartsWithListStarterString = (nextLine == 0? false : (nextLine->content().startsWith(m_listStarterString)));
 }
 
-bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
-    bool currentLineIsABlankLine = currentLine.isBlankLine();
+    bool currentLineIsABlankLine = currentLine->isBlankLine();
 
-    if (currentLineIsABlankLine && nextLine.isBlankLine()) {
+    if (currentLineIsABlankLine && nextLine->isBlankLine()) {
         return true;
     }
 
     if (!m_nextLineStartsWithListStarterString) {
-        int indexOfFirstNonSpace = nextLine.indexOfFirstNonSpace();
+        int indexOfFirstNonSpace = nextLine->leadingSpacesCount();
         if (indexOfFirstNonSpace < m_listStarterString.size()) { // Should be indented less than a list item
             if (currentLineIsABlankLine) {
                 return true;
             } else {
                 if (indexOfFirstNonSpace < 4) { // Not a code span
-                    if (isHorizontalRuleLine(nextLine)) {
+                    if (isHorizontalRuleLine(nextLine->content())) {
                         return true;
                     }
-                    const char firstNonSpaceByte = nextLine.firstNonSpace();
+                    const char firstNonSpaceByte = nextLine->firstNonSpace();
                     if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
                         VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-                        if (reUnorderedListStarterPattern.matches(nextLine)) {
+                        if (reUnorderedListStarterPattern.matches(nextLine->content())) {
                             return true;
                         }
                     }
                     if (firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9') {
                         VfmdRegexp reOrderedListStarterPattern = VfmdCommonRegexps::orderedListStarter();
-                        if (reOrderedListStarterPattern.matches(nextLine)) {
+                        if (reOrderedListStarterPattern.matches(nextLine->content())) {
                             return true;
                         }
                     }

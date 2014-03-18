@@ -6,6 +6,7 @@
 
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence)
     : m_registry(registry)
+    , m_nextLine(0)
     , m_parentLineSequence(parentLineSequence)
     , m_childLineSequence(0)
     , m_numOfLinesGivenToChildLineSequence(0)
@@ -13,29 +14,27 @@ VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry
 {
 }
 
-void VfmdInputLineSequence::addLine(const VfmdLine &line) {
-    if (!line.isValid()) {
-        return;
-    }
+void VfmdInputLineSequence::addLine(const VfmdLine *line) {
+    assert(line != 0);
 
-    if (!m_nextLine.isValid()) {
+    if (m_nextLine == 0) {
         m_nextLine = line;
     } else {
-        VfmdLine currentLine = m_nextLine;
+        processInChildSequence(m_nextLine, line);
+        delete m_nextLine;
         m_nextLine = line;
-        processInChildSequence(currentLine, m_nextLine);
     }
 }
 
 VfmdElementTreeNode* VfmdInputLineSequence::endSequence()
 {
-    VfmdLine currentLine = m_nextLine;
-    m_nextLine = VfmdLine();
-    processInChildSequence(currentLine, m_nextLine);
+    processInChildSequence(m_nextLine, 0);
+    delete m_nextLine;
+    m_nextLine = 0;
     return m_parseTree;
 }
 
-void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
@@ -59,7 +58,7 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, 
     m_numOfLinesGivenToChildLineSequence++;
 
     // If necessary, end the child sequence
-    bool isEndOfLineSequence = nextLine.isInvalid();
+    bool isEndOfLineSequence = (nextLine == 0);
     if (isEndOfLineSequence || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
         // End the child block
         VfmdElementTreeNode *parseSubtree = m_childLineSequence->endBlock();
@@ -77,14 +76,16 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine &currentLine, 
         // Re-process any unconsumed lines
         if (unconsumedLines && (unconsumedLines->size() > 0)) {
             unsigned int sz = unconsumedLines->size();
-            assert(unconsumedLines->lastItem()->isEqualTo(currentLine));
+            assert(unconsumedLines->lastItem() == currentLine);
             assert(sz < m_numOfLinesGivenToChildLineSequence); // A block cannot disown all lines passed to it
-            if (unconsumedLines->lastItem()->isEqualTo(currentLine) &&
+            if ((unconsumedLines->lastItem() == currentLine) &&
                 (sz < m_numOfLinesGivenToChildLineSequence)) {
-                for (unsigned int i = 0; i < (sz - 1); i++) {
-                    const VfmdLine *line = unconsumedLines->itemAt(i);
-                    const VfmdLine *nextLine = unconsumedLines->itemAt(i + 1);
-                    processInChildSequence(*line, *nextLine);
+                const VfmdLine *nextUnconsumedLine = unconsumedLines->itemAt(0);
+                for (unsigned int i = 1; i < (sz - 1); i++) {
+                    const VfmdLine *unconsumedLine = unconsumedLines->itemAt(i);
+                    processInChildSequence(nextUnconsumedLine, unconsumedLine);
+                    delete nextUnconsumedLine;
+                    nextUnconsumedLine = unconsumedLine;
                 }
                 processInChildSequence(currentLine, nextLine);
             }

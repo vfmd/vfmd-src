@@ -9,7 +9,7 @@
 #include "unorderedlisthandler.h"
 #include "core/vfmdblockutils.h"
 
-void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(firstLine);
     UNUSED_ARG(nextLine);
@@ -20,7 +20,7 @@ void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
     , m_containingBlockType(VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
-    , m_lines(new VfmdPointerArray<const VfmdLine>(128))
+    , m_lines(new VfmdPointerArray<const VfmdByteArray>(128))
     , m_isAtEndOfParagraph(false)
     , m_isLookingAhead(false)
     , m_lookaheadLines(0)
@@ -40,30 +40,27 @@ ParagraphLineSequence::~ParagraphLineSequence()
     delete m_lookaheadLines;
 }
 
-static void appendLines(VfmdPointerArray<const VfmdLine> *dst, VfmdPointerArray<const VfmdLine> *src)
+static void appendLines(VfmdPointerArray<const VfmdByteArray> *dst, VfmdPointerArray<const VfmdLine> *src)
 {
     if (dst && src && (src->size() > 0)) {
         unsigned int sz = src->size();
         for (unsigned int i = 0; i < sz; i++) {
-            dst->append(new VfmdLine(*src->itemAt(i)));
+            dst->append(src->itemAt(i)->content().copy());
         }
     }
 }
 
-static bool isPotentialEndOfParagraph(const VfmdLine &nextLine, int containingBlockType)
+static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBlockType)
 {
-    if (nextLine.isBlankLine()) {
-        return true;
-    }
-    if (!nextLine.isValid()) {
+    if (nextLine == 0 || nextLine->isBlankLine()) {
         return true;
     }
 
-    if (isHorizontalRuleLine(nextLine)) {
+    if (isHorizontalRuleLine(nextLine->content())) {
         return true;
     }
 
-    const char firstNonSpaceByte = nextLine.firstNonSpace();
+    const char firstNonSpaceByte = nextLine->firstNonSpace();
 
     if ((containingBlockType == VfmdConstants::BLOCKQUOTE_ELEMENT) &&
         (firstNonSpaceByte == '>')) {
@@ -73,7 +70,7 @@ static bool isPotentialEndOfParagraph(const VfmdLine &nextLine, int containingBl
     if ((containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT) &&
         (firstNonSpaceByte == '*' || firstNonSpaceByte == '+' || firstNonSpaceByte == '-')) {
         VfmdRegexp reUnorderedListStarter = VfmdCommonRegexps::unorderedListStarter();
-        if (reUnorderedListStarter.matches(nextLine)) {
+        if (reUnorderedListStarter.matches(nextLine->content())) {
             return true;
         }
     }
@@ -81,7 +78,7 @@ static bool isPotentialEndOfParagraph(const VfmdLine &nextLine, int containingBl
     if ((containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT) &&
         (firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9')) {
         VfmdRegexp reOrderedListStarter = VfmdCommonRegexps::orderedListStarter();
-        if (reOrderedListStarter.matches(nextLine)) {
+        if (reOrderedListStarter.matches(nextLine->content())) {
             return true;
         }
     }
@@ -89,16 +86,16 @@ static bool isPotentialEndOfParagraph(const VfmdLine &nextLine, int containingBl
     return false;
 }
 
-void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
 
     if (!m_isLookingAhead) {
 
         // Not in lookahead mode
-        m_lines->append(new VfmdLine(currentLine));
+        m_lines->append(currentLine->content().copy());
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
-        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine, &m_htmlStateWatcher);
+        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
         HtmlStateWatcher::State htmlState = m_htmlStateWatcher.state();
 #else
         HtmlStateWatcher::State htmlState = HtmlStateWatcher::TEXT_STATE;
@@ -129,8 +126,8 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const 
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
         // In lookahead mode
         assert(m_lookaheadLines);
-        m_lookaheadLines->append(new VfmdLine(currentLine));
-        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine, &m_htmlStateWatcher);
+        m_lookaheadLines->append(currentLine->copy());
+        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
         HtmlStateWatcher::State state = m_htmlStateWatcher.state();
         if ((state == HtmlStateWatcher::HTML_COMMENT_STATE) ||
             (state == HtmlStateWatcher::HTML_TAG_STATE) ||
@@ -169,7 +166,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine &currentLine, const 
 
 }
 
-bool ParagraphLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
@@ -186,7 +183,7 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
     VfmdByteArray text;
     text.reserve(textSize);
     for (unsigned int i = 0; i < sz; i++) {
-        const VfmdLine *line = m_lines->itemAt(i);
+        const VfmdByteArray *line = m_lines->itemAt(i);
         text.append(*line);
         text.appendByte(0x0a /* LF */);
         delete line;

@@ -1,9 +1,9 @@
 #include "codeblockhandler.h"
 
-void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    if (firstLine.startsWith("    ")) {
+    if (firstLine->leadingSpacesCount() >= 4) {
         lineSequence->setChildSequence(new CodeBlockLineSequence(lineSequence));
     }
 }
@@ -13,33 +13,31 @@ CodeBlockLineSequence::CodeBlockLineSequence(const VfmdInputLineSequence *parent
 {
 }
 
-void CodeBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void CodeBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    bool isEndOfParentLineSequence = nextLine.isInvalid();
-    assert(currentLine.isBlankLine() || currentLine.startsWith("    "));
+    bool isEndOfParentLineSequence = (nextLine == 0);
+    assert(currentLine->isBlankLine() || (currentLine->leadingSpacesCount() >= 4));
     if (isEndOfParentLineSequence) {
         m_isAtEnd = true;
     } else {
-        if (!nextLine.startsWith("    ")) {
+        if (nextLine->leadingSpacesCount() < 4) {
             m_isAtEnd = true;
         }
     }
-    VfmdLine line = currentLine;
-    if (m_isAtEnd && line.isBlankLine()) {
+    VfmdByteArray lineContent = currentLine->content();
+    if (m_isAtEnd && currentLine->isBlankLine()) {
         // Don't let the last line be a blank line
         return;
     }
-    int indexOfFirstNonSpace = line.indexOfFirstNonSpace();
-    assert((indexOfFirstNonSpace < 0)  /* blank line */ ||
-           (indexOfFirstNonSpace >= 4) /* starts with 4 spaces */);
+    int indexOfFirstNonSpace = currentLine->leadingSpacesCount();
     if (indexOfFirstNonSpace >= 4) {
-        line.chopLeft(4);
+        lineContent.chopLeft(4);
     }
-    m_content.append(line);
+    m_content.append(lineContent);
     m_content.appendByte('\n');
 }
 
-bool CodeBlockLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool CodeBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     return m_isAtEnd;
 }

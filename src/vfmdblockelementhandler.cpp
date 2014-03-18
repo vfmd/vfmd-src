@@ -2,7 +2,7 @@
 #include "vfmdblockelementhandler.h"
 #include "vfmdinputlinesequence.h"
 
-void VfmdBlockElementHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &currentLine, const VfmdLine &nextLine) const
+void VfmdBlockElementHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(lineSequence);
     UNUSED_ARG(currentLine);
@@ -28,14 +28,14 @@ int VfmdBlockLineSequence::elementType() const
     return VfmdConstants::UNDEFINED_BLOCK_ELEMENT;
 }
 
-void VfmdBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void VfmdBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     /* Base implementation does nothing */
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
 }
 
-bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

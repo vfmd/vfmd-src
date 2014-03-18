@@ -7,7 +7,7 @@
 class SetextHeaderHandler : public VfmdBlockElementHandler {
 public:
     SetextHeaderHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const;
+    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual ~SetextHeaderHandler() { }
     virtual const char *description() const { return "setext-header"; }
 };
@@ -17,13 +17,13 @@ public:
     SetextHeaderLineSequence(const VfmdInputLineSequence *parent);
     virtual ~SetextHeaderLineSequence() { }
     virtual int elementType() const { return VfmdConstants::SETEXT_HEADER_ELEMENT; }
-    virtual void processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine);
-    virtual bool isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const;
+    virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
 private:
     int m_numOfLinesSeen;
     int m_headingLevel;
-    VfmdLine m_firstLine;
+    VfmdByteArray m_firstLineContent;
 };
 
 class SetextHeaderTreeNode : public VfmdElementTreeNode {

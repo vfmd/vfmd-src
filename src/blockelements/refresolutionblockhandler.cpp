@@ -6,23 +6,25 @@ RefResolutionBlockHandler::RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap)
 {
 }
 
-void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine &firstLine, const VfmdLine &nextLine) const
+void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    if (firstLine.indexOfFirstNonSpace() >= 4) {
+    if (firstLine->leadingSpacesCount() >= 4) {
         return;
     }
-    VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
-    VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
-    if (reLabelAndPlainURL.matches(firstLine) ||
-        reLabelAndBracketedURL.matches(firstLine)) {
-        lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, firstLine, nextLine, m_linkRefMap));
+    if (firstLine->firstNonSpace() == '[') {
+        VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
+        VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
+        if (reLabelAndPlainURL.matches(firstLine->content()) ||
+                reLabelAndBracketedURL.matches(firstLine->content())) {
+            lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, firstLine->content(), nextLine->content(), m_linkRefMap));
+        }
     }
 }
 
 RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
-                                                               const VfmdLine &firstLine,
-                                                               const VfmdLine &nextLine,
+                                                               const VfmdByteArray &firstLineContent,
+                                                               const VfmdByteArray &secondLineContent,
                                                                VfmdLinkRefMap *linkRefMap)
     : VfmdBlockLineSequence(parent)
     , m_linkRefMap(linkRefMap)
@@ -32,35 +34,35 @@ RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLi
     VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
     VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
     VfmdByteArray refDefinitionTrailingSequence;
-    if (reLabelAndPlainURL.matches(firstLine)) {
+    if (reLabelAndPlainURL.matches(firstLineContent)) {
         refDefinitionTrailingSequence = reLabelAndPlainURL.capturedText(2);
-    } else if (reLabelAndBracketedURL.matches(firstLine)) {
+    } else if (reLabelAndBracketedURL.matches(firstLineContent)) {
         refDefinitionTrailingSequence = reLabelAndBracketedURL.capturedText(2);
     }
     bool firstLineHasTrailingNonSpaceChars = (refDefinitionTrailingSequence.indexOfFirstNonSpace() >= 0);
     m_numOfLinesInSequence = 1;
     if (!firstLineHasTrailingNonSpaceChars) {
         VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
-        if (nextLine.isValid() &&
-            reTitleLine.matches(nextLine)) {
+        if (secondLineContent.isValid() &&
+            reTitleLine.matches(secondLineContent)) {
             m_numOfLinesInSequence = 2;
         }
     }
     assert(m_numOfLinesInSequence > 0);
-    m_linkDefText = firstLine;
+    m_linkDefText = firstLineContent;
     if (m_numOfLinesInSequence == 2) {
-        m_linkDefText.append(nextLine);
+        m_linkDefText.append(secondLineContent);
     }
 }
 
-void RefResolutionBlockLineSequence::processBlockLine(const VfmdLine &currentLine, const VfmdLine &nextLine)
+void RefResolutionBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
     m_numOfLinesSeen++;
 }
 
-bool RefResolutionBlockLineSequence::isEndOfBlock(const VfmdLine &currentLine, const VfmdLine &nextLine) const
+bool RefResolutionBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

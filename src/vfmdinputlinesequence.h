@@ -14,7 +14,7 @@ class VfmdInputLineSequence
 public:
     VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence = 0);
 
-    void addLine(const VfmdLine &line);
+    void addLine(const VfmdLine *line);
     VfmdElementTreeNode* endSequence();
 
     bool isAtEnd() const;
@@ -36,11 +36,11 @@ private:
     VfmdInputLineSequence(const VfmdInputLineSequence& other);
     VfmdInputLineSequence& operator=(const VfmdInputLineSequence& other);
 
-    void processInChildSequence(const VfmdLine &currentLine, const VfmdLine &nextLine);
+    void processInChildSequence(const VfmdLine *currentLine, const VfmdLine *nextLine);
 
     const VfmdBlockLineSequence *m_parentLineSequence;
     const VfmdElementRegistry *m_registry;
-    VfmdLine m_nextLine;
+    const VfmdLine *m_nextLine;
     VfmdBlockLineSequence *m_childLineSequence;
     int m_numOfLinesGivenToChildLineSequence;
     VfmdElementTreeNode *m_parseTree;

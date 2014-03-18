@@ -47,13 +47,13 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
             return (int) (p - data);
         } else if (indexOfLFByte == 0) {
             // First byte is LF byte
-            lineSeq->addLine(VfmdLine(""));
+            lineSeq->addLine(new VfmdLine(""));
             p++;
         } else {
             // indexOfLF > 0
 
-            VfmdLine line;
-            line.reserve(indexOfLFByte + numOfTabsTillLFByte * 3);
+            VfmdByteArray lineContent;
+            lineContent.reserve(indexOfLFByte + numOfTabsTillLFByte * 3);
 
             register const unsigned char* const ptrToLFByte = (p + indexOfLFByte);
             int codePointsCount = 0;
@@ -63,7 +63,7 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
                 int numOfCodePointsScanned;
                 result = scan_line(p, (int) (ptrToLFByte - p), &numOfBytesScanned, &numOfCodePointsScanned);
                 if (numOfBytesScanned > 0) {
-                    line.append(reinterpret_cast<const char *>(p), numOfBytesScanned);
+                    lineContent.append(reinterpret_cast<const char *>(p), numOfBytesScanned);
                     p += numOfBytesScanned;
                     codePointsCount += numOfCodePointsScanned;
                 }
@@ -77,11 +77,11 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
                             codePointsCount += equivalentSpaces;
                             p++;
                         }
-                        line.appendByteNtimes(' ', spacesToInsert);
+                        lineContent.appendByteNtimes(' ', spacesToInsert);
                     } else {
                         // Bad UTF-8 byte. Assume it's in ISO-8859-1 and convert to UTF-8.
                         unsigned char c = *p++;
-                        line.appendBytes((0xc0 | (((c) >> 6) & 0x03)), (0x80 | ((c) & 0x3f)));
+                        lineContent.appendBytes((0xc0 | (((c) >> 6) & 0x03)), (0x80 | ((c) & 0x3f)));
                         codePointsCount++;
                     }
                 } else {
@@ -90,10 +90,10 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdInputL
                 }
             }
 
-            if (line.size() > 0 && line.lastByte() == '\r') { // Convert CRLF to LF
-                line.chopRight(1);
+            if (lineContent.size() > 0 && lineContent.lastByte() == '\r') { // Convert CRLF to LF
+                lineContent.chopRight(1);
             }
-            lineSeq->addLine(line);
+            lineSeq->addLine(new VfmdLine(lineContent));
         }
 
     } // while (p < end)
@@ -135,7 +135,7 @@ void VfmdPreprocessor::addBytes(const char *data, int length)
     int bytesConsumed = consumeLines(reinterpret_cast<const unsigned char *>(data),
                                      length, m_lineSequence);
     if (bytesConsumed < length) {
-        m_unconsumedBytes = VfmdLine(data + bytesConsumed, length - bytesConsumed);
+        m_unconsumedBytes = VfmdByteArray(data + bytesConsumed, length - bytesConsumed);
     }
 }
 
@@ -143,7 +143,7 @@ void VfmdPreprocessor::end()
 {
     m_unconsumedBytes.squeeze();
     if (m_unconsumedBytes.size() > 0) {
-        m_lineSequence->addLine(m_unconsumedBytes);
+        m_lineSequence->addLine(new VfmdLine(m_unconsumedBytes));
         m_unconsumedBytes.clear();
     }
 }
