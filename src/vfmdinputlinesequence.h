@@ -14,7 +14,7 @@ class VfmdInputLineSequence
 public:
     VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence = 0);
 
-    void addLine(const VfmdLine *line);
+    void addLine(VfmdLine *line);
     VfmdElementTreeNode* endSequence();
 
     bool isAtEnd() const;

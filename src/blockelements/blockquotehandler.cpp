@@ -38,13 +38,11 @@ void BlockquoteLineSequence::processBlockLine(const VfmdLine *currentLine, const
     }
 
     int lengthOfMatch = numOfBlockquotePrefixBytes(currentLine->content());
+    VfmdLine *line = currentLine->copy();
     if (lengthOfMatch > 0) {
-        VfmdLine *line = currentLine->copy();
         line->chopLeft(lengthOfMatch);
-        m_childSequence->addLine(line);
-    } else {
-        m_childSequence->addLine(currentLine);
     }
+    m_childSequence->addLine(line);
 }
 
 bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const

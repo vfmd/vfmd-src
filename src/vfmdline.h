@@ -22,10 +22,12 @@ public:
 
     VfmdLine *copy() const;
 
-    unsigned int leadingSpacesCount() const;
-    char firstNonSpace() const;
     void chopLeft(unsigned int n);
     void chopRight(unsigned int n);
+
+    void precomputeLineData();
+    unsigned int leadingSpacesCount() const;
+    char firstNonSpace() const;
 
 private:
     /* Disable copying instances of this class */
@@ -33,6 +35,11 @@ private:
     VfmdLine& operator=(const VfmdLine &);
 
     VfmdByteArray m_lineContent;
+
+    // Precomputed line data
+    bool m_isLineDataPrecomputed;
+    unsigned int m_leadingSpacesCount;
+    unsigned int m_isBlankLine;
 };
 
 #endif // VFMDLINE_H

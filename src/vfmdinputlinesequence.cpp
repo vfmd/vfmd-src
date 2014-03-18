@@ -14,8 +14,11 @@ VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry
 {
 }
 
-void VfmdInputLineSequence::addLine(const VfmdLine *line) {
+void VfmdInputLineSequence::addLine(VfmdLine *line)
+{
     assert(line != 0);
+
+    line->precomputeLineData();
 
     if (m_nextLine == 0) {
         m_nextLine = line;
