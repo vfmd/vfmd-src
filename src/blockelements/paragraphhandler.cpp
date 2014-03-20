@@ -56,10 +56,6 @@ static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBl
         return true;
     }
 
-    if (isHorizontalRuleLine(nextLine)) {
-        return true;
-    }
-
     const char firstNonSpaceByte = nextLine->firstNonSpace();
 
     if ((containingBlockType == VfmdConstants::BLOCKQUOTE_ELEMENT) &&
@@ -77,6 +73,10 @@ static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBl
             nextLine->matches(VfmdCommonRegexps::orderedListStarter())) {
             return true;
         }
+    }
+
+    if (isHorizontalRuleLine(nextLine)) {
+        return true;
     }
 
     return false;
