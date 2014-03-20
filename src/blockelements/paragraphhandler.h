@@ -25,7 +25,7 @@ public:
 
 private:
     int m_containingBlockType;
-    VfmdPointerArray<const VfmdByteArray> *m_lines;
+    VfmdByteArray m_text;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     VfmdCodeSpanFilter m_codeSpanFilter;
     HtmlStateWatcher m_htmlStateWatcher;
