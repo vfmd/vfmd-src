@@ -102,4 +102,6 @@ void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdByteArray &
         }
 
     }
+
+    watcher->addText("\n");
 }
