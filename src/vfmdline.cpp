@@ -128,3 +128,13 @@ void VfmdLine::chopRight(unsigned int n)
     m_lineContent.chopRight(n);
     m_isLineDataPrecomputed = false;
 }
+
+int VfmdLine::indexOf(const VfmdRegexp& re) const
+{
+    return re.locateInBytearrayWithoutCapturing(m_lineContent);
+}
+
+bool VfmdLine::matches(const VfmdRegexp& re) const
+{
+    return (re.locateInBytearrayWithoutCapturing(m_lineContent) >= 0);
+}

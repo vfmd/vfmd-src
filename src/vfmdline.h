@@ -2,6 +2,7 @@
 #define VFMDLINE_H
 
 #include "vfmdbytearray.h"
+#include "vfmdregexp.h"
 
 /* Conceptually represents a line in a vfmd document. */
 
@@ -28,6 +29,9 @@ public:
     void precomputeLineData();
     unsigned int leadingSpacesCount() const;
     char firstNonSpace() const;
+
+    int indexOf(const VfmdRegexp& re) const;
+    bool matches(const VfmdRegexp& re) const;
 
 private:
     /* Disable copying instances of this class */
