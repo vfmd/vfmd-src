@@ -32,12 +32,6 @@ public:
     static VfmdRegexp& atxHeaderLineWithHeaderText();
     static VfmdRegexp& atxHeaderLineWithoutHeaderText();
 
-    // Blockquote
-    static VfmdRegexp& blockquotePrefix();
-
-    // Horizontal rule
-    static VfmdRegexp& horizontalRule();
-
     // List
     static VfmdRegexp& unorderedListStarter();
     static VfmdRegexp& orderedListStarter();
