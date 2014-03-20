@@ -6,7 +6,7 @@
 void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    if (isHorizontalRuleLine(firstLine->content())) {
+    if (isHorizontalRuleLine(firstLine)) {
         lineSequence->setChildSequence(new HorizontalRuleLineSequence(lineSequence));
     }
 }

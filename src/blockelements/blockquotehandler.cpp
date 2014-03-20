@@ -37,7 +37,7 @@ void BlockquoteLineSequence::processBlockLine(const VfmdLine *currentLine, const
         }
     }
 
-    int lengthOfMatch = numOfBlockquotePrefixBytes(currentLine->content());
+    int lengthOfMatch = numOfBlockquotePrefixBytes(currentLine);
     VfmdLine *line = currentLine->copy();
     if (lengthOfMatch > 0) {
         line->chopLeft(lengthOfMatch);
@@ -55,12 +55,12 @@ bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfm
         if (nextLine->isBlankLine()) {
             return true;
         }
-        if (numOfBlockquotePrefixBytes(nextLine->content()) == 0) {
+        if (numOfBlockquotePrefixBytes(nextLine) == 0) {
             return true;
         }
     } else {
         // current line is not a blank line
-        if ((nextLine->leadingSpacesCount() < 4) && (isHorizontalRuleLine(nextLine->content()))) {
+        if ((nextLine->leadingSpacesCount() < 4) && (isHorizontalRuleLine(nextLine))) {
             return true;
         }
     }

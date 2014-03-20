@@ -56,7 +56,7 @@ static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBl
         return true;
     }
 
-    if (isHorizontalRuleLine(nextLine->content())) {
+    if (isHorizontalRuleLine(nextLine)) {
         return true;
     }
 

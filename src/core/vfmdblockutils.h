@@ -3,7 +3,7 @@
 
 #include "vfmdline.h"
 
-bool isHorizontalRuleLine(const VfmdByteArray &line);
-int numOfBlockquotePrefixBytes(const VfmdByteArray &line);
+bool isHorizontalRuleLine(const VfmdLine *line);
+int numOfBlockquotePrefixBytes(const VfmdLine *line);
 
 #endif // VFMDBLOCKUTILS_H

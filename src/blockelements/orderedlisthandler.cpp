@@ -144,7 +144,7 @@ bool OrderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vf
                 return true;
             } else {
                 if (indexOfFirstNonSpace < 4) { // Not a code span
-                    if (isHorizontalRuleLine(nextLine->content())) {
+                    if (isHorizontalRuleLine(nextLine)) {
                         return true;
                     }
                     const char firstNonSpaceByte = nextLine->firstNonSpace();
