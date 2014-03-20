@@ -8,51 +8,57 @@ RefResolutionBlockHandler::RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap)
 
 void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
-    UNUSED_ARG(nextLine);
     if (firstLine->leadingSpacesCount() >= 4) {
         return;
     }
-    if (firstLine->firstNonSpace() == '[') {
-        VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
+
+    if (firstLine->firstNonSpace() != '[') {
+        return;
+    }
+
+    bool isRefResolutionBlock = false;
+    VfmdByteArray firstLineText = firstLine->content();
+    VfmdByteArray firstLineTrailingText;
+    VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
+    if (reLabelAndPlainURL.matches(firstLineText)) {
+        firstLineTrailingText = reLabelAndPlainURL.capturedText(2);
+        isRefResolutionBlock = true;
+    } else {
         VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
-        if (reLabelAndPlainURL.matches(firstLine->content()) ||
-                reLabelAndBracketedURL.matches(firstLine->content())) {
-            lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, firstLine->content(), nextLine->content(), m_linkRefMap));
+        if (reLabelAndBracketedURL.matches(firstLineText)) {
+            firstLineTrailingText = reLabelAndBracketedURL.capturedText(2);
+            isRefResolutionBlock = true;
         }
+    }
+
+    if (isRefResolutionBlock) {
+        int numOfLinesInSequence = 1;
+        VfmdByteArray linkDefText = firstLineText;
+        if ((nextLine != 0) &&                                     // There exists a next line, and
+            (firstLineTrailingText.indexOfFirstNonSpace() < 0)) {  // The first line does not have trailing non-space chars
+            // The next line is also part of the ref-resolution block
+            VfmdByteArray secondLineText = nextLine->content();
+            VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
+            if (reTitleLine.matches(secondLineText)) {
+                numOfLinesInSequence = 2;
+                linkDefText.append(secondLineText);
+            }
+        }
+        lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, numOfLinesInSequence, linkDefText, m_linkRefMap));
     }
 }
 
 RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
-                                                               const VfmdByteArray &firstLineContent,
-                                                               const VfmdByteArray &secondLineContent,
+                                                               int numOfLines,
+                                                               const VfmdByteArray &linkDefinitionText,
                                                                VfmdLinkRefMap *linkRefMap)
     : VfmdBlockLineSequence(parent)
-    , m_linkRefMap(linkRefMap)
     , m_numOfLinesSeen(0)
-    , m_numOfLinesInSequence(0)
+    , m_numOfLinesInSequence(numOfLines)
+    , m_linkDefText(linkDefinitionText)
+    , m_linkRefMap(linkRefMap)
 {
-    VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
-    VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
-    VfmdByteArray refDefinitionTrailingSequence;
-    if (reLabelAndPlainURL.matches(firstLineContent)) {
-        refDefinitionTrailingSequence = reLabelAndPlainURL.capturedText(2);
-    } else if (reLabelAndBracketedURL.matches(firstLineContent)) {
-        refDefinitionTrailingSequence = reLabelAndBracketedURL.capturedText(2);
-    }
-    bool firstLineHasTrailingNonSpaceChars = (refDefinitionTrailingSequence.indexOfFirstNonSpace() >= 0);
-    m_numOfLinesInSequence = 1;
-    if (!firstLineHasTrailingNonSpaceChars) {
-        VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
-        if (secondLineContent.isValid() &&
-            reTitleLine.matches(secondLineContent)) {
-            m_numOfLinesInSequence = 2;
-        }
-    }
-    assert(m_numOfLinesInSequence > 0);
-    m_linkDefText = firstLineContent;
-    if (m_numOfLinesInSequence == 2) {
-        m_linkDefText.append(secondLineContent);
-    }
+    assert(numOfLines == 1 || numOfLines == 2);
 }
 
 void RefResolutionBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
@@ -71,17 +77,21 @@ bool RefResolutionBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, c
 
 VfmdElementTreeNode* RefResolutionBlockLineSequence::endBlock()
 {
-    VfmdRegexp reFullLabelAndURL = VfmdCommonRegexps::refResolutionBlockFullLabelAndURL();
-    VfmdRegexp& reFullLabelURLAndText = VfmdCommonRegexps::refResolutionBlockFullLabelURLAndText();
     VfmdByteArray refId, unprocessedUrl, titleContainer;
+
+    VfmdRegexp reFullLabelAndURL = VfmdCommonRegexps::refResolutionBlockFullLabelAndURL();
     if (reFullLabelAndURL.matches(m_linkDefText)) {
         refId = reFullLabelAndURL.capturedText(1).simplified();
         unprocessedUrl = reFullLabelAndURL.capturedText(3);
-    } else if (reFullLabelURLAndText.matches(m_linkDefText)) {
-        refId = reFullLabelURLAndText.capturedText(1).simplified();
-        unprocessedUrl = reFullLabelURLAndText.capturedText(3);
-        titleContainer = reFullLabelURLAndText.capturedText(4);
+    } else {
+        VfmdRegexp& reFullLabelURLAndText = VfmdCommonRegexps::refResolutionBlockFullLabelURLAndText();
+        if (reFullLabelURLAndText.matches(m_linkDefText)) {
+            refId = reFullLabelURLAndText.capturedText(1).simplified();
+            unprocessedUrl = reFullLabelURLAndText.capturedText(3);
+            titleContainer = reFullLabelURLAndText.capturedText(4);
+        }
     }
+
     VfmdByteArray linkUrl = unprocessedUrl.bytesInStringRemoved("<> \n\t\f\r");
     VfmdByteArray linkTitle;
     if (titleContainer.isValid() && titleContainer.size() > 0) {

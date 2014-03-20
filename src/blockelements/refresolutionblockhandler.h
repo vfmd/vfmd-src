@@ -18,8 +18,8 @@ private:
 class RefResolutionBlockLineSequence : public VfmdBlockLineSequence {
 public:
     RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
-                                   const VfmdByteArray &firstLineContent,
-                                   const VfmdByteArray &secondLineContent,
+                                   int numOfLines,
+                                   const VfmdByteArray &linkDefText,
                                    VfmdLinkRefMap *linkRefMap);
     virtual ~RefResolutionBlockLineSequence() { }
     virtual int elementType() const { return VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT; }
@@ -28,10 +28,10 @@ public:
     virtual VfmdElementTreeNode* endBlock();
 
 private:
-    VfmdLinkRefMap *m_linkRefMap;
-    VfmdByteArray m_linkDefText;
     int m_numOfLinesSeen;
-    int m_numOfLinesInSequence;
+    const int m_numOfLinesInSequence;
+    VfmdByteArray m_linkDefText;
+    VfmdLinkRefMap *m_linkRefMap;
 };
 
 #endif // REFRESOLUTIONBLOCKHANDLER_H
