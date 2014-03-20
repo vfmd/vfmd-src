@@ -69,17 +69,13 @@ static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBl
 
     if (containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT ||
         containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT) {
-        if (firstNonSpaceByte == '*' || firstNonSpaceByte == '+' || firstNonSpaceByte == '-') {
-            VfmdRegexp reUnorderedListStarter = VfmdCommonRegexps::unorderedListStarter();
-            if (reUnorderedListStarter.matches(nextLine->content())) {
-                return true;
-            }
+        if ((firstNonSpaceByte == '*' || firstNonSpaceByte == '+' || firstNonSpaceByte == '-') &&
+            nextLine->matches(VfmdCommonRegexps::unorderedListStarter())) {
+            return true;
         }
-        if (firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9') {
-            VfmdRegexp reOrderedListStarter = VfmdCommonRegexps::orderedListStarter();
-            if (reOrderedListStarter.matches(nextLine->content())) {
-                return true;
-            }
+        if ((firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9') &&
+            nextLine->matches(VfmdCommonRegexps::orderedListStarter())) {
+            return true;
         }
     }
 

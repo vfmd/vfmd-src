@@ -11,11 +11,9 @@ void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequenc
         return;
     }
     const char firstUnderlineByte = nextLine->firstByte();
-    if (firstUnderlineByte == '=' || firstUnderlineByte == '-') {
-        VfmdRegexp reUnderline = VfmdCommonRegexps::setextHeaderUnderline();
-        if (reUnderline.matches(nextLine->content())) {
-            lineSequence->setChildSequence(new SetextHeaderLineSequence(lineSequence));
-        }
+    if ((firstUnderlineByte == '=' || firstUnderlineByte == '-') &&
+        (nextLine->matches(VfmdCommonRegexps::setextHeaderUnderline()))) {
+        lineSequence->setChildSequence(new SetextHeaderLineSequence(lineSequence));
     }
 }
 

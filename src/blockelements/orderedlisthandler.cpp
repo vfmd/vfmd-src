@@ -148,11 +148,9 @@ bool OrderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vf
                         return true;
                     }
                     const char firstNonSpaceByte = nextLine->firstNonSpace();
-                    if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
-                        VfmdRegexp reUnorderedListStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-                        if (reUnorderedListStarterPattern.matches(nextLine->content())) {
-                            return true;
-                        }
+                    if ((firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') &&
+                        nextLine->matches(VfmdCommonRegexps::unorderedListStarter())) {
+                        return true;
                     }
                 }
             }
