@@ -8,7 +8,7 @@
 void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(nextLine);
-    if (firstLine->content().firstNonSpace() == '>') {
+    if (firstLine->firstNonSpace() == '>') {
         lineSequence->setChildSequence(new BlockquoteLineSequence(lineSequence));
     }
 }
