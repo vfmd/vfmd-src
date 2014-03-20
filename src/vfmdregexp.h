@@ -17,6 +17,9 @@ public:
     int captureCount() const; // Max 40 captures
     VfmdByteArray capturedText(int index = 0) const;
 
+    int locateInStringWithoutCapturing(const char *str, int length = 0, int offset = 0) const;
+    int locateInBytearrayWithoutCapturing(const VfmdByteArray &ba, int offset = 0) const;
+
     // Copying regexps
     VfmdRegexp(const VfmdRegexp &other);
     VfmdRegexp& operator=(const VfmdRegexp& other);

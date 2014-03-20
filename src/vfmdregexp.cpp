@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include "pcre.h"
 #include "vfmdregexp.h"
 #include "vfmdscopedpointer.h"
@@ -121,6 +122,48 @@ int VfmdRegexp::indexIn(const VfmdByteArray &ba, int offset)
     }
     d->matchFound = false;
     return -1;
+}
+
+int VfmdRegexp::locateInStringWithoutCapturing(const char *str, int length, int offset) const
+{
+    if (!isValid() || str == 0) {
+        return -1;
+    }
+
+    if (length == 0) {
+        length = strlen(str);
+    }
+
+    int options = 0;
+#ifndef VFMD_DEBUG
+        options = (options | PCRE_NO_UTF8_CHECK);
+#endif
+    int captureData[3];
+    int matchCode = pcre_exec(d->pcreRegexp,
+                              d->pcreExtra,
+                              str, length, offset,
+                              options,
+                              captureData, 3 /* Capture only the entire-match range */);
+    if (matchCode >= 0) {
+        // We've got a match
+        return captureData[0];
+    }
+
+    if (matchCode != PCRE_ERROR_NOMATCH) {
+        // Some error
+        printf("VfmdRegexp: Matching failed with PCRE error code: %d.\n", matchCode);
+    }
+
+    // No match
+    return -1;
+}
+
+int VfmdRegexp::locateInBytearrayWithoutCapturing(const VfmdByteArray &ba, int offset) const
+{
+    if (!isValid() || !ba.isValid()) {
+        return -1;
+    }
+    return locateInStringWithoutCapturing(ba.data(), ba.size(), offset);
 }
 
 bool VfmdRegexp::matches(const VfmdByteArray &ba)
