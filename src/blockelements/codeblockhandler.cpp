@@ -1,4 +1,5 @@
 #include "codeblockhandler.h"
+#include "htmltextrenderer.h"
 
 void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
@@ -57,22 +58,10 @@ void CodeBlockTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
 {
     if (format == VfmdConstants::HTML_FORMAT) {
         outputDevice->write("<pre><code>");
-        const char *data_ptr = m_content.data();
-        size_t sz = m_content.size();
-        if (data_ptr && sz) {
-            for (unsigned int i = 0; i < sz; i++) {
-                const char c = data_ptr[i];
-                if (c == '<') {
-                    outputDevice->write("&lt;");
-                } else if (c == '>') {
-                    outputDevice->write("&gt;");
-                } else if (c == '&') {
-                    outputDevice->write("&amp;");
-                } else {
-                    outputDevice->write(c);
-                }
-            }
-        }
+        HtmlTextRenderer::render(m_content, outputDevice,
+                                 (HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
+                                  HtmlTextRenderer::HTML_ESCAPE_ALL_AMP)
+                                 );
         outputDevice->write("</code></pre>\n");
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
