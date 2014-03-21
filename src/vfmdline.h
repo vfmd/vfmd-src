@@ -33,6 +33,8 @@ public:
     int indexOf(const VfmdRegexp& re) const;
     bool matches(const VfmdRegexp& re) const;
 
+    bool isHorizontalRuleLine() const;
+
 private:
     /* Disable copying instances of this class */
     VfmdLine(const VfmdLine &);
@@ -44,6 +46,10 @@ private:
     bool m_isLineDataPrecomputed;
     unsigned int m_leadingSpacesCount;
     unsigned int m_isBlankLine;
+
+    // Checking if the line is a <hr/>
+    void ensureIsHorizontalRuleComputed();
+    bool m_isHorizontalRuleComputed, m_isHorizontalRule;
 };
 
 #endif // VFMDLINE_H

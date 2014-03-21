@@ -5,6 +5,7 @@
 VfmdLine::VfmdLine(const VfmdByteArray &ba)
     : m_lineContent(ba)
     , m_isLineDataPrecomputed(false)
+    , m_isHorizontalRuleComputed(false)
 {
 }
 
@@ -121,12 +122,14 @@ void VfmdLine::chopLeft(unsigned int n)
 {
     m_lineContent.chopLeft(n);
     m_isLineDataPrecomputed = false;
+    m_isHorizontalRuleComputed = false;
 }
 
 void VfmdLine::chopRight(unsigned int n)
 {
     m_lineContent.chopRight(n);
     m_isLineDataPrecomputed = false;
+    m_isHorizontalRuleComputed = false;
 }
 
 int VfmdLine::indexOf(const VfmdRegexp& re) const
@@ -137,4 +140,36 @@ int VfmdLine::indexOf(const VfmdRegexp& re) const
 bool VfmdLine::matches(const VfmdRegexp& re) const
 {
     return (re.locateInBytearrayWithoutCapturing(m_lineContent) >= 0);
+}
+
+void VfmdLine::ensureIsHorizontalRuleComputed()
+{
+    if (m_isHorizontalRuleComputed) {
+        return;
+    }
+    char firstNonSpaceByte = firstNonSpace();
+    unsigned int numOfHrBytes = 0;
+    if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '_') {
+        const char hrByte = firstNonSpaceByte;
+        const char *p = m_lineContent.data();
+        unsigned int sz = m_lineContent.size();
+        while (sz--) {
+            const char c = *p++;
+            if (c == hrByte) {
+                numOfHrBytes++;
+            } else if (c != ' ') {
+                m_isHorizontalRule = false;
+                m_isHorizontalRuleComputed = true;
+                return;
+            }
+        }
+    }
+    m_isHorizontalRule = (numOfHrBytes >= 3);
+    m_isHorizontalRuleComputed = true;
+}
+
+bool VfmdLine::isHorizontalRuleLine() const
+{
+    const_cast<VfmdLine *>(this)->ensureIsHorizontalRuleComputed();
+    return m_isHorizontalRule;
 }
