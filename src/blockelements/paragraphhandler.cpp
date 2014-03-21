@@ -7,7 +7,6 @@
 #include "vfmdelementtreenodestack.h"
 #include "orderedlisthandler.h"
 #include "unorderedlisthandler.h"
-#include "core/vfmdblockutils.h"
 
 void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
@@ -73,7 +72,7 @@ static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBl
         }
     }
 
-    if (isHorizontalRuleLine(nextLine)) {
+    if (nextLine->isHorizontalRuleLine()) {
         return true;
     }
 

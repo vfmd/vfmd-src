@@ -1,6 +1,5 @@
 #include "unorderedlisthandler.h"
 #include "vfmdcommonregexps.h"
-#include "core/vfmdblockutils.h"
 
 void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
@@ -121,7 +120,7 @@ bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const 
                 return true;
             } else {
                 if (indexOfFirstNonSpace < 4) { // Not a code span
-                    if (isHorizontalRuleLine(nextLine)) {
+                    if (nextLine->isHorizontalRuleLine()) {
                         return true;
                     }
                     const char firstNonSpaceByte = nextLine->firstNonSpace();

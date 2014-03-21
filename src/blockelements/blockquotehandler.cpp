@@ -3,7 +3,6 @@
 #include "blockquotehandler.h"
 #include "vfmdinputlinesequence.h"
 #include "vfmdcommonregexps.h"
-#include "core/vfmdblockutils.h"
 
 void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
@@ -39,7 +38,7 @@ void BlockquoteLineSequence::processBlockLine(const VfmdLine *currentLine, const
             }
         } else {
             if ((nextLine->leadingSpacesCount() < 4) &&
-                isHorizontalRuleLine(nextLine)) {
+                nextLine->isHorizontalRuleLine()) {
                 isEndOfBlockquote = true;
             }
         }
