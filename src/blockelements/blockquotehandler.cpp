@@ -26,45 +26,46 @@ BlockquoteLineSequence::~BlockquoteLineSequence()
 
 void BlockquoteLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    bool isEndOfParentLineSequence = (nextLine == 0);
-    if (currentLine->isBlankLine()) {
-        // If the last line is a blank line, ignore it
-        if (isEndOfParentLineSequence) {
-            return;
-        }
-        if (isEndOfBlock(currentLine, nextLine)) {
-            return;
+    // Check if we're at the end of the blockquote
+    bool isEndOfBlockquote = false;
+    if (nextLine == 0) {
+        isEndOfBlockquote = true;
+    } else {
+        if (currentLine->isBlankLine()) {
+            if (nextLine->isBlankLine() ||
+                (nextLine->leadingSpacesCount() >= 4) ||
+                (nextLine->firstNonSpace() != '>')) {
+                isEndOfBlockquote = true;
+            }
+        } else {
+            if ((nextLine->leadingSpacesCount() < 4) &&
+                isHorizontalRuleLine(nextLine)) {
+                isEndOfBlockquote = true;
+            }
         }
     }
+    m_isAtEndOfBlockquote = isEndOfBlockquote;
 
-    int lengthOfMatch = numOfBlockquotePrefixBytes(currentLine);
+    // Process the line
+    if (m_isAtEndOfBlockquote && currentLine->isBlankLine()) {
+        // If the last line is a blank line, ignore it
+        return;
+    }
     VfmdLine *line = currentLine->copy();
-    if (lengthOfMatch > 0) {
-        line->chopLeft(lengthOfMatch);
+    if (currentLine->firstNonSpace() == '>') {
+        line->chopLeft(currentLine->leadingSpacesCount() + 1);
+        if (line->firstByte() == ' ') {
+            line->chopLeft(1);
+        }
     }
     m_childSequence->addLine(line);
 }
 
 bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
-    if (nextLine == 0) {
-        return true;
-    }
-    if (currentLine->isBlankLine()) {
-        // current line is a blank line
-        if (nextLine->isBlankLine()) {
-            return true;
-        }
-        if (numOfBlockquotePrefixBytes(nextLine) == 0) {
-            return true;
-        }
-    } else {
-        // current line is not a blank line
-        if ((nextLine->leadingSpacesCount() < 4) && (isHorizontalRuleLine(nextLine))) {
-            return true;
-        }
-    }
-    return false;
+    UNUSED_ARG(currentLine);
+    UNUSED_ARG(nextLine);
+    return m_isAtEndOfBlockquote;
 }
 
 VfmdElementTreeNode* BlockquoteLineSequence::endBlock()

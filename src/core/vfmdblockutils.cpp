@@ -29,24 +29,3 @@ bool isHorizontalRuleLine(const VfmdLine *line)
     }
     return (numOfHrBytes >= 3);
 }
-
-int numOfBlockquotePrefixBytes(const VfmdLine *line)
-{
-    const unsigned int numOfLeadingSpaces = line->leadingSpacesCount();
-    if (numOfLeadingSpaces >= 4) {
-        return 0;
-    }
-
-    char firstNonSpaceByte = line->firstNonSpace();
-    if (firstNonSpaceByte != '>') {
-        return 0;
-    }
-
-    if ((numOfLeadingSpaces + 1) < line->size()) {
-        if (line->content().byteAt(numOfLeadingSpaces + 1) == ' ') {
-            return (numOfLeadingSpaces + 2);
-        }
-    }
-
-    return (numOfLeadingSpaces + 1);
-}
