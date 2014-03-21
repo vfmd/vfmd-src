@@ -934,11 +934,8 @@ void VfmdByteArray::appendCharAsUTF8(int32_t codePointValue)
     unsigned int additionalBytes = i + 1;
     copyOnWrite(additionalBytes);
     assert((m_offset + m_length) == d->size);
-    unsigned int sizeAfterAddingCodePoint = d->size + additionalBytes;
-    if (capacity() < sizeAfterAddingCodePoint) {
-        reserve(sizeAfterAddingCodePoint);
-    }
-    unsigned char *ucdata = reinterpret_cast<unsigned char *>(d->data) + sizeAfterAddingCodePoint - 1;
+    reserveAdditionalBytes(additionalBytes);
+    unsigned char *ucdata = reinterpret_cast<unsigned char *>(d->data) + d->size + additionalBytes - 1;
     for (j = i; j > 0; j--) {
         *ucdata-- = 0x80 | (cvalue & 0x3f);
         cvalue >>= 6;
