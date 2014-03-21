@@ -1,6 +1,7 @@
 #include <string.h>
 #include "textspantreenode.h"
 #include "vfmdoutputdevice.h"
+#include "htmltextrenderer.h"
 
 TextSpanTreeNode::TextSpanTreeNode()
 {
@@ -44,21 +45,14 @@ void TextSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
 {
     if (format == VfmdConstants::HTML_FORMAT) {
         bool shouldUseSelfClosingTags = ((renderOptions & VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) ==  VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
-        const char *data_ptr = m_text.data();
-        size_t sz = m_text.size();
-        if (data_ptr && sz) {
-            for (unsigned int i = 0; i < sz; i++) {
-                if ((data_ptr[i] == '\n') &&
-                    ((i > 1) && (data_ptr[i - 1] == ' ') && (data_ptr[i - 2] == ' '))) {
-                    outputDevice->write(shouldUseSelfClosingTags? "<br />\n" : "<br>\n");
-                } else if (data_ptr[i] == '\\') {
-                    // Do nothing
-                    // TODO: Check if the following char is a punctuation char
-                } else {
-                    outputDevice->write(data_ptr[i]);
-                }
-            }
+        int textRenderOptions = (HtmlTextRenderer::REMOVE_ESCAPING_BACKSLASHES |
+                                 HtmlTextRenderer::CONVERT_SPACE_SPACE_LF_TO_LINE_BREAK |
+                                 HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
+                                 HtmlTextRenderer::HTML_ESCAPE_AMP_UNLESS_CHARACTER_REFERENCE);
+        if (shouldUseSelfClosingTags) {
+            textRenderOptions = (textRenderOptions | HtmlTextRenderer::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
         }
+        HtmlTextRenderer::render(m_text, outputDevice, textRenderOptions);
     }
 
     if (format == VfmdConstants::TREE_FORMAT) {
