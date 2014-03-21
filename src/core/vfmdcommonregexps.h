@@ -35,6 +35,9 @@ public:
     // List
     static VfmdRegexp& unorderedListStarter();
     static VfmdRegexp& orderedListStarter();
+
+    // Character references
+    static VfmdRegexp& htmlCharacterReference();
 };
 
 #endif // VFMDCOMMONREGEXPS_H

@@ -77,3 +77,9 @@ VfmdRegexp& VfmdCommonRegexps::orderedListStarter()
     static VfmdRegexp re("^( *([0-9]+)\\. +)[^ ]");
     return re;
 }
+
+VfmdRegexp& VfmdCommonRegexps::htmlCharacterReference()
+{
+    static VfmdRegexp re("^&([A-Za-z0-9]+|#[0-9]+|#[Xx][0-9A-Fa-f]+);");
+    return re;
+}
