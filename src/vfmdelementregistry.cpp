@@ -232,6 +232,20 @@ int VfmdElementRegistry::triggerOptionsForTriggerByte(char byte, unsigned int in
     return (spanElements? spanElements->itemAt(index)->triggerOptions : 0);
 }
 
+int VfmdElementRegistry::indexOfTriggerByteIn(const VfmdByteArray &ba, int offset) const
+{
+    register int i = offset;
+    const unsigned int sz = ba.size();
+    register const char *p = ba.data() + i;
+    while (i < sz) {
+        if (m_spanElementsByTriggerByte[*p++] != 0) {
+            return i;
+        }
+        i++;
+    }
+    return sz;
+}
+
 void printSpanElementData(VfmdElementRegistry::SpanElementData *e)
 {
     if (e->triggerOptions) {

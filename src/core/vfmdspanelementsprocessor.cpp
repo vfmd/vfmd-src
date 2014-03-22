@@ -87,7 +87,8 @@ VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdBy
                 textFragmentStartPos = currentPos;
             }
             assert(textFragmentStartPos >= 0);
-            currentPos++;
+            // Fast-forward to the next trigger byte
+            currentPos = registry->indexOfTriggerByteIn(text, currentPos + 1);
         }
     }
 

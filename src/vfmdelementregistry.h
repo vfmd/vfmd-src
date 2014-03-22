@@ -91,6 +91,7 @@ public:
     int spanElementCountForTriggerByte(char byte) const;
     VfmdSpanElementHandler *spanElementForTriggerByte(char byte, unsigned int index) const;
     int triggerOptionsForTriggerByte(char byte, unsigned int index) const;
+    int indexOfTriggerByteIn(const VfmdByteArray &ba, int offset) const;
 
     void print() const;
 
