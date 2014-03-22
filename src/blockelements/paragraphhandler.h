@@ -9,7 +9,6 @@ class ParagraphHandler : public VfmdBlockElementHandler {
 public:
     ParagraphHandler() { }
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
-    virtual ~ParagraphHandler() { }
     virtual const char *description() const { return "paragraph"; }
 };
 
@@ -37,7 +36,6 @@ private:
 class ParagraphTreeNode : public VfmdElementTreeNode {
 public:
     ParagraphTreeNode();
-    ~ParagraphTreeNode();
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }

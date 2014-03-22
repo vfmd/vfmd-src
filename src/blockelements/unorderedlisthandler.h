@@ -7,7 +7,6 @@ class UnorderedListHandler : public VfmdBlockElementHandler {
 public:
     UnorderedListHandler() { }
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
-    virtual ~UnorderedListHandler() { }
     virtual const char *description() const { return "unordered-list"; }
 };
 
@@ -39,7 +38,6 @@ private:
 class UnorderedListTreeNode : public VfmdElementTreeNode {
 public:
     UnorderedListTreeNode() { }
-    ~UnorderedListTreeNode() { }
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }

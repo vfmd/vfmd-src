@@ -7,7 +7,6 @@ class OrderedListHandler : public VfmdBlockElementHandler {
 public:
     OrderedListHandler() { }
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
-    virtual ~OrderedListHandler() { }
     virtual const char *description() const { return "ordered-list"; }
 };
 
@@ -42,7 +41,6 @@ private:
 class OrderedListTreeNode : public VfmdElementTreeNode {
 public:
     OrderedListTreeNode(const VfmdByteArray& startingNumber);
-    ~OrderedListTreeNode() { }
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }

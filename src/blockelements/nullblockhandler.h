@@ -10,8 +10,6 @@ public:
 
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
 
-    virtual ~NullBlockHandler() { }
-
     virtual const char *description() const { return "null-block"; }
 };
 

@@ -187,10 +187,6 @@ ParagraphTreeNode::ParagraphTreeNode()
 {
 }
 
-ParagraphTreeNode::~ParagraphTreeNode()
-{
-}
-
 void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                                    VfmdOutputDevice *outputDevice,
                                    VfmdElementTreeNodeStack *ancestorNodes) const

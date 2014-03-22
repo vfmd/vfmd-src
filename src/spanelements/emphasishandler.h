@@ -9,8 +9,6 @@ class EmphasisHandler : public VfmdSpanElementHandler
 public:
     EmphasisHandler();
 
-    virtual ~EmphasisHandler();
-
     virtual int identifySpanTagStartingAt(const VfmdByteArray &text,
                                                    int currentPos,
                                                    VfmdSpanTagStack *stack) const;
@@ -35,7 +33,6 @@ public:
 class EmphasisTreeNode : public VfmdElementTreeNode {
 public:
     EmphasisTreeNode(char c, int r) : m_char(c), m_repetitionCount(r) { }
-    ~EmphasisTreeNode() { }
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }

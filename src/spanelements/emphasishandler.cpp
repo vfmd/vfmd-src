@@ -7,10 +7,6 @@ EmphasisHandler::EmphasisHandler()
 {
 }
 
-EmphasisHandler::~EmphasisHandler()
-{
-}
-
 static int vfmd_min(int a, int b)
 {
     if (a < b) {

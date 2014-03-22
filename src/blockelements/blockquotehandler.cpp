@@ -80,10 +80,6 @@ BlockquoteTreeNode::BlockquoteTreeNode()
 {
 }
 
-BlockquoteTreeNode::~BlockquoteTreeNode()
-{
-}
-
 void BlockquoteTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                                    VfmdOutputDevice *outputDevice,
                                    VfmdElementTreeNodeStack *ancestorNodes) const

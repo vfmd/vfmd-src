@@ -7,7 +7,6 @@ class BlockquoteHandler : public VfmdBlockElementHandler {
 public:
     BlockquoteHandler() { }
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
-    virtual ~BlockquoteHandler() { }
     virtual const char *description() const { return "blockquote"; }
 };
 
@@ -27,7 +26,6 @@ private:
 class BlockquoteTreeNode : public VfmdElementTreeNode {
 public:
     BlockquoteTreeNode();
-    ~BlockquoteTreeNode();
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }
