@@ -140,6 +140,7 @@ bool VfmdElementRegistry::appendSpanElement(int typeId, VfmdSpanElementHandler *
     m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
     VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler, triggerOptions);
     for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
+        assert(triggerBytes.isUTF8CharStartingAt(byteIndex));
         char byte = triggerBytes.byteAt(byteIndex);
         ensureSpanElementsForTriggerByteAllocated(byte);
         m_spanElementsByTriggerByte[(unsigned char) byte]->append(spanElementData);
@@ -161,6 +162,7 @@ bool VfmdElementRegistry::prependSpanElement(int typeId, VfmdSpanElementHandler 
     m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
     VfmdElementRegistry::SpanElementData *spanElementData = new VfmdElementRegistry::SpanElementData(typeId, spanElementHandler, triggerOptions);
     for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
+        assert(triggerBytes.isUTF8CharStartingAt(byteIndex));
         char byte = triggerBytes.byteAt(byteIndex);
         ensureSpanElementsForTriggerByteAllocated(byte);
         m_spanElementsByTriggerByte[(unsigned char) byte]->prepend(spanElementData);
