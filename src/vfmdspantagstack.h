@@ -28,6 +28,11 @@ public:
      * become the contained elements of the 'n'th node. */
     void popNodesAboveIndexAsTextFragments(int n);
 
+    /* Remove all nodes with type 'type' in the stack. Each removed
+     * node (converted to text) and its contained elements become
+     * the contained elements of the node immediately below it. */
+    void removeNodesOfTypeAsTextFragments(VfmdConstants::VfmdOpeningSpanTagStackNodeType type) const;
+
     /* Returns the top node in the stack.
      * Returns null if the stack is empty. */
     VfmdOpeningSpanTagStackNode *topNode() const;

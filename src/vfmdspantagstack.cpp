@@ -77,6 +77,21 @@ void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(int index)
     assert(index == (int) (stackSize() - 1));
 }
 
+void VfmdSpanTagStack::removeNodesOfTypeAsTextFragments(VfmdConstants::VfmdOpeningSpanTagStackNodeType t) const
+{
+    assert(t != VfmdConstants::BASE_STACK_NODE);
+    int i = m_nodes->size() - 1;
+    while (i >= 1) {
+        VfmdOpeningSpanTagStackNode *node = m_nodes->itemAt(i);
+        if (node->type() == t) {
+            m_nodes->itemAt(i - 1)->appendToContainedElements(node);
+            m_nodes->removeItemAt(i);
+            delete node;
+        }
+        i--;
+    }
+}
+
 VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::topNode() const
 {
     assert(m_nodes->size() > 0);
