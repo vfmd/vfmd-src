@@ -717,6 +717,9 @@ bool VfmdByteArray::isEqualTo(const char *str, int len) const
     if (size() != len) {
         return false;
     }
+    if (d->data == str) {
+        return true;
+    }
     for (unsigned int i = 0; i < size(); i++) {
         if (byteAt(i) != str[i]) {
             return false;
