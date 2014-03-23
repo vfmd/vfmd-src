@@ -20,11 +20,6 @@ void VfmdLinkRefMap::add(const VfmdByteArray &refId, const VfmdByteArray &url, c
     }
 }
 
-bool VfmdLinkRefMap::hasData(const VfmdByteArray &refId) const
-{
-    return m_map->contains(refId);
-}
-
 VfmdLinkRefMap::LinkData* VfmdLinkRefMap::linkDataForRefId(const VfmdByteArray &refId)
 {
     if (refId.isInvalid()) {
@@ -37,6 +32,12 @@ VfmdLinkRefMap::LinkData* VfmdLinkRefMap::linkDataForRefId(const VfmdByteArray &
     m_lastAccessedRefId = refId;
     m_lastAccessedLinkData = linkData;
     return linkData;
+}
+
+bool VfmdLinkRefMap::hasData(const VfmdByteArray &refId)
+{
+    LinkData *linkData = linkDataForRefId(refId);
+    return (linkData != 0);
 }
 
 VfmdByteArray VfmdLinkRefMap::linkUrl(const VfmdByteArray &refId)

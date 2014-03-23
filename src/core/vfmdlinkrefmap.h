@@ -13,7 +13,7 @@ public:
     void add(const VfmdByteArray &refId, const VfmdByteArray &url, const VfmdByteArray &title);
 
     // access data
-    bool hasData(const VfmdByteArray &refId) const;
+    bool hasData(const VfmdByteArray &refId);
     VfmdByteArray linkUrl(const VfmdByteArray &refId);
     VfmdByteArray linkTitle(const VfmdByteArray &refId);
 
