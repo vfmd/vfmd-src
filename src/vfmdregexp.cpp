@@ -171,6 +171,14 @@ bool VfmdRegexp::matches(const VfmdByteArray &ba)
     return (indexIn(ba) >= 0);
 }
 
+int VfmdRegexp::lengthOfMatch() const
+{
+    if (d->capturedTextCount > 0) {
+        return (d->captureData[1] - d->captureData[0]);
+    }
+    return 0;
+}
+
 int VfmdRegexp::captureCount() const
 {
     return d->capturedTextCount;

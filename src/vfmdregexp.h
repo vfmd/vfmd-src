@@ -14,6 +14,7 @@ public:
     int indexIn(const VfmdByteArray &ba, int offset = 0);
     bool matches(const VfmdByteArray &ba);
 
+    int lengthOfMatch() const;
     int captureCount() const; // Max 40 captures
     VfmdByteArray capturedText(int index = 0) const;
 
