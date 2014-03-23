@@ -13,6 +13,7 @@
 #include "blockelements/orderedlisthandler.h"
 #include "blockelements/paragraphhandler.h"
 
+#include "spanelements/linkhandler.h"
 #include "spanelements/emphasishandler.h"
 
 VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements(VfmdLinkRefMap *linkRefMap)
@@ -33,6 +34,8 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements(Vfmd
     registry->appendBlockElement(VfmdConstants::PARAGRAPH_ELEMENT, new ParagraphHandler);
 
     // Span elements
+    registry->appendSpanElement(VfmdConstants::LINK_ELEMENT, new LinkHandler(linkRefMap),
+                                "[]", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
     registry->appendSpanElement(VfmdConstants::EMPHASIS_ELEMENT, new EmphasisHandler,
                                 "*_", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
 

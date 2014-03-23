@@ -79,9 +79,11 @@ HEADERS += \
 SPN = $$PWD/spanelements
 
 SOURCES += \
+           $$SPN/linkhandler.cpp \
            $$SPN/emphasishandler.cpp
 
 HEADERS += \
+           $$SPN/linkhandler.h \
            $$SPN/emphasishandler.h
 
 INCLUDEPATH += $$PWD $$PWD/core

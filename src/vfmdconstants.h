@@ -22,8 +22,8 @@ enum VfmdBlockElementType {
 
 enum VfmdSpanElementType {
     TEXTSPAN_ELEMENT,
-    EMPHASIS_ELEMENT,
     LINK_ELEMENT,
+    EMPHASIS_ELEMENT,
     USER_SPAN_ELEMENT = 100,
     MAX_USER_SPAN_ELEMENT = 255
 };
@@ -31,6 +31,7 @@ enum VfmdSpanElementType {
 enum VfmdOpeningSpanTagStackNodeType {
     UNDEFINED_STACK_NODE = -1,
     BASE_STACK_NODE = 0,
+    LINK_STACK_NODE,
     ASTERISK_EMPHASIS_STACK_NODE,
     UNDERSCORE_EMPHASIS_STACK_NODE,
     USER_STACK_NODE = 100
