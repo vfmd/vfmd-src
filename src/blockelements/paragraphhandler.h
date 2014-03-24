@@ -28,9 +28,9 @@ private:
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     VfmdCodeSpanFilter m_codeSpanFilter;
     HtmlStateWatcher m_htmlStateWatcher;
-#endif
     bool m_isAtEndOfParagraph, m_isLookingAhead;
     VfmdPointerArray<const VfmdLine> *m_lookaheadLines;
+#endif
 };
 
 class ParagraphTreeNode : public VfmdElementTreeNode {

@@ -79,6 +79,27 @@ static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBl
     return false;
 }
 
+#ifdef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
+
+// A simple implementation that doesnot worry about inline HTML
+
+void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
+{
+    UNUSED_ARG(nextLine);
+    m_text.append(currentLine->content());
+    m_text.appendByte('\n');
+}
+
+bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+{
+    UNUSED_ARG(currentLine);
+    return (isPotentialEndOfParagraph(nextLine, m_containingBlockType));
+}
+
+#else
+
+// A more complex implementation that worries about inline HTML
+
 void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
@@ -88,18 +109,15 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
         // Not in lookahead mode
         m_text.append(currentLine->content());
         m_text.appendByte('\n');
-#ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
+
         m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
         HtmlStateWatcher::State htmlState = m_htmlStateWatcher.state();
-#else
-        HtmlStateWatcher::State htmlState = HtmlStateWatcher::TEXT_STATE;
-#endif
+
         bool isPotentialEnd = isPotentialEndOfParagraph(nextLine, m_containingBlockType);
         if (isPotentialEnd) {
             if (htmlState == HtmlStateWatcher::TEXT_STATE) {
                 m_isAtEndOfParagraph = true;
                 return;
-#ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
             } else if ((htmlState == HtmlStateWatcher::INDETERMINATE_STATE) ||
                        (htmlState == HtmlStateWatcher::INDETERMINATE_VERBATIM_HTML_ELEMENT_STATE)) {
                 // Enter lookahead mode
@@ -109,7 +127,6 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
                 m_lookaheadLines = new VfmdPointerArray<const VfmdLine>(128);
                 return;
             } else {
-#endif
                 // No other states are possible at this point
                 assert(false);
             }
@@ -117,7 +134,6 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
 
     } else {
 
-#ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
         // In lookahead mode
         assert(m_lookaheadLines);
         m_lookaheadLines->append(currentLine->copy());
@@ -154,8 +170,6 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
             m_isAtEndOfParagraph = true;
             return;
         }
-#endif
-
     }
 
 }
@@ -166,6 +180,8 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     UNUSED_ARG(nextLine);
     return m_isAtEndOfParagraph;
 }
+
+#endif
 
 VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
