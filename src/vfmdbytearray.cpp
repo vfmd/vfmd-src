@@ -325,10 +325,10 @@ int VfmdByteArray::indexOfLastNonSpace() const
 
 int VfmdByteArray::indexOf(char byte, int offset) const
 {
-    const char *data_ptr = data();
+    const char *p = data() + offset;
     size_t sz = size();
     for (unsigned int i = offset; i < sz; i++) {
-        if (data_ptr[i] == byte) {
+        if (*p++ == byte) {
             return (int) i;
         }
     }
