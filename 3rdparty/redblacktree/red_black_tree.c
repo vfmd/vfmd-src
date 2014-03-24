@@ -397,6 +397,24 @@ void InorderTreePrint(rb_red_blk_tree* tree, rb_red_blk_node* x) {
   }
 }
 
+/* Enumerate the items in the tree */
+/* Written by Roopesh Chander <roop@roopc.net> */
+
+void EnumerateWithCallback(rb_red_blk_tree* tree, rb_red_blk_node* x,
+                           void (*callback)(void *, void *, void *), void *callback_context)
+{
+  if (x != tree->nil) {
+    EnumerateWithCallback(tree, x->left, callback, callback_context);
+    (*callback)(x->key, x->info, callback_context);
+    EnumerateWithCallback(tree, x->right, callback, callback_context);
+  }
+}
+
+void RBEnumerateWithCallback(rb_red_blk_tree* tree,
+                             void (*callback)(void *, void *, void *), void *callback_context)
+{
+    EnumerateWithCallback(tree, tree->root->left, callback, callback_context);
+}
 
 /***********************************************************************/
 /*  FUNCTION:  TreeDestHelper */
