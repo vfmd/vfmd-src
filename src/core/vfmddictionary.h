@@ -42,7 +42,7 @@ public:
         if (node) {
             // Key found, replace value
             destroyValueObject(node->info);
-            node->info = value;
+            node->info = (void *) value;
         } else {
             // Key not found, add key-value pair
             add(key, value);
