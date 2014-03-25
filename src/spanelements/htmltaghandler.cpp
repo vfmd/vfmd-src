@@ -131,7 +131,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
         if (tagType == HtmlTagHandler::ParserCallbackContext::EMPTY_TAG) {
 
             // Like "<tag/>"
-            HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::EMPTY_TAG,
+            HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::EMPTY_TAG, callbackCtx->tagName,
                                                           text.mid(currentPos, offset - currentPos));
             stack->topNode()->appendToContainedElements(htmlTreeNode);
             callbackCtx->reset();
@@ -157,6 +157,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
                 if (rawHtmlStackNode->m_tagName.isEqualTo(callbackCtx->tagName)) {
                     // What we have is a matching end tag
                     HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::START_TAG_WITH_MATCHING_END_TAG,
+                                                                  callbackCtx->tagName,
                                                                   rawHtmlStackNode->m_html,
                                                                   text.mid(currentPos, offset - currentPos));
 
@@ -176,7 +177,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
             // We have encountered a HTML tag mismatch
             // (end tag without a corresponding start tag)
 
-            HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::END_TAG_ONLY,
+            HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::END_TAG_ONLY, callbackCtx->tagName,
                                                           text.mid(currentPos, offset - currentPos));
             stack->topNode()->appendToContainedElements(htmlTreeNode);
             callbackCtx->reset();
@@ -193,7 +194,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
     if (tagType == HtmlTagHandler::ParserCallbackContext::COMMENT) {
 
         // Like "<!-- Comment -->"
-        HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::COMMENT,
+        HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::COMMENT, VfmdByteArray(),
                                                       text.mid(currentPos, offset - currentPos));
         stack->topNode()->appendToContainedElements(htmlTreeNode);
         callbackCtx->reset();
@@ -228,15 +229,17 @@ void OpeningHtmlTagStackNode::print() const
     printf(" tag)");
 }
 
-HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &html)
+HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &tagName, const VfmdByteArray &html)
     : m_htmlElementType(type)
+    , m_tagName(tagName)
     , m_html(html)
 {
     assert(type != HtmlTreeNode::START_TAG_WITH_MATCHING_END_TAG);
 }
 
-HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray& startTagHtml, const VfmdByteArray &endTagHtml)
+HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &tagName, const VfmdByteArray& startTagHtml, const VfmdByteArray &endTagHtml)
     : m_htmlElementType(type)
+    , m_tagName(tagName)
     , m_html(startTagHtml)
     , m_endTagHtml(endTagHtml)
 {
@@ -261,6 +264,25 @@ void HtmlTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOpti
             break;
         default:
             assert(false);
+        }
+    } else if (format == VfmdConstants::TREE_FORMAT) {
+        renderTreePrefix(outputDevice, ancestorNodes, "+- span (raw-html) ");
+        if (m_htmlElementType == COMMENT) {
+            outputDevice->write("comment");
+        } else {
+            outputDevice->write(m_tagName);
+        }
+        if (m_htmlElementType == EMPTY_TAG) {
+            outputDevice->write(", self-closing tag");
+        } if (m_htmlElementType == START_TAG_ONLY) {
+            outputDevice->write(", only start tag");
+        } else if (m_htmlElementType == END_TAG_ONLY) {
+            outputDevice->write(", only end tag");
+        }
+        outputDevice->write("\n");
+        if (hasChildren()) {
+            renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
         }
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);

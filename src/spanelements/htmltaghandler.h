@@ -67,8 +67,8 @@ public:
         COMMENT
     };
 
-    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &startTagHtml, const VfmdByteArray& endTagHtml);
-    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray& html);
+    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &tagName, const VfmdByteArray &startTagHtml, const VfmdByteArray& endTagHtml);
+    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &tagName, const VfmdByteArray& html);
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
@@ -80,7 +80,7 @@ public:
                             VfmdElementTreeNodeStack *ancestorNodes) const;
 private:
     const HtmlElementType m_htmlElementType;
-    const VfmdByteArray m_html, m_endTagHtml;
+    const VfmdByteArray m_tagName, m_html, m_endTagHtml;
 };
 
 #endif // HTMLTAGHANDLER_H
