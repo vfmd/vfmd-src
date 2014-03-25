@@ -79,6 +79,12 @@ public:
         return false;
     }
 
+    /* Iterate over the items in the dictionary */
+    void iterate(void (*callbackFunc)(void *, void *, void *), void *callbackContext) {
+        /* TODO: callbackFunc(VfmdByteArray, T*, void *) */
+        enumerateWithCallback(callbackFunc, callbackContext);
+    }
+
     /* Print the keys in the dictionary for debugging */
     void printKeys() const {
         printDictKeys();
@@ -108,6 +114,10 @@ private:
 
     void printDictKeys() const {
         RBTreePrint(m_redBlackTree);
+    }
+
+    void enumerateWithCallback(void (*callbackFunc)(void *, void *, void *), void *callbackContext) {
+        RBEnumerateWithCallback(m_redBlackTree, callbackFunc, callbackContext);
     }
 
     rb_red_blk_tree* m_redBlackTree;
