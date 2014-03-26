@@ -75,9 +75,10 @@ public:
 
     void appendToContainedElements(VfmdElementTreeNode *elementsToAppend);
     void appendToContainedElements(const VfmdByteArray &textToAppend);
-    void appendToContainedElements(VfmdOpeningSpanTagStackNode *node);
 
 private:
+    void appendToContainedElements(VfmdOpeningSpanTagStackNode *node);
+
     /* Prevent copying of this class */
     VfmdOpeningSpanTagStackNode(const VfmdOpeningSpanTagStackNode& other);
     VfmdOpeningSpanTagStackNode& operator=(const VfmdOpeningSpanTagStackNode& other);
