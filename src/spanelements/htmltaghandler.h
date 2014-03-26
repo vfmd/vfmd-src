@@ -7,6 +7,7 @@
 
 struct htmlparser_ctx_s;
 template<class T> class VfmdDictionary;
+class HtmlTreeNode;
 
 class HtmlTagHandler : public VfmdSpanElementHandler
 {
@@ -52,6 +53,8 @@ public:
     virtual int type() const { return VfmdConstants::RAW_HTML_STACK_NODE; }
     virtual void populateEquivalentText(VfmdByteArray *ba) const;
     virtual void print() const;
+
+    HtmlTreeNode *toUnclosedStartHtmlTagTreeNode() const;
 
     const VfmdByteArray m_tagName;
     const VfmdByteArray m_html;

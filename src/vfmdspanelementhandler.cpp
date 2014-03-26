@@ -1,6 +1,7 @@
 #include "vfmdspanelementhandler.h"
 #include "vfmdelementtreenode.h"
 #include "textspantreenode.h"
+#include "spanelements/htmltaghandler.h"
 
 VfmdSpanElementHandler::VfmdSpanElementHandler()
 {
@@ -59,9 +60,17 @@ void VfmdOpeningSpanTagStackNode::appendToContainedElements(const VfmdByteArray 
 
 void VfmdOpeningSpanTagStackNode::appendToContainedElements(VfmdOpeningSpanTagStackNode *otherNode)
 {
-    VfmdByteArray equivalentText;
-    otherNode->populateEquivalentText(&equivalentText);
-    appendToContainedElements(equivalentText);
+    if (otherNode->type() == VfmdConstants::RAW_HTML_STACK_NODE) {
+        // Unclosed HTML tags should be interpreted as HTML
+        OpeningHtmlTagStackNode *rawHtmlStackNode = dynamic_cast<OpeningHtmlTagStackNode *>(otherNode);
+        HtmlTreeNode *htmlTreeNode = rawHtmlStackNode->toUnclosedStartHtmlTagTreeNode();
+        appendToContainedElements(htmlTreeNode);
+    } else {
+        // Unclosed non-HTML tags should be interpreted as text
+        VfmdByteArray equivalentText;
+        otherNode->populateEquivalentText(&equivalentText);
+        appendToContainedElements(equivalentText);
+    }
     appendToContainedElements(otherNode->m_containedElements);
     otherNode->m_containedElements = 0;
 }

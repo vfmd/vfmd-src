@@ -229,6 +229,11 @@ void OpeningHtmlTagStackNode::print() const
     printf(" tag)");
 }
 
+HtmlTreeNode *OpeningHtmlTagStackNode::toUnclosedStartHtmlTagTreeNode() const
+{
+    return (new HtmlTreeNode(HtmlTreeNode::START_TAG_ONLY, m_tagName, m_html));
+}
+
 HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &tagName, const VfmdByteArray &html)
     : m_htmlElementType(type)
     , m_tagName(tagName)

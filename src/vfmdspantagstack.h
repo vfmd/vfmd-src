@@ -23,9 +23,15 @@ public:
     VfmdOpeningSpanTagStackNode *pop();
 
     /* Pops all nodes with index above 'n' in the stack, thereby
-     * making the 'n'th node the top node in the stack. The popped
-     * nodes (converted to text) and their contained elements
-     * become the contained elements of the 'n'th node. */
+     * making the 'n'th node the top node in the stack. Each popped
+     * node is handled as follows:
+     *  - If the popped node is not a HTML node, the equivalent
+     *    text of the node is added as a contained element of the
+     *    'n'th node
+     *  - If the popped node is a HTML node, the equivalent tree
+     *    node is added as a contained element of the 'n'th node.
+     *  - In either case, any contained elements of the popped node
+     *    are added as contained elements of the 'n'th node */
     void popNodesAboveIndexAsTextFragments(int n);
 
     /* Remove all nodes with type 'type' in the stack. Each removed
