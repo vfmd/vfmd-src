@@ -80,6 +80,7 @@ void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(int index)
 void VfmdSpanTagStack::removeNodesOfTypeAsTextFragments(VfmdConstants::VfmdOpeningSpanTagStackNodeType t) const
 {
     assert(t != VfmdConstants::BASE_STACK_NODE);
+    assert(t != VfmdConstants::RAW_HTML_STACK_NODE);
     int i = m_nodes->size() - 1;
     while (i >= 1) {
         VfmdOpeningSpanTagStackNode *node = m_nodes->itemAt(i);
