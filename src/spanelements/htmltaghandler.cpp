@@ -2,16 +2,32 @@
 #include "vfmddictionary.h"
 #include "vfmdspantagstack.h"
 #include "htmltextrenderer.h"
+#include "vfmdutils.h"
 
 extern "C" {
 #include "streamhtmlparser/htmlparser.h"
+}
+
+static bool isVoidHtmlElement(const char *tagName)
+{
+    static const char *voidHtmlElementsList[] = {
+        "area", "base",  "br",     "col",    "embed",
+        "hr",   "img",   "input",  "keygen", "link",
+        "meta", "param", "source", "track",  "wbr"
+    };
+    int i = indexOfStringInSortedList(tagName, voidHtmlElementsList, 0, 15);
+    return (i >= 0);
 }
 
 static void onIdentifyingStartTag(const char *tagName, void *context)
 {
     HtmlTagHandler::ParserCallbackContext *ctx = static_cast<HtmlTagHandler::ParserCallbackContext *>(context);
     if (ctx->tagType == HtmlTagHandler::ParserCallbackContext::UNDEFINED) {
-        ctx->tagType = HtmlTagHandler::ParserCallbackContext::START_TAG;
+        if (isVoidHtmlElement(tagName)) {
+            ctx->tagType = HtmlTagHandler::ParserCallbackContext::EMPTY_TAG;
+        } else {
+            ctx->tagType = HtmlTagHandler::ParserCallbackContext::START_TAG;
+        }
         ctx->tagName = VfmdByteArray(tagName);
     }
 }
