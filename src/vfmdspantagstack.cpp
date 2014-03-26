@@ -108,6 +108,8 @@ int VfmdSpanTagStack::indexOfTopmostNodeOfType(VfmdConstants::VfmdOpeningSpanTag
         VfmdOpeningSpanTagStackNode *node = m_nodes->itemAt(i);
         if (node->type() == t) {
             return i;
+        } else if (node->type() == VfmdConstants::RAW_HTML_STACK_NODE) {
+            return -1;
         }
         i--;
     }
