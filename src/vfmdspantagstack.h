@@ -51,6 +51,15 @@ public:
 
     VfmdElementTreeNode *collapse();
 
+    void setNonPhrasingHtmlTagSeen(bool yes);
+    bool isNonPhrasingHtmlTagSeen() const;
+
+    void setMismatchedHtmlTagSeen(bool yes);
+    bool isMismatchedHtmlTagSeen() const;
+
+    void setHtmlCommentSeen(bool yes);
+    bool isHtmlCommentSeen() const;
+
     void print() const;
 
 private:
@@ -59,6 +68,7 @@ private:
     VfmdSpanTagStack& operator=(const VfmdSpanTagStack& other);
 
     VfmdPointerArray<VfmdOpeningSpanTagStackNode> *m_nodes;
+    bool m_isNonPhrasingHtmlTagSeen, m_isMismatchedHtmlTagSeen, m_isHtmlCommentSeen;
 };
 
 class BaseStackNode : public VfmdOpeningSpanTagStackNode

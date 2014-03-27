@@ -12,6 +12,9 @@ VfmdSpanTagStack::VfmdSpanTagStack()
     m_nodes = new VfmdPointerArray<VfmdOpeningSpanTagStackNode>(ALLOC_CHUNK_SIZE);
     BaseStackNode *baseNode = new BaseStackNode;
     push(baseNode);
+    m_isNonPhrasingHtmlTagSeen = false;
+    m_isMismatchedHtmlTagSeen = false;
+    m_isHtmlCommentSeen = false;
 }
 
 VfmdSpanTagStack::~VfmdSpanTagStack()
@@ -128,6 +131,16 @@ VfmdElementTreeNode *VfmdSpanTagStack::collapse()
 {
     assert(stackSize() >= 1);
     assert(nodeAt(0)->type() == VfmdConstants::BASE_STACK_NODE);
+
+    if (!isMismatchedHtmlTagSeen()) {
+        for (unsigned int i = 0; i < m_nodes->size(); i++) {
+            if (m_nodes->itemAt(i)->type() == VfmdConstants::RAW_HTML_STACK_NODE) {
+                setMismatchedHtmlTagSeen(true);
+                break;
+            }
+        }
+    }
+
     popNodesAboveIndexAsTextFragments(0);
     BaseStackNode *baseNode = dynamic_cast<BaseStackNode *>(nodeAt(0));
     assert(baseNode);
@@ -135,6 +148,36 @@ VfmdElementTreeNode *VfmdSpanTagStack::collapse()
         return baseNode->m_containedElements;
     }
     return 0;
+}
+
+void VfmdSpanTagStack::setNonPhrasingHtmlTagSeen(bool yes)
+{
+    m_isNonPhrasingHtmlTagSeen = yes;
+}
+
+bool VfmdSpanTagStack::isNonPhrasingHtmlTagSeen() const
+{
+    return m_isNonPhrasingHtmlTagSeen;
+}
+
+void VfmdSpanTagStack::setMismatchedHtmlTagSeen(bool yes)
+{
+    m_isMismatchedHtmlTagSeen = yes;
+}
+
+bool VfmdSpanTagStack::isMismatchedHtmlTagSeen() const
+{
+    return m_isMismatchedHtmlTagSeen;
+}
+
+void VfmdSpanTagStack::setHtmlCommentSeen(bool yes)
+{
+    m_isHtmlCommentSeen = yes;
+}
+
+bool VfmdSpanTagStack::isHtmlCommentSeen() const
+{
+    return m_isHtmlCommentSeen;
 }
 
 void VfmdSpanTagStack::print() const
