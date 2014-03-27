@@ -32,6 +32,24 @@ static bool isVerbatimHtmlStarterOrContainerTag(const char *tagName)
     return (i >= 0);
 }
 
+static bool isPhrasingHtmlElementTag(const char *tagName)
+{
+    const char *phrasingHtmlElementsList[] = {
+        "a",      "abbr",   "area",     "audio",    "b",
+        "bdi",    "bdo",    "br",       "button",   "canvas",
+        "cite",   "code",   "data",     "datalist", "del",
+        "dfn",    "em",     "embed",    "i",        "iframe",
+        "img",    "input",  "ins",      "kbd",      "keygen",
+        "label",  "map",    "mark",     "meter",    "noscript",
+        "object", "output", "progress", "q",        "ruby",
+        "s",      "samp",   "select",   "small",    "span",
+        "strong", "sub",    "sup",      "textarea", "time",
+        "u",      "var",    "video",    "wbr"
+    };
+    int i = indexOfStringInSortedList(tagName, phrasingHtmlElementsList, 0, 49);
+    return (i >= 0);
+}
+
 static void onIdentifyingStartTag(const char *tagName, void *context)
 {
     HtmlTagHandler::ParserCallbackContext *ctx = static_cast<HtmlTagHandler::ParserCallbackContext *>(context);
@@ -44,6 +62,10 @@ static void onIdentifyingStartTag(const char *tagName, void *context)
         ctx->tagName = VfmdByteArray(tagName);
         if (!ctx->isVerbatimHtmlStarterOrContainerTagEncountered && isVerbatimHtmlStarterOrContainerTag(tagName)) {
             ctx->isVerbatimHtmlStarterOrContainerTagEncountered = true;
+            ctx->isNonPhrasingHtmlElementTagEncountered = true;
+        }
+        if (!ctx->isNonPhrasingHtmlElementTagEncountered && !isPhrasingHtmlElementTag(tagName)) {
+            ctx->isNonPhrasingHtmlElementTagEncountered = true;
         }
     }
 }
@@ -56,6 +78,10 @@ static void onIdentifyingEndTag(const char *tagName, void *context)
         ctx->tagName = VfmdByteArray(tagName);
         if (!ctx->isVerbatimHtmlStarterOrContainerTagEncountered && isVerbatimHtmlStarterOrContainerTag(tagName)) {
             ctx->isVerbatimHtmlStarterOrContainerTagEncountered = true;
+            ctx->isNonPhrasingHtmlElementTagEncountered = true;
+        }
+        if (!ctx->isNonPhrasingHtmlElementTagEncountered && !isPhrasingHtmlElementTag(tagName)) {
+            ctx->isNonPhrasingHtmlElementTagEncountered = true;
         }
     }
 }
@@ -68,6 +94,10 @@ static void onIdentifyingEmptyTag(const char *tagName, void *context)
         ctx->tagName = VfmdByteArray(tagName);
         if (!ctx->isVerbatimHtmlStarterOrContainerTagEncountered && isVerbatimHtmlStarterOrContainerTag(tagName)) {
             ctx->isVerbatimHtmlStarterOrContainerTagEncountered = true;
+            ctx->isNonPhrasingHtmlElementTagEncountered = true;
+        }
+        if (!ctx->isNonPhrasingHtmlElementTagEncountered && !isPhrasingHtmlElementTag(tagName)) {
+            ctx->isNonPhrasingHtmlElementTagEncountered = true;
         }
     }
 }
@@ -91,6 +121,7 @@ static void onIdentifyingAsNotATagOrComment(void *context)
 HtmlTagHandler::ParserCallbackContext::ParserCallbackContext()
     : tagType(HtmlTagHandler::ParserCallbackContext::UNDEFINED)
     , isVerbatimHtmlStarterOrContainerTagEncountered(false)
+    , isNonPhrasingHtmlElementTagEncountered(false)
 {
 }
 
@@ -99,6 +130,7 @@ void HtmlTagHandler::ParserCallbackContext::reset()
     tagType = HtmlTagHandler::ParserCallbackContext::UNDEFINED;
     tagName.clear();
     isVerbatimHtmlStarterOrContainerTagEncountered = false;
+    isNonPhrasingHtmlElementTagEncountered = false;
 }
 
 HtmlTagHandler::HtmlTagHandler()
@@ -162,6 +194,12 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
         }
         htmlparser_parse(htmlParserCtx, text.data() + offset, possibleEndingPos - offset + 1);
         offset = possibleEndingPos + 1;
+    }
+
+    if (callbackCtx->isNonPhrasingHtmlElementTagEncountered) {
+        // If we encountered a non-phrasing html tag (like "<td>"),
+        // remove all non-html nodes in the stack
+        stack->popNodesAboveIndexAsTextFragments(0, VfmdConstants::RAW_HTML_STACK_NODE /* excludeType */);
     }
 
     if (callbackCtx->isVerbatimHtmlStarterOrContainerTagEncountered) {

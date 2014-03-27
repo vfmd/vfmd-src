@@ -36,6 +36,7 @@ public:
         HtmlTagType tagType;
         VfmdByteArray tagName;
         bool isVerbatimHtmlStarterOrContainerTagEncountered;
+        bool isNonPhrasingHtmlElementTagEncountered;
     };
 
 private:
