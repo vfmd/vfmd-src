@@ -35,6 +35,7 @@ public:
 
         HtmlTagType tagType;
         VfmdByteArray tagName;
+        bool isVerbatimHtmlStarterOrContainerTagEncountered;
     };
 
 private:
@@ -67,11 +68,13 @@ public:
         EMPTY_TAG,
         START_TAG_ONLY,
         END_TAG_ONLY,
-        COMMENT
+        COMMENT,
+        VERBATIM_HTML_CHUNK
     };
 
     HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &tagName, const VfmdByteArray &startTagHtml, const VfmdByteArray& endTagHtml);
     HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &tagName, const VfmdByteArray& html);
+    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &verbatimHtml);
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }

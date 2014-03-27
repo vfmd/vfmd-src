@@ -19,6 +19,19 @@ static bool isVoidHtmlElement(const char *tagName)
     return (i >= 0);
 }
 
+static bool isVerbatimHtmlStarterOrContainerTag(const char *tagName)
+{
+    static const char *verbatimHtmlStarterOrContainerElementsList[] = {
+        "address", "article", "aside",  "blockquote", "details",
+        "dialog",  "div",     "dl",     "fieldset",  "figure",
+        "footer",  "form",    "header", "main",       "nav",
+        "ol",      "pre",     "script", "section",    "style",
+        "table",   "ul"
+    };
+    int i = indexOfStringInSortedList(tagName, verbatimHtmlStarterOrContainerElementsList, 0, 22);
+    return (i >= 0);
+}
+
 static void onIdentifyingStartTag(const char *tagName, void *context)
 {
     HtmlTagHandler::ParserCallbackContext *ctx = static_cast<HtmlTagHandler::ParserCallbackContext *>(context);
@@ -29,6 +42,9 @@ static void onIdentifyingStartTag(const char *tagName, void *context)
             ctx->tagType = HtmlTagHandler::ParserCallbackContext::START_TAG;
         }
         ctx->tagName = VfmdByteArray(tagName);
+        if (!ctx->isVerbatimHtmlStarterOrContainerTagEncountered && isVerbatimHtmlStarterOrContainerTag(tagName)) {
+            ctx->isVerbatimHtmlStarterOrContainerTagEncountered = true;
+        }
     }
 }
 
@@ -38,6 +54,9 @@ static void onIdentifyingEndTag(const char *tagName, void *context)
     if (ctx->tagType == HtmlTagHandler::ParserCallbackContext::UNDEFINED) {
         ctx->tagType = HtmlTagHandler::ParserCallbackContext::END_TAG;
         ctx->tagName = VfmdByteArray(tagName);
+        if (!ctx->isVerbatimHtmlStarterOrContainerTagEncountered && isVerbatimHtmlStarterOrContainerTag(tagName)) {
+            ctx->isVerbatimHtmlStarterOrContainerTagEncountered = true;
+        }
     }
 }
 
@@ -47,6 +66,9 @@ static void onIdentifyingEmptyTag(const char *tagName, void *context)
     if (ctx->tagType == HtmlTagHandler::ParserCallbackContext::UNDEFINED) {
         ctx->tagType = HtmlTagHandler::ParserCallbackContext::EMPTY_TAG;
         ctx->tagName = VfmdByteArray(tagName);
+        if (!ctx->isVerbatimHtmlStarterOrContainerTagEncountered && isVerbatimHtmlStarterOrContainerTag(tagName)) {
+            ctx->isVerbatimHtmlStarterOrContainerTagEncountered = true;
+        }
     }
 }
 
@@ -68,6 +90,7 @@ static void onIdentifyingAsNotATagOrComment(void *context)
 
 HtmlTagHandler::ParserCallbackContext::ParserCallbackContext()
     : tagType(HtmlTagHandler::ParserCallbackContext::UNDEFINED)
+    , isVerbatimHtmlStarterOrContainerTagEncountered(false)
 {
 }
 
@@ -75,6 +98,7 @@ void HtmlTagHandler::ParserCallbackContext::reset()
 {
     tagType = HtmlTagHandler::ParserCallbackContext::UNDEFINED;
     tagName.clear();
+    isVerbatimHtmlStarterOrContainerTagEncountered = false;
 }
 
 HtmlTagHandler::HtmlTagHandler()
@@ -138,6 +162,17 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
         }
         htmlparser_parse(htmlParserCtx, text.data() + offset, possibleEndingPos - offset + 1);
         offset = possibleEndingPos + 1;
+    }
+
+    if (callbackCtx->isVerbatimHtmlStarterOrContainerTagEncountered) {
+        // If we encountered a verbatim-html-starter-tag (like "<div>")
+        // or a verbatim-html-container-tag (like "<pre>"), then everything
+        // that follows (including that tag) is verbatim-html.
+        // We need not identify individual HTML tags within verbatim-html.
+        HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::VERBATIM_HTML_CHUNK, text.mid(currentPos));
+        stack->topNode()->appendToContainedElements(htmlTreeNode);
+        callbackCtx->reset();
+        return (text.size() - currentPos);
     }
 
     HtmlTagHandler::ParserCallbackContext::HtmlTagType tagType = callbackCtx->tagType;
@@ -267,6 +302,13 @@ HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &tagName, c
     assert(type == HtmlTreeNode::START_TAG_WITH_MATCHING_END_TAG);
 }
 
+HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &verbatimHtmlChunk)
+    : m_htmlElementType(type)
+    , m_html(verbatimHtmlChunk)
+{
+    assert(type == HtmlTreeNode::VERBATIM_HTML_CHUNK);
+}
+
 void HtmlTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
@@ -283,11 +325,20 @@ void HtmlTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOpti
             outputDevice->write(m_html);
             assert(hasChildren() == false);
             break;
+        case VERBATIM_HTML_CHUNK:
+            outputDevice->write(m_html);
+            assert(hasChildren() == false);
+            break;
         default:
             assert(false);
         }
     } else if (format == VfmdConstants::TREE_FORMAT) {
         renderTreePrefix(outputDevice, ancestorNodes, "+- span (raw-html) ");
+        if (m_htmlElementType == VERBATIM_HTML_CHUNK) {
+            outputDevice->write("verbatim-html\n");
+            assert(hasChildren() == false);
+            return;
+        }
         if (m_htmlElementType == COMMENT) {
             outputDevice->write("comment");
         } else {
