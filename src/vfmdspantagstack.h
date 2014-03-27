@@ -31,8 +31,11 @@ public:
      *  - If the popped node is a HTML node, the equivalent tree
      *    node is added as a contained element of the 'n'th node.
      *  - In either case, any contained elements of the popped node
-     *    are added as contained elements of the 'n'th node */
-    void popNodesAboveIndexAsTextFragments(int n);
+     *    are added as contained elements of the 'n'th node
+     * If 'excludeType' is specified, nodes of that type are
+     * not popped. */
+    void popNodesAboveIndexAsTextFragments(int n,
+                                           VfmdConstants::VfmdOpeningSpanTagStackNodeType excludeType = VfmdConstants::UNDEFINED_STACK_NODE);
 
     /* Remove all nodes with type 'type' in the stack. Each removed
      * node (converted to text) and its contained elements become

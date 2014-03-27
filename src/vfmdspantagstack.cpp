@@ -49,7 +49,7 @@ VfmdOpeningSpanTagStackNode *VfmdSpanTagStack::pop()
     return m_nodes->takeLastItem();
 }
 
-void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(int index)
+void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(int index, VfmdConstants::VfmdOpeningSpanTagStackNodeType excludeType)
 {
     unsigned int count = stackSize();
     if ((index < 0) || (index >= (int) (count - 1))) {
@@ -63,18 +63,25 @@ void VfmdSpanTagStack::popNodesAboveIndexAsTextFragments(int index)
          i < (int) count;
          i++) {
         VfmdOpeningSpanTagStackNode *node = nodeAt(i);
-        fenceNode->appendToContainedElements(node);
+        if (node->type() != excludeType) {
+            fenceNode->appendToContainedElements(node);
+        }
     }
 
     // Pop nodes and free them
     for (int i = count - 1;
          i > (int) index;
          i--) {
-        VfmdOpeningSpanTagStackNode *node = m_nodes->takeItemAt(i);
-        delete node;
+        VfmdOpeningSpanTagStackNode *node = nodeAt(i);
+        if (node->type() != excludeType) {
+            VfmdOpeningSpanTagStackNode *node = m_nodes->takeItemAt(i);
+            delete node;
+        }
     }
 
-    assert(index == (int) (stackSize() - 1));
+    if (excludeType == VfmdConstants::UNDEFINED_STACK_NODE) {
+        assert(index == (int) (stackSize() - 1));
+    }
 }
 
 void VfmdSpanTagStack::removeNodesOfTypeAsTextFragments(VfmdConstants::VfmdOpeningSpanTagStackNodeType t) const
