@@ -200,6 +200,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
         // If we encountered a non-phrasing html tag (like "<td>"),
         // remove all non-html nodes in the stack
         stack->popNodesAboveIndexAsTextFragments(0, VfmdConstants::RAW_HTML_STACK_NODE /* excludeType */);
+        stack->setNonPhrasingHtmlTagSeen(true);
     }
 
     if (callbackCtx->isVerbatimHtmlStarterOrContainerTagEncountered) {
@@ -269,6 +270,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
             HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::END_TAG_ONLY, callbackCtx->tagName,
                                                           text.mid(currentPos, offset - currentPos));
             stack->topNode()->appendToContainedElements(htmlTreeNode);
+            stack->setMismatchedHtmlTagSeen(true);
             callbackCtx->reset();
             return (offset - currentPos);
 
@@ -286,6 +288,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
         HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::COMMENT, VfmdByteArray(),
                                                       text.mid(currentPos, offset - currentPos));
         stack->topNode()->appendToContainedElements(htmlTreeNode);
+        stack->setHtmlCommentSeen(true);
         callbackCtx->reset();
         return (offset - currentPos);
 
