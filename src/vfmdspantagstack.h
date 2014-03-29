@@ -49,7 +49,8 @@ public:
     /* Returns the index of the topmost node in the stack of type 't'. */
     int indexOfTopmostNodeOfType(VfmdConstants::VfmdOpeningSpanTagStackNodeType type) const;
 
-    VfmdElementTreeNode *collapse();
+    void collapse();
+    VfmdElementTreeNode *baseNodeContents() const;
 
     void setNonPhrasingHtmlTagSeen(bool yes);
     bool isNonPhrasingHtmlTagSeen() const;

@@ -94,6 +94,7 @@ VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdBy
 
     closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, &stack);
 
-    VfmdElementTreeNode *parseTree = stack.collapse();
+    stack.collapse();
+    VfmdElementTreeNode *parseTree = stack.baseNodeContents();
     return parseTree;
 }

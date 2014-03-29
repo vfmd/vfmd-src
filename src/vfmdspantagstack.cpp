@@ -127,7 +127,7 @@ int VfmdSpanTagStack::indexOfTopmostNodeOfType(VfmdConstants::VfmdOpeningSpanTag
     return -1;
 }
 
-VfmdElementTreeNode *VfmdSpanTagStack::collapse()
+void VfmdSpanTagStack::collapse()
 {
     assert(stackSize() >= 1);
     assert(nodeAt(0)->type() == VfmdConstants::BASE_STACK_NODE);
@@ -142,12 +142,13 @@ VfmdElementTreeNode *VfmdSpanTagStack::collapse()
     }
 
     popNodesAboveIndexAsTextFragments(0);
-    BaseStackNode *baseNode = dynamic_cast<BaseStackNode *>(nodeAt(0));
-    assert(baseNode);
-    if (baseNode) {
-        return baseNode->m_containedElements;
-    }
-    return 0;
+}
+
+VfmdElementTreeNode* VfmdSpanTagStack::baseNodeContents() const
+{
+    assert(stackSize() > 0);
+    assert(nodeAt(0)->type() == VfmdConstants::BASE_STACK_NODE);
+    return nodeAt(0)->m_containedElements;
 }
 
 void VfmdSpanTagStack::setNonPhrasingHtmlTagSeen(bool yes)
