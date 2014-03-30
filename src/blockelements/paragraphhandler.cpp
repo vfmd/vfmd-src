@@ -188,7 +188,8 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
     m_text.squeeze();
     m_text.trim();
     VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
-    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(m_text, registry());
+    VfmdSpanElementsProcessor spanElementsProcessor(m_text, registry());
+    VfmdElementTreeNode *spanParseTree = spanElementsProcessor.parseTree();
     bool ok = paragraphNode->setChildNodeIfNotSet(spanParseTree);
     assert(ok);
     return paragraphNode;

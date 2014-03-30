@@ -47,7 +47,8 @@ bool SetextHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const V
 VfmdElementTreeNode* SetextHeaderLineSequence::endBlock()
 {
     VfmdElementTreeNode *setextNode = new SetextHeaderTreeNode(m_headingLevel);
-    VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(m_firstLineContent.trimmed(), registry());
+    VfmdSpanElementsProcessor spanElementsProcessor(m_firstLineContent.trimmed(), registry());
+    VfmdElementTreeNode *spanParseTree = spanElementsProcessor.parseTree();
     bool ok = setextNode->setChildNodeIfNotSet(spanParseTree);
     assert(ok);
     return setextNode;

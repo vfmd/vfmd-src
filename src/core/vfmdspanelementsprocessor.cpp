@@ -48,10 +48,8 @@ static inline int applySpanHandler(const VfmdByteArray &text, int currentPos,
     return 0;
 }
 
-VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdByteArray &text, const VfmdElementRegistry *registry)
+static void processSpanElements(const VfmdByteArray &text, const VfmdElementRegistry *registry, VfmdSpanTagStack *stack)
 {
-    VfmdSpanTagStack stack;
-
     int currentPos = 0;
     int endPos = (int) text.size();
     int textFragmentStartPos = -1;
@@ -64,12 +62,12 @@ VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdBy
         // Ask the span element handlers pertaining to this trigger byte
         int n = registry->spanElementCountForTriggerByte(currentByte);
         if (n > 0) {
-            closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, &stack);
+            closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, stack);
         }
         for (int i = 0; i < n; i++) {
             VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
             int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
-            int consumedBytes = applySpanHandler(text, currentPos, textFragmentStartPos, &stack, spanHandler, triggerOptions);
+            int consumedBytes = applySpanHandler(text, currentPos, textFragmentStartPos, stack, spanHandler, triggerOptions);
             if (consumedBytes > 0) {
                 currentPos += consumedBytes;
                 while ((currentPos < endPos) && (!text.isUTF8CharStartingAt(currentPos))) {
@@ -92,9 +90,16 @@ VfmdElementTreeNode* VfmdSpanElementsProcessor::processSpanElements(const VfmdBy
         }
     }
 
-    closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, &stack);
+    closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, stack);
+    stack->collapse();
+}
 
-    stack.collapse();
-    VfmdElementTreeNode *parseTree = stack.baseNodeContents();
-    return parseTree;
+VfmdSpanElementsProcessor::VfmdSpanElementsProcessor(const VfmdByteArray &text, const VfmdElementRegistry *registry)
+{
+    processSpanElements(text, registry, &m_stack);
+}
+
+VfmdElementTreeNode* VfmdSpanElementsProcessor::parseTree() const
+{
+    return m_stack.baseNodeContents();
 }

@@ -53,7 +53,8 @@ VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
     VfmdElementTreeNode *atxNode = new AtxHeaderTreeNode(headingLevel);
     if (headerContent.size() > 0) {
         headerContent.trim();
-        VfmdElementTreeNode *spanParseTree = VfmdSpanElementsProcessor::processSpanElements(headerContent, registry());
+        VfmdSpanElementsProcessor spanElementsProcessor(headerContent, registry());
+        VfmdElementTreeNode *spanParseTree = spanElementsProcessor.parseTree();
         bool ok = atxNode->setChildNodeIfNotSet(spanParseTree);
         assert(ok);
     }

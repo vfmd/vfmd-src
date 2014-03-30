@@ -2,6 +2,7 @@
 #define VFMDSPANELEMENTSPROCESSOR_H
 
 #include "vfmdbytearray.h"
+#include "vfmdspantagstack.h"
 
 class VfmdElementRegistry;
 class VfmdElementTreeNode;
@@ -9,7 +10,11 @@ class VfmdElementTreeNode;
 class VfmdSpanElementsProcessor
 {
 public:
-    static VfmdElementTreeNode* processSpanElements(const VfmdByteArray &text, const VfmdElementRegistry *registry);
+    VfmdSpanElementsProcessor(const VfmdByteArray &text, const VfmdElementRegistry *registry);
+    VfmdElementTreeNode* parseTree() const;
+
+private:
+    VfmdSpanTagStack m_stack;
 };
 
 #endif // VFMDSPANELEMENTSPROCESSOR_H
