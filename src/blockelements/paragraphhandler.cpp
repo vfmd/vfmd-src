@@ -109,17 +109,19 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
         // Not in lookahead mode
         m_text.append(currentLine->content());
         m_text.appendByte('\n');
-
         m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
-        HtmlStateWatcher::State htmlState = m_htmlStateWatcher.state();
+        HtmlStateWatcher::TagState tagState = m_htmlStateWatcher.tagState();
+        HtmlStateWatcher::VerbatimContainerElementState verbatimContainerElemState = m_htmlStateWatcher.verbatimContainerElementState();
 
         bool isPotentialEnd = isPotentialEndOfParagraph(nextLine, m_containingBlockType);
         if (isPotentialEnd) {
-            if (htmlState == HtmlStateWatcher::TEXT_STATE) {
+            if ((tagState == HtmlStateWatcher::TEXT_STATE) &&
+                (verbatimContainerElemState == HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN ||
+                 verbatimContainerElemState == HtmlStateWatcher::NOT_WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT)) {
                 m_isAtEndOfParagraph = true;
                 return;
-            } else if ((htmlState == HtmlStateWatcher::INDETERMINATE_STATE) ||
-                       (htmlState == HtmlStateWatcher::INDETERMINATE_VERBATIM_HTML_ELEMENT_STATE)) {
+            } else if ((tagState == HtmlStateWatcher::INDETERMINATE_STATE) ||
+                       (verbatimContainerElemState == HtmlStateWatcher::INDETERMINATE_VERBATIM_CONTAINER_ELEMENT_STATE)) {
                 // Enter lookahead mode
                 m_isLookingAhead = true;
                 m_htmlStateWatcher.beginLookahead();
@@ -138,24 +140,30 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
         assert(m_lookaheadLines);
         m_lookaheadLines->append(currentLine->copy());
         m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
-        HtmlStateWatcher::State state = m_htmlStateWatcher.state();
-        if ((state == HtmlStateWatcher::HTML_COMMENT_STATE) ||
-            (state == HtmlStateWatcher::HTML_TAG_STATE) ||
-            (state == HtmlStateWatcher::CONTENT_OF_WELL_FORMED_VERBATIM_HTML_ELEMENT_STATE)) {
+        HtmlStateWatcher::TagState tagState = m_htmlStateWatcher.tagState();
+        HtmlStateWatcher::VerbatimContainerElementState verbatimContainerElemState = m_htmlStateWatcher.verbatimContainerElementState();
+
+        if ((tagState == HtmlStateWatcher::HTML_COMMENT_STATE) ||
+            (tagState == HtmlStateWatcher::HTML_TAG_STATE) ||
+            (verbatimContainerElemState == HtmlStateWatcher::WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT)) {
             // Paragraph should not end at the point where lookahead started
             appendLines(&m_text, m_lookaheadLines); // Consume lookahead lines
             m_lookaheadLines->freeItemsAndClear();
             m_htmlStateWatcher.endLookahead(true /* consumeLookaheadLines */);
-            HtmlStateWatcher::State updatedHtmlState = m_htmlStateWatcher.state();
-            if ((updatedHtmlState == HtmlStateWatcher::INDETERMINATE_STATE) ||
-                (updatedHtmlState == HtmlStateWatcher::INDETERMINATE_VERBATIM_HTML_ELEMENT_STATE)) {
+            HtmlStateWatcher::TagState updatedTagState = m_htmlStateWatcher.tagState();
+            HtmlStateWatcher::VerbatimContainerElementState updatedVerbatimContainerElemState = m_htmlStateWatcher.verbatimContainerElementState();
+
+            if ((updatedTagState == HtmlStateWatcher::INDETERMINATE_STATE) ||
+                (updatedVerbatimContainerElemState == HtmlStateWatcher::INDETERMINATE_VERBATIM_CONTAINER_ELEMENT_STATE)) {
                 // Begin a new lookahead from (and including) the current line
                 m_htmlStateWatcher.beginLookahead();
             } else {
                 delete m_lookaheadLines;
                 m_lookaheadLines = 0;
                 m_isLookingAhead = false;
-                if (updatedHtmlState == HtmlStateWatcher::TEXT_STATE) {
+                if ((updatedTagState == HtmlStateWatcher::TEXT_STATE) &&
+                    (updatedVerbatimContainerElemState == HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN ||
+                     updatedVerbatimContainerElemState == HtmlStateWatcher::NOT_WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT)) {
                     m_isAtEndOfParagraph = isPotentialEndOfParagraph(nextLine, m_containingBlockType);
                 } else {
                     // No other states are possible at this point
@@ -163,13 +171,16 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
                 }
             }
             return;
-        } else if (state == HtmlStateWatcher::TEXT_STATE) {
+        } else if ((tagState == HtmlStateWatcher::TEXT_STATE) &&
+                   (verbatimContainerElemState == HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN ||
+                    verbatimContainerElemState == HtmlStateWatcher::NOT_WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT)) {
             // Paragraph should have ended at the point where lookahead started
             m_isLookingAhead = false;
             m_htmlStateWatcher.endLookahead(false /* consumeLookaheadLines */);
             m_isAtEndOfParagraph = true;
             return;
         }
+
     }
 
 }

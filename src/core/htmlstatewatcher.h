@@ -9,13 +9,19 @@ struct htmlparser_ctx_s;
 class HtmlStateWatcher
 {
 public:
-    enum State {
+    enum TagState {
         TEXT_STATE,
         INDETERMINATE_STATE,             // Could be within a tag, or within a comment, or just text
         HTML_TAG_STATE,                  // Definitely within a tag
-        HTML_COMMENT_STATE,              // Definitely within a comment
-        INDETERMINATE_VERBATIM_HTML_ELEMENT_STATE,         // Within a verbatim HTML element, well-formed or not
-        CONTENT_OF_WELL_FORMED_VERBATIM_HTML_ELEMENT_STATE // Within a well-formed verbatim HTML element
+        HTML_COMMENT_STATE               // Definitely within a comment
+    };
+
+    enum VerbatimContainerElementState {
+        NO_VERBATIM_CONTAINER_ELEMENT_SEEN,
+        INDETERMINATE_VERBATIM_CONTAINER_ELEMENT_STATE,   // Within a verbatim HTML element, well-formed or not
+        WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT,    // Within a well-formed verbatim HTML element
+        NOT_WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT // Either after the close of a well-formed verbatim HTML element
+                                                          // or within a not-well-formed verbatim HTML element
     };
 
     HtmlStateWatcher();
@@ -26,7 +32,8 @@ public:
 
     // The HTML state at the end of the last text that was added
     // while in normal mode (i.e. non-lookahead mode).
-    State state() const;
+    TagState tagState() const;
+    VerbatimContainerElementState verbatimContainerElementState() const;
 
     // If the state() is indeterminate, you can begin a lookahead.
     // When in lookahead mode, the added text is used as lookahead
@@ -44,7 +51,8 @@ public:
     bool isLookingAhead() const;
 
     struct ParserCallbackContext {
-        State state, lookaheadState;
+        TagState tagState, lookaheadTagState;
+        VerbatimContainerElementState verbatimContainerElementState, lookaheadVerbatimContainerElementState;
         bool isLookingAhead;
         VfmdPointerArray<VfmdByteArray> *openVerbatimHtmlTagsStack;
         int numOfOpenVerbatimHtmlTagsAtStartOfLookahead;
