@@ -79,12 +79,12 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
         // Re-process any unconsumed lines
         if (unconsumedLines && (unconsumedLines->size() > 0)) {
             unsigned int sz = unconsumedLines->size();
-            assert(unconsumedLines->lastItem() == currentLine);
+            assert(unconsumedLines->lastItem()->content() == currentLine->content());
             assert(sz < m_numOfLinesGivenToChildLineSequence); // A block cannot disown all lines passed to it
-            if ((unconsumedLines->lastItem() == currentLine) &&
+            if ((unconsumedLines->lastItem()->content() == currentLine->content()) &&
                 (sz < m_numOfLinesGivenToChildLineSequence)) {
                 const VfmdLine *nextUnconsumedLine = unconsumedLines->itemAt(0);
-                for (unsigned int i = 1; i < (sz - 1); i++) {
+                for (unsigned int i = 1; i < sz; i++) {
                     const VfmdLine *unconsumedLine = unconsumedLines->itemAt(i);
                     processInChildSequence(nextUnconsumedLine, unconsumedLine);
                     delete nextUnconsumedLine;
@@ -94,7 +94,7 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
             }
         }
         if (unconsumedLines) {
-            unconsumedLines->freeItemsAndClear();
+            unconsumedLines->clear();
             delete unconsumedLines;
         }
     }
