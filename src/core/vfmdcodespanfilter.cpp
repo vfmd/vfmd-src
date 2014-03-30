@@ -101,7 +101,7 @@ void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdByteArray &
                 // We've found backticks while inside a code span
                 if (m_openBackticksCount == backticksCount) {
                     // We've found the end of the code span
-                    watcher->addText("<code />");
+                    watcher->addText("<code></code>");
                     m_openBackticksCount = 0;
                 }
             }
