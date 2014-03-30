@@ -149,12 +149,18 @@ HtmlStateWatcher::~HtmlStateWatcher()
     delete m_callbackContext.openVerbatimHtmlTagsStack;
 }
 
-void HtmlStateWatcher::addText(const VfmdByteArray &text)
+void HtmlStateWatcher::addText(const VfmdByteArray &text, bool *isEndOfAddedTextWithinHtmlQuotedAttribute)
 {
     if (m_callbackContext.isLookingAhead) {
         htmlparser_parse(m_htmlParserLookaheadContext, text.data(), text.size());
+        if (isEndOfAddedTextWithinHtmlQuotedAttribute) {
+            (*isEndOfAddedTextWithinHtmlQuotedAttribute) = htmlparser_is_attr_quoted(m_htmlParserLookaheadContext);
+        }
     } else {
         htmlparser_parse(m_htmlParserContext, text.data(), text.size());
+        if (isEndOfAddedTextWithinHtmlQuotedAttribute) {
+            (*isEndOfAddedTextWithinHtmlQuotedAttribute) = htmlparser_is_attr_quoted(m_htmlParserContext);
+        }
     }
 }
 

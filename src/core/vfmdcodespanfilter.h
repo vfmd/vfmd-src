@@ -17,6 +17,7 @@ public:
 private:
     const VfmdRegexp m_reCodeSpanMark;
     unsigned int m_openBackticksCount;
+    char m_openHtmlAttributeQuotingChar;
 };
 
 #endif // CODESPANFILTER_H

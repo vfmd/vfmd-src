@@ -22,7 +22,7 @@ public:
     ~HtmlStateWatcher();
 
     // Add text to the parser.
-    void addText(const VfmdByteArray &text);
+    void addText(const VfmdByteArray &text, bool *isEndOfAddedTextWithinHtmlQuotedAttribute = 0);
 
     // The HTML state at the end of the last text that was added
     // while in normal mode (i.e. non-lookahead mode).
