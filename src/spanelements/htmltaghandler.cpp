@@ -267,6 +267,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
             // We have encountered a HTML tag mismatch
             // (end tag without a corresponding start tag)
 
+            stack->popNodesAboveIndexAsTextFragments(0, VfmdConstants::RAW_HTML_STACK_NODE /* excludeType */);
             HtmlTreeNode* htmlTreeNode = new HtmlTreeNode(HtmlTreeNode::END_TAG_ONLY, callbackCtx->tagName,
                                                           text.mid(currentPos, offset - currentPos));
             stack->topNode()->appendToContainedElements(htmlTreeNode);
