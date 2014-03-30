@@ -103,3 +103,18 @@ VfmdElementTreeNode* VfmdSpanElementsProcessor::parseTree() const
 {
     return m_stack.baseNodeContents();
 }
+
+bool VfmdSpanElementsProcessor::isNonPhrasingHtmlTagSeen() const
+{
+    return m_stack.isNonPhrasingHtmlTagSeen();
+}
+
+bool VfmdSpanElementsProcessor::isMismatchedHtmlTagSeen() const
+{
+    return m_stack.isMismatchedHtmlTagSeen();
+}
+
+bool VfmdSpanElementsProcessor::isHtmlCommentSeen() const
+{
+    return m_stack.isHtmlCommentSeen();
+}

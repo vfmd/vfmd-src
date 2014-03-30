@@ -187,11 +187,16 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 {
     m_text.squeeze();
     m_text.trim();
-    VfmdElementTreeNode *paragraphNode = new ParagraphTreeNode();
+    ParagraphTreeNode *paragraphNode = new ParagraphTreeNode();
     VfmdSpanElementsProcessor spanElementsProcessor(m_text, registry());
     VfmdElementTreeNode *spanParseTree = spanElementsProcessor.parseTree();
     bool ok = paragraphNode->setChildNodeIfNotSet(spanParseTree);
     assert(ok);
+    if (spanElementsProcessor.isNonPhrasingHtmlTagSeen() ||
+        spanElementsProcessor.isMismatchedHtmlTagSeen() ||
+        spanElementsProcessor.isHtmlCommentSeen()) {
+        paragraphNode->setShouldAvoidWrappingInHtmlPTag(true);
+    }
     return paragraphNode;
 }
 
@@ -201,7 +206,13 @@ VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock() 
 }
 
 ParagraphTreeNode::ParagraphTreeNode()
+    : m_shouldAvoidWrappingInHtmlPTag(false)
 {
+}
+
+void ParagraphTreeNode::setShouldAvoidWrappingInHtmlPTag(bool avoidPTag)
+{
+    m_shouldAvoidWrappingInHtmlPTag = avoidPTag;
 }
 
 void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
@@ -210,11 +221,11 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
 {
     if (format == VfmdConstants::HTML_FORMAT) {
 
-        bool encloseContentInPTags = true;
-        const VfmdElementTreeNode *parentNode = ancestorNodes->topNode();
+        bool canEncloseContentInPTags = (!m_shouldAvoidWrappingInHtmlPTag);
         bool isContainedInListItem = false;
         bool isContainedInTopPackedListItem = false;
         bool isContainedInBottomPackedListItem = false;
+        const VfmdElementTreeNode *parentNode = ancestorNodes->topNode();
         if (parentNode) {
             if (parentNode->elementType() == VfmdConstants::UNORDERED_LIST_ELEMENT) {
                 const UnorderedListItemTreeNode *listItemNode = dynamic_cast<const UnorderedListItemTreeNode *>(parentNode);
@@ -232,22 +243,27 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
                 }
             }
         }
-        if (isContainedInTopPackedListItem) {
-            bool firstBlockInParent = (parentNode && parentNode->firstChildNode() == this);
-            if (firstBlockInParent) {
-                encloseContentInPTags = false;
+
+        if (canEncloseContentInPTags) {
+            // If this paragraph is part of a list item, there are additional things to be
+            // considered in deciding whether the content can be enclosed in p tags
+            if (isContainedInTopPackedListItem) {
+                bool firstBlockInParent = (parentNode && parentNode->firstChildNode() == this);
+                if (firstBlockInParent) {
+                    canEncloseContentInPTags = false;
+                }
             }
-        }
-        if (isContainedInBottomPackedListItem) {
-            bool secondBlockInParent = (parentNode && parentNode->firstChildNode() &&
-                                        parentNode->firstChildNode()->nextNode() == this);
-            bool lastBlockInParent = (parentNode && parentNode->lastChildNode() == this);
-            if (lastBlockInParent && !secondBlockInParent) {
-                encloseContentInPTags = false;
+            if (isContainedInBottomPackedListItem) {
+                bool secondBlockInParent = (parentNode && parentNode->firstChildNode() &&
+                                            parentNode->firstChildNode()->nextNode() == this);
+                bool lastBlockInParent = (parentNode && parentNode->lastChildNode() == this);
+                if (lastBlockInParent && !secondBlockInParent) {
+                    canEncloseContentInPTags = false;
+                }
             }
         }
 
-        if (encloseContentInPTags) {
+        if (canEncloseContentInPTags) {
             if (!isContainedInListItem) {
                 if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
                     renderHtmlIndent(outputDevice, ancestorNodes);
@@ -256,9 +272,10 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
             outputDevice->write("<p>");
         }
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        if (encloseContentInPTags) {
+        if (canEncloseContentInPTags) {
             outputDevice->write("</p>\n");
         }
+
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }

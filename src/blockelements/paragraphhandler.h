@@ -37,6 +37,8 @@ class ParagraphTreeNode : public VfmdElementTreeNode {
 public:
     ParagraphTreeNode();
 
+    void setShouldAvoidWrappingInHtmlPTag(bool avoidPTag);
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::PARAGRAPH_ELEMENT; }
@@ -45,6 +47,9 @@ public:
     virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;
+
+private:
+    bool m_shouldAvoidWrappingInHtmlPTag;
 };
 
 #endif // PARAGRAPHHANDLER_H
