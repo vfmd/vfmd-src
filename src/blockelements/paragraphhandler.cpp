@@ -222,7 +222,7 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
     if (format == VfmdConstants::HTML_FORMAT) {
 
         bool canEncloseContentInPTags = (!m_shouldAvoidWrappingInHtmlPTag);
-        bool isContainedInListItem = false;
+        bool isSoleContentOfAListItem = false;
         bool isContainedInTopPackedListItem = false;
         bool isContainedInBottomPackedListItem = false;
         const VfmdElementTreeNode *parentNode = ancestorNodes->topNode();
@@ -230,14 +230,14 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
             if (parentNode->elementType() == VfmdConstants::UNORDERED_LIST_ELEMENT) {
                 const UnorderedListItemTreeNode *listItemNode = dynamic_cast<const UnorderedListItemTreeNode *>(parentNode);
                 if (listItemNode) {
-                    isContainedInListItem = true;
+                    isSoleContentOfAListItem = ((listItemNode->firstChildNode() == this) && (nextNode() == 0));
                     isContainedInTopPackedListItem = listItemNode->isTopPacked();
                     isContainedInBottomPackedListItem = listItemNode->isBottomPacked();
                 }
             } else if (parentNode->elementType() == VfmdConstants::ORDERED_LIST_ELEMENT) {
                 const OrderedListItemTreeNode *listItemNode = dynamic_cast<const OrderedListItemTreeNode *>(parentNode);
                 if (listItemNode) {
-                    isContainedInListItem = true;
+                    isSoleContentOfAListItem = ((listItemNode->firstChildNode() == this) && (nextNode() == 0));
                     isContainedInTopPackedListItem = listItemNode->isTopPacked();
                     isContainedInBottomPackedListItem = listItemNode->isBottomPacked();
                 }
@@ -263,17 +263,28 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
             }
         }
 
-        if (canEncloseContentInPTags) {
-            if (!isContainedInListItem) {
-                if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-                    renderHtmlIndent(outputDevice, ancestorNodes);
-                }
+        if (isSoleContentOfAListItem) {
+            // Use a compact output
+            if (canEncloseContentInPTags) {
+                outputDevice->write("<p>");
             }
-            outputDevice->write("<p>");
-        }
-        renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        if (canEncloseContentInPTags) {
-            outputDevice->write("</p>\n");
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+            if (canEncloseContentInPTags) {
+                outputDevice->write("</p>");
+            }
+        } else {
+            if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
+                renderHtmlIndent(outputDevice, ancestorNodes);
+            }
+            if (canEncloseContentInPTags) {
+                outputDevice->write("<p>");
+            }
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+            if (canEncloseContentInPTags) {
+                outputDevice->write("</p>\n");
+            } else {
+                outputDevice->write('\n');
+            }
         }
 
     } else {

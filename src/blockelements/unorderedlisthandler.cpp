@@ -1,5 +1,6 @@
 #include "unorderedlisthandler.h"
 #include "vfmdcommonregexps.h"
+#include "vfmdelementtreenodestack.h"
 
 void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {
@@ -170,8 +171,19 @@ void UnorderedListItemTreeNode::renderNode(VfmdConstants::RenderFormat format, i
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
-        outputDevice->write("<li>");
+        bool containsASingleParagraph = (firstChildNode()->elementType() == VfmdConstants::PARAGRAPH_ELEMENT &&
+                                         firstChildNode()->nextNode() == 0);
+        if (containsASingleParagraph) {
+            outputDevice->write("<li>");
+        } else {
+            outputDevice->write("<li>\n");
+        }
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+        if (!containsASingleParagraph) {
+            if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
+                renderHtmlIndent(outputDevice, ancestorNodes);
+            }
+        }
         outputDevice->write("</li>\n");
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
