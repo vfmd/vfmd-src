@@ -200,7 +200,7 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
     return paragraphNode;
 }
 
-VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock() const
+VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
 {
     return m_lookaheadLines;
 }

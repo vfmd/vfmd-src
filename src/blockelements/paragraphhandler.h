@@ -20,7 +20,7 @@ public:
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual VfmdElementTreeNode* endBlock();
-    virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock() const;
+    virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock();
 
 private:
     int m_containingBlockType;

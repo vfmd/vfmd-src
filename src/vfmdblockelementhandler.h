@@ -49,7 +49,7 @@ public:
     //
     // Among the core vfmd blocks, the only block that uses this is
     // the paragraph block.
-    virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock() const;
+    virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock();
 
 private:
     /* Prevent copying of this class */

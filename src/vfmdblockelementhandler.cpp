@@ -48,7 +48,7 @@ VfmdElementTreeNode* VfmdBlockLineSequence::endBlock()
     return 0;
 }
 
-VfmdPointerArray<const VfmdLine>* VfmdBlockLineSequence::linesSinceEndOfBlock() const
+VfmdPointerArray<const VfmdLine>* VfmdBlockLineSequence::linesSinceEndOfBlock()
 {
     return 0;
 }
