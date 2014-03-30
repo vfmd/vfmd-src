@@ -63,18 +63,18 @@ static void processSpanElements(const VfmdByteArray &text, const VfmdElementRegi
         int n = registry->spanElementCountForTriggerByte(currentByte);
         if (n > 0) {
             closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, stack);
-        }
-        for (int i = 0; i < n; i++) {
-            VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
-            int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
-            int consumedBytes = applySpanHandler(text, currentPos, textFragmentStartPos, stack, spanHandler, triggerOptions);
-            if (consumedBytes > 0) {
-                currentPos += consumedBytes;
-                while ((currentPos < endPos) && (!text.isUTF8CharStartingAt(currentPos))) {
-                    currentPos++;
+            for (int i = 0; i < n; i++) {
+                VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
+                int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
+                int consumedBytes = applySpanHandler(text, currentPos, textFragmentStartPos, stack, spanHandler, triggerOptions);
+                if (consumedBytes > 0) {
+                    currentPos += consumedBytes;
+                    while ((currentPos < endPos) && (!text.isUTF8CharStartingAt(currentPos))) {
+                        currentPos++;
+                    }
+                    isTagIdentifiedAtCurrentPos = true;
+                    break;
                 }
-                isTagIdentifiedAtCurrentPos = true;
-                break;
             }
         }
 
