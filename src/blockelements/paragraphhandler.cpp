@@ -202,7 +202,9 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
 
 VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
 {
-    return m_lookaheadLines;
+    VfmdPointerArray<const VfmdLine> *lines = m_lookaheadLines;
+    m_lookaheadLines = 0;
+    return lines;
 }
 
 ParagraphTreeNode::ParagraphTreeNode()
