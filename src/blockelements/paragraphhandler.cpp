@@ -47,10 +47,16 @@ static void appendLines(VfmdByteArray *dst, VfmdPointerArray<const VfmdLine> *sr
     }
 }
 
-static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBlockType)
+static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBlockType, bool isInVerbatimHtmlMode)
 {
     if (nextLine == 0 || nextLine->isBlankLine()) {
         return true;
+    }
+
+    if (isInVerbatimHtmlMode) {
+        // If we're in verbatim-html mode, we can end the para only at a blank line.
+        // We know that the next line is a non-blank line, so the para can't end here.
+        return false;
     }
 
     const char firstNonSpaceByte = nextLine->firstNonSpace();
@@ -93,7 +99,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
 bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
 {
     UNUSED_ARG(currentLine);
-    return (isPotentialEndOfParagraph(nextLine, m_containingBlockType));
+    return (isPotentialEndOfParagraph(nextLine, m_containingBlockType, false));
 }
 
 #else
@@ -112,8 +118,11 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
         m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
         HtmlStateWatcher::TagState tagState = m_htmlStateWatcher.tagState();
         HtmlStateWatcher::VerbatimContainerElementState verbatimContainerElemState = m_htmlStateWatcher.verbatimContainerElementState();
+        HtmlStateWatcher::VerbatimStarterElementState verbatimStarterElemState = m_htmlStateWatcher.verbatimStarterElementState();
 
-        bool isPotentialEnd = isPotentialEndOfParagraph(nextLine, m_containingBlockType);
+        bool isInVerbatimHtmlMode = ((verbatimContainerElemState != HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN) ||
+                                     (verbatimStarterElemState != HtmlStateWatcher::NO_VERBATIM_STARTER_ELEMENT_SEEN));
+        bool isPotentialEnd = isPotentialEndOfParagraph(nextLine, m_containingBlockType, isInVerbatimHtmlMode);
         if (isPotentialEnd) {
             if ((tagState == HtmlStateWatcher::TEXT_STATE) &&
                 (verbatimContainerElemState == HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN ||
@@ -152,6 +161,9 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
             m_htmlStateWatcher.endLookahead(true /* consumeLookaheadLines */);
             HtmlStateWatcher::TagState updatedTagState = m_htmlStateWatcher.tagState();
             HtmlStateWatcher::VerbatimContainerElementState updatedVerbatimContainerElemState = m_htmlStateWatcher.verbatimContainerElementState();
+            HtmlStateWatcher::VerbatimStarterElementState updatedVerbatimStarterElemState = m_htmlStateWatcher.verbatimStarterElementState();
+            bool isInVerbatimHtmlMode = ((updatedVerbatimContainerElemState != HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN) ||
+                                         (updatedVerbatimStarterElemState != HtmlStateWatcher::NO_VERBATIM_STARTER_ELEMENT_SEEN));
 
             if ((updatedTagState == HtmlStateWatcher::INDETERMINATE_STATE) ||
                 (updatedVerbatimContainerElemState == HtmlStateWatcher::INDETERMINATE_VERBATIM_CONTAINER_ELEMENT_STATE)) {
@@ -164,7 +176,8 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
                 if ((updatedTagState == HtmlStateWatcher::TEXT_STATE) &&
                     (updatedVerbatimContainerElemState == HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN ||
                      updatedVerbatimContainerElemState == HtmlStateWatcher::NOT_WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT)) {
-                    m_isAtEndOfParagraph = isPotentialEndOfParagraph(nextLine, m_containingBlockType);
+                    m_isAtEndOfParagraph = isPotentialEndOfParagraph(nextLine, m_containingBlockType, isInVerbatimHtmlMode);
+
                 } else {
                     // No other states are possible at this point
                     assert(false);
