@@ -24,6 +24,11 @@ public:
                                                           // or within a not-well-formed verbatim HTML element
     };
 
+    enum VerbatimStarterElementState {
+        NO_VERBATIM_STARTER_ELEMENT_SEEN,
+        VERBATIM_STARTER_ELEMENT_SEEN
+    };
+
     HtmlStateWatcher();
     ~HtmlStateWatcher();
 
@@ -34,6 +39,7 @@ public:
     // while in normal mode (i.e. non-lookahead mode).
     TagState tagState() const;
     VerbatimContainerElementState verbatimContainerElementState() const;
+    VerbatimStarterElementState verbatimStarterElementState() const;
 
     // If the state() is indeterminate, you can begin a lookahead.
     // When in lookahead mode, the added text is used as lookahead
@@ -53,6 +59,7 @@ public:
     struct ParserCallbackContext {
         TagState tagState, lookaheadTagState;
         VerbatimContainerElementState verbatimContainerElementState, lookaheadVerbatimContainerElementState;
+        VerbatimStarterElementState verbatimStarterElementState, lookaheadVerbatimStarterElementState;
         bool isLookingAhead;
         VfmdPointerArray<VfmdByteArray> *openVerbatimHtmlTagsStack;
         int numOfOpenVerbatimHtmlTagsAtStartOfLookahead;

@@ -1,4 +1,5 @@
 #include "htmlstatewatcher.h"
+#include "vfmdutils.h"
 
 extern "C" {
 #include "streamhtmlparser/htmlparser.h"
@@ -56,22 +57,40 @@ static void onIdentifyingAsNotATagOrComment(void *context)
     }
 }
 
-bool isVerbatimHtmlTag(const char *tagName)
+bool isVerbatimHtmlContainerTag(const char *tagName)
 {
     return ((strcmp(tagName, "pre") == 0) ||
             (strcmp(tagName, "script") == 0) ||
             (strcmp(tagName, "style") == 0));
 }
 
+static bool isVerbatimHtmlStarterTag(const char *tagName)
+{
+    static const char *verbatimHtmlStarterElementsList[] = {
+        "address", "article", "aside",  "blockquote", "details",
+        "dialog",  "div",     "dl",     "fieldset",   "figure",
+        "footer",  "form",    "header", "main",       "nav",
+        "ol",      "section", "table",  "ul"
+    };
+    int i = indexOfStringInSortedList(tagName, verbatimHtmlStarterElementsList, 0, 19);
+    return (i >= 0);
+}
+
 static void onIdentifyingStartTag(const char *tagName, void *context)
 {
     HtmlStateWatcher::ParserCallbackContext *ctx = static_cast<HtmlStateWatcher::ParserCallbackContext *>(context);
-    if (isVerbatimHtmlTag(tagName)) {
+    if (isVerbatimHtmlContainerTag(tagName)) {
         ctx->openVerbatimHtmlTagsStack->append(new VfmdByteArray(tagName));
         if (ctx->isLookingAhead) {
             ctx->lookaheadVerbatimContainerElementState = HtmlStateWatcher::INDETERMINATE_VERBATIM_CONTAINER_ELEMENT_STATE;
         } else {
             ctx->verbatimContainerElementState = HtmlStateWatcher::INDETERMINATE_VERBATIM_CONTAINER_ELEMENT_STATE;
+        }
+    } else if (isVerbatimHtmlStarterTag(tagName)) {
+        if (ctx->isLookingAhead) {
+            ctx->lookaheadVerbatimStarterElementState = HtmlStateWatcher::VERBATIM_STARTER_ELEMENT_SEEN;
+        } else {
+            ctx->verbatimStarterElementState = HtmlStateWatcher::VERBATIM_STARTER_ELEMENT_SEEN;
         }
     }
 }
@@ -79,7 +98,7 @@ static void onIdentifyingStartTag(const char *tagName, void *context)
 static void onIdentifyingEndTag(const char *tagName, void *context)
 {
     HtmlStateWatcher::ParserCallbackContext *ctx = static_cast<HtmlStateWatcher::ParserCallbackContext *>(context);
-    if (isVerbatimHtmlTag(tagName)) {
+    if (isVerbatimHtmlContainerTag(tagName)) {
         int sz = (int) ctx->openVerbatimHtmlTagsStack->size();
         int topMostMatchIndex = -1;
         for (int i = sz - 1; i >= 0; i--) {
@@ -113,6 +132,12 @@ static void onIdentifyingEndTag(const char *tagName, void *context)
                 ctx->verbatimContainerElementState = HtmlStateWatcher::NOT_WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT;
             }
         }
+    } else if (isVerbatimHtmlStarterTag(tagName)) {
+        if (ctx->isLookingAhead) {
+            ctx->lookaheadVerbatimStarterElementState = HtmlStateWatcher::VERBATIM_STARTER_ELEMENT_SEEN;
+        } else {
+            ctx->verbatimStarterElementState = HtmlStateWatcher::VERBATIM_STARTER_ELEMENT_SEEN;
+        }
     }
 }
 
@@ -123,6 +148,7 @@ HtmlStateWatcher::HtmlStateWatcher()
     m_callbackContext.isLookingAhead = false;
     m_callbackContext.tagState = HtmlStateWatcher::TEXT_STATE;
     m_callbackContext.verbatimContainerElementState = HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN;
+    m_callbackContext.verbatimStarterElementState = HtmlStateWatcher::NO_VERBATIM_STARTER_ELEMENT_SEEN;
     m_callbackContext.openVerbatimHtmlTagsStack = new VfmdPointerArray<VfmdByteArray>(16);
     m_callbackContext.numOfOpenVerbatimHtmlTagsAtStartOfLookahead = 0;
 
@@ -172,6 +198,7 @@ void HtmlStateWatcher::beginLookahead()
     htmlparser_copy(m_htmlParserLookaheadContext, m_htmlParserContext);
     m_callbackContext.lookaheadTagState = m_callbackContext.tagState;
     m_callbackContext.lookaheadVerbatimContainerElementState = m_callbackContext.verbatimContainerElementState;
+    m_callbackContext.lookaheadVerbatimStarterElementState = m_callbackContext.verbatimStarterElementState;
 }
 
 void HtmlStateWatcher::endLookahead(bool consumeLookedaheadLines)
@@ -184,6 +211,7 @@ void HtmlStateWatcher::endLookahead(bool consumeLookedaheadLines)
         m_htmlParserLookaheadContext = 0;
         m_callbackContext.tagState = m_callbackContext.lookaheadTagState;
         m_callbackContext.verbatimContainerElementState = m_callbackContext.lookaheadVerbatimContainerElementState;
+        m_callbackContext.verbatimStarterElementState = m_callbackContext.lookaheadVerbatimStarterElementState;
     }
 }
 
@@ -195,6 +223,11 @@ HtmlStateWatcher::TagState HtmlStateWatcher::tagState() const
 HtmlStateWatcher::VerbatimContainerElementState HtmlStateWatcher::verbatimContainerElementState() const
 {
     return m_callbackContext.verbatimContainerElementState;
+}
+
+HtmlStateWatcher::VerbatimStarterElementState HtmlStateWatcher::verbatimStarterElementState() const
+{
+    return m_callbackContext.verbatimStarterElementState;
 }
 
 bool HtmlStateWatcher::isLookingAhead() const
