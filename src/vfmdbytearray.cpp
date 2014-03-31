@@ -741,6 +741,12 @@ bool VfmdByteArray::operator==(const VfmdByteArray &other) const
     if (isValid() != other.isValid()) {
         return false;
     }
+    if (size() != other.size()) {
+        return false;
+    }
+    if (size() == 0 && other.size() == 0) {
+        return true;
+    }
     return isEqualTo(other.data(), other.size());
 }
 
