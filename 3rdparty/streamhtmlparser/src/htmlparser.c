@@ -513,6 +513,10 @@ static void exit_attr(statemachine_ctx *ctx, int start, char chr, int end)
                   HTMLPARSER_MAX_STRING, statemachine_record_length(ctx));
 
     tolower_str(html->attr);
+
+    if (html->on_exit_attr) {
+        (*(html->on_exit_attr))(html->attr, html->callback_context);
+    }
 }
 
 /* Called when we enter an attribute value.
@@ -564,6 +568,10 @@ static void exit_value_content(statemachine_ctx *ctx, int start, char chr,
                 HTMLPARSER_MAX_STRING, statemachine_record_length(ctx));
 
   html->in_js = 0;
+
+  if (html->on_exit_attr_value) {
+      (*(html->on_exit_attr_value))(html->attr, html->value, html->callback_context);
+  }
 }
 
 /* Called for every character inside an attribute value.
@@ -784,7 +792,6 @@ static void exit_state_cdata_may_close(statemachine_ctx *ctx, int start,
 
   if (strcasecmp(&cdata_close_tag[1], html->tag) == 0 &&
       (chr == '>' || html_isspace(chr))) { /* Make sure we have a delimiter */
-    html->tag[0] = '\0';  /* Empty tag mimicking exit_tag_name(). */
     html->in_js = 0;  /* In case this was a script tag. */
   } else {
     /* Does not close the CDATA section. Go back to CDATA. */
@@ -964,6 +971,8 @@ htmlparser_ctx *htmlparser_new()
   html->on_exit_start_tag = 0;
   html->on_exit_end_tag = 0;
   html->on_exit_empty_tag = 0;
+  html->on_exit_attr = 0;
+  html->on_exit_attr_value = 0;
 
   return html;
 }
@@ -995,6 +1004,8 @@ void htmlparser_copy(htmlparser_ctx *dst, const htmlparser_ctx *src)
   dst->on_exit_start_tag = src->on_exit_start_tag;
   dst->on_exit_end_tag = src->on_exit_end_tag;
   dst->on_exit_empty_tag = src->on_exit_empty_tag;
+  dst->on_exit_attr = src->on_exit_attr;
+  dst->on_exit_attr_value = src->on_exit_attr_value;
 }
 
 /* Receives an htmlparser context and Returns the current html state.

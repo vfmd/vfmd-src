@@ -142,6 +142,8 @@ const char *entityfilter_process(entityfilter_ctx *ctx, char c);
 
 typedef void (*generic_callback_func) (void *callback_context);
 typedef void (*tag_callback_func) (const char *tag_name, void *callback_context);
+typedef void (*attr_callback_func) (const char *attr_name, void *callback_context);
+typedef void (*attr_value_callback_func) (const char *attr_name, const char *attr_value, void *callback_context);
 
 /* html parser */
 
@@ -196,6 +198,8 @@ typedef struct htmlparser_ctx_s {
   tag_callback_func on_exit_start_tag;
   tag_callback_func on_exit_end_tag;
   tag_callback_func on_exit_empty_tag;
+  attr_callback_func on_exit_attr;
+  attr_value_callback_func on_exit_attr_value;
 
 } htmlparser_ctx;
 

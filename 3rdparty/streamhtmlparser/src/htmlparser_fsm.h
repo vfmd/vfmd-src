@@ -8960,7 +8960,7 @@ static const int htmlparser_transition_row_cdata_may_close[] = {
       /*    ';' */ HTMLPARSER_STATE_INT_CDATA_TEXT,
       /*    '<' */ HTMLPARSER_STATE_INT_CDATA_TEXT,
       /*    '=' */ HTMLPARSER_STATE_INT_CDATA_TEXT,
-      /*    '>' */ HTMLPARSER_STATE_INT_TEXT,
+      /*    '>' */ HTMLPARSER_STATE_INT_END_TAG_CLOSE,
       /*    '?' */ HTMLPARSER_STATE_INT_CDATA_TEXT,
       /*    '@' */ HTMLPARSER_STATE_INT_CDATA_TEXT,
       /*    'A' */ HTMLPARSER_STATE_INT_CDATA_MAY_CLOSE,
