@@ -79,7 +79,7 @@ bool OrderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
         isBottomPacked = true;
     } else if (!lastLineOfListItem->isBlankLine()) {
         isBottomPacked = true;
-    } else if (!isLastListItem && !m_isCurrentListItemPrecededByABlankLine) {
+    } else if (isLastListItem && !m_isCurrentListItemPrecededByABlankLine) {
         isBottomPacked = true;
     }
     return isBottomPacked;
