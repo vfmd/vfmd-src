@@ -19,7 +19,7 @@ void HtmlTextRenderer::render(const VfmdByteArray &text, VfmdOutputDevice *outpu
 
     if (data_ptr && sz) {
         unsigned int i = 0;
-        register const char *p;
+        const char *p;
         unsigned int plainTextStart = 0;
         for (p = data_ptr; i < sz; p++, i++) {
             const char c = *p;

@@ -236,9 +236,9 @@ int VfmdElementRegistry::triggerOptionsForTriggerByte(char byte, unsigned int in
 
 int VfmdElementRegistry::indexOfTriggerByteIn(const VfmdByteArray &ba, int offset) const
 {
-    register int i = offset;
+    int i = offset;
     const unsigned int sz = ba.size();
-    register const char *p = ba.data() + i;
+    const char *p = ba.data() + i;
     while (i < sz) {
         if (m_spanElementsByTriggerByte[*p++] != 0) {
             return i;

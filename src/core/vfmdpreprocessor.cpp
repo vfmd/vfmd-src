@@ -34,8 +34,8 @@ static inline bool locateLFByte(const unsigned char *ptr, int length, int *index
 
 static inline int consumeLines(const unsigned char *data, int length, VfmdByteArray *ba, VfmdInputLineSequence *lineSeq)
 {
-    register const unsigned char* p = data;
-    register const unsigned char* const end = data + length;
+    const unsigned char* p = data;
+    const unsigned char* const end = data + length;
 
     while (p < end) {
 
@@ -55,7 +55,7 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdByteAr
             // indexOfLF > 0
 
             int lineStartPos = ba->size();
-            register const unsigned char* const ptrToLFByte = (p + indexOfLFByte);
+            const unsigned char* const ptrToLFByte = (p + indexOfLFByte);
             int codePointsCount = 0;
             int result;
             while (1) {
@@ -70,7 +70,7 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdByteAr
                 if (result != SCANLINE_EOL) {
                     if (result == SCANLINE_TAB_BYTE) {
                         // Expand tabs
-                        register unsigned int spacesToInsert = 0;
+                        unsigned int spacesToInsert = 0;
                         while (*p == 0x09 /* Tab */) {
                             int equivalentSpaces = (4 - (codePointsCount % 4));
                             spacesToInsert += equivalentSpaces;

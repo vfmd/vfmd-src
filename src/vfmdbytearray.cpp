@@ -936,7 +936,7 @@ void VfmdByteArray::appendCharAsUTF8(int32_t codePointValue)
         return;
     }
     uint32_t cvalue = (uint32_t) codePointValue;
-    register int i, j;
+    int i, j;
     for (i = 0; i < PRIV(utf8_table1_size); i++)
         if ((int)cvalue <= PRIV(utf8_table1)[i]) break;
     assert(i <= 6);
