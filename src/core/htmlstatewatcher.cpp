@@ -176,7 +176,6 @@ void HtmlStateWatcher::endLookahead(bool consumeLookedaheadLines)
 {
     m_callbackContext.isLookingAhead = false;
     m_callbackContext.numOfOpenVerbatimHtmlTagsAtStartOfLookahead = 0;
-    m_callbackContext.openVerbatimHtmlTagsStack->freeItemsAndClear();
     if (consumeLookedaheadLines) {
         htmlparser_delete(m_htmlParserContext);
         m_htmlParserContext = m_htmlParserLookaheadContext;
