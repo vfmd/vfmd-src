@@ -1,109 +1,11 @@
 #include "linkhandler.h"
 #include "vfmdspantagstack.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdlinkandimageutils.h"
 #include "htmltextrenderer.h"
 
 LinkHandler::LinkHandler(VfmdLinkRefMap *linkRefMap)
     : m_linkRefMap(linkRefMap)
 {
-}
-
-static VfmdByteArray enclosedStringOfQuotedString(const VfmdByteArray &quotedString)
-{
-    char firstByte = quotedString.byteAt(0);
-    if (firstByte == '\'') {
-        VfmdRegexp reQuotedString = VfmdCommonRegexps::beginningWithSingleQuotedString();
-        if (reQuotedString.matches(quotedString) &&
-            (reQuotedString.lengthOfMatch() == quotedString.size())) {
-            return reQuotedString.capturedText(1);
-        }
-    } else if (firstByte == '\"') {
-        VfmdRegexp reQuotedString = VfmdCommonRegexps::beginningWithDoubleQuotedString();
-        if (reQuotedString.matches(quotedString) &&
-            (reQuotedString.lengthOfMatch() == quotedString.size())) {
-            return reQuotedString.capturedText(1);
-        }
-    }
-    return VfmdByteArray();
-}
-
-static LinkTreeNode* handlePossibleRefIdLinkCloseTag(const VfmdByteArray &remainingText, int *consumedBytesCount)
-{
-    // Handles link close tags of the form:
-    // "][ref id]"
-
-    // Regexp that matches "] [ref id]"
-    static VfmdRegexp reLinkCloseWithRefId("^\\]\\s*\\[(([^\\\\\\[\\]\\`]|\\\\.)+)\\]");
-
-    if (reLinkCloseWithRefId.matches(remainingText)) {
-        int matchingLength = reLinkCloseWithRefId.lengthOfMatch();
-        VfmdByteArray refIdText = reLinkCloseWithRefId.capturedText(1);
-        VfmdByteArray closeTagText = reLinkCloseWithRefId.capturedText(0);
-        (*consumedBytesCount) = matchingLength;
-        return (new LinkTreeNode(LinkTreeNode::SEPARATE_REF, refIdText, closeTagText));
-    }
-    return 0;
-}
-
-static LinkTreeNode* handlePossibleUrlTitleLinkCloseTag(const VfmdByteArray &remainingText, int *consumedBytesCount)
-{
-    // Handles link close tags of the form:
-    // "](url)"  (or)   "](url 'title')"  (or)   "](<url>)"  (or)  "](<url> 'title')"
-
-    VfmdByteArray rawUrlString;
-    int lengthOfLinkCloseStart = 0;
-
-    // Regexp that matches "] (url"
-    static VfmdRegexp reLinkCloseStartWithURL("^\\]\\s*\\(\\s*([^\\(\\)<>\\`\\s]+)");
-
-    if (reLinkCloseStartWithURL.matches(remainingText)) {
-        lengthOfLinkCloseStart = reLinkCloseStartWithURL.lengthOfMatch();
-        rawUrlString = reLinkCloseStartWithURL.capturedText(1);
-    } else {
-
-        // Regexp that matches "] (<url>"
-        static VfmdRegexp reLinkCloseStartWithBracketedURL("^\\]\\s*\\(\\s*<([^<>\\`]*)>");
-
-        if (reLinkCloseStartWithBracketedURL.matches(remainingText) == 0) {
-            lengthOfLinkCloseStart = reLinkCloseStartWithBracketedURL.lengthOfMatch();
-            rawUrlString = reLinkCloseStartWithBracketedURL.capturedText(1);
-        }
-    }
-
-    if (lengthOfLinkCloseStart > 0) {
-
-        VfmdByteArray residualString = remainingText.mid(lengthOfLinkCloseStart);
-        VfmdByteArray titleString;
-        int lengthOfLinkCloseEnd = 0;
-
-        // Regexp that matches ")"
-        static VfmdRegexp reLinkCloseEndWithoutTitle("^\\s*\\)");
-
-        if (reLinkCloseEndWithoutTitle.matches(residualString)) {
-            lengthOfLinkCloseEnd = reLinkCloseEndWithoutTitle.lengthOfMatch();
-        } else {
-
-            // Regexp that matches "'title')"
-            static VfmdRegexp reLinkCloseEndWitTitle("^\\s*(\"(([^\\\\\"\\`]|\\\\.)*)\"|'(([^\\\\'\\`]|\\\\.)*)')\\s*\\)");
-
-            if (reLinkCloseEndWitTitle.matches(residualString)) {
-                lengthOfLinkCloseEnd = reLinkCloseEndWitTitle.lengthOfMatch();
-                VfmdByteArray attributesString = reLinkCloseEndWitTitle.capturedText(1);
-                assert(attributesString.size() > 0);
-                titleString = enclosedStringOfQuotedString(attributesString);
-            }
-
-        }
-
-        if (lengthOfLinkCloseEnd > 0) {
-            VfmdByteArray linkUrl = rawUrlString.bytesInStringRemoved(" \n\r\f"); // Space, LF, CR and FF
-            VfmdByteArray linkTitle = titleString.bytesInStringRemoved("\n");     // LF only
-            (*consumedBytesCount) = (lengthOfLinkCloseStart + lengthOfLinkCloseEnd);
-            return (new LinkTreeNode(LinkTreeNode::NO_REF, linkUrl, linkTitle));
-        }
-    }
-
-    return 0;
 }
 
 static LinkTreeNode* handlePossibleSelfRefIdLinkCloseTag(const VfmdByteArray &text, int currentPos, int *consumedBytesCount, const OpeningLinkTagStackNode *openingLinkStackNode)
@@ -163,13 +65,13 @@ int LinkHandler::identifySpanTagStartingAt(const VfmdByteArray &text, int curren
             // Check for link close tags of the form:
             // "][ref id]"
             if (linkNode == 0) {
-                linkNode = handlePossibleRefIdLinkCloseTag(remainingText, &consumedBytesCount);
+                linkNode = handlePossibleRefIdCloseTag<LinkTreeNode>(remainingText, &consumedBytesCount);
             }
 
             // Check for link close tags of the form:
             // "](url)"  (or)   "](url 'title')"  (or)   "](<url>)"  (or)  "](<url> 'title')"
             if (linkNode == 0) {
-                linkNode = handlePossibleUrlTitleLinkCloseTag(remainingText, &consumedBytesCount);
+                linkNode = handlePossibleUrlTitleCloseTag<LinkTreeNode>(remainingText, &consumedBytesCount);
             }
 
             // Check for link close tags of the form:

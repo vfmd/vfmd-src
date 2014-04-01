@@ -50,7 +50,8 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/core/htmlstatewatcher.h \
            $$PWD/core/vfmdlinkrefmap.h \
            $$PWD/core/htmltextrenderer.h \
-           $$PWD/core/vfmdutils.h
+           $$PWD/core/vfmdutils.h \
+           $$PWD/core/vfmdlinkandimageutils.h
 
 BLK = $$PWD/blockelements
 
