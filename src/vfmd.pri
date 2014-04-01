@@ -83,11 +83,13 @@ SPN = $$PWD/spanelements
 SOURCES += \
            $$SPN/linkhandler.cpp \
            $$SPN/emphasishandler.cpp \
+           $$SPN/codespanhandler.cpp \
            $$SPN/htmltaghandler.cpp
 
 HEADERS += \
            $$SPN/linkhandler.h \
            $$SPN/emphasishandler.h \
+           $$SPN/codespanhandler.h \
            $$SPN/htmltaghandler.h
 
 INCLUDEPATH += $$PWD $$PWD/core
