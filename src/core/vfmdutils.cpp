@@ -17,3 +17,32 @@ int indexOfStringInSortedList(const char *str, const char *list[], int offset, i
     assert(cmp == 0);
     return mid;
 }
+
+bool locateByteRepetitionSequence(char candidateByte, const VfmdByteArray &text, unsigned int offset,  bool ignoreEscapedBytes,
+                                  int *startIndex, int *count)
+{
+    const char *p = text.data() + offset;
+    unsigned int sz = text.size();
+
+    int indexOfNextCandidateByte = -1;
+    for (unsigned int i = offset; i < sz; i++, p++) {
+        if ((*p == candidateByte) && (!ignoreEscapedBytes || !text.isEscapedAtPosition(i))) {
+            indexOfNextCandidateByte = i;
+            break;
+        }
+    }
+
+    if (indexOfNextCandidateByte >= 0) {
+        (*startIndex) = indexOfNextCandidateByte;
+        for (unsigned int i = indexOfNextCandidateByte; i < sz; i++, p++) {
+            if (*p != candidateByte) {
+                (*count) = (i - indexOfNextCandidateByte);
+                return true;
+            }
+        }
+        (*count) = (sz - indexOfNextCandidateByte);
+        return true;
+    }
+
+    return false;
+}
