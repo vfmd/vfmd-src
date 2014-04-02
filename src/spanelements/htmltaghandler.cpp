@@ -297,9 +297,7 @@ int HtmlTagHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
 
     assert(tagType == HtmlTagHandler::ParserCallbackContext::NOT_HTML ||
            tagType == HtmlTagHandler::ParserCallbackContext::UNDEFINED);
-    stack->topNode()->appendToContainedElements("<");
-    callbackCtx->reset();
-    return 1;
+    return 0;
 }
 
 OpeningHtmlTagStackNode::OpeningHtmlTagStackNode(const VfmdByteArray &tagName, const VfmdByteArray &html)
