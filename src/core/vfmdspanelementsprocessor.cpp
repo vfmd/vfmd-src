@@ -21,7 +21,7 @@ static inline void closeTextFragmentIfOpen(const VfmdByteArray &text, int curren
 }
 
 static inline int applySpanHandler(const VfmdByteArray &text, int currentPos,
-                                    int textFragmentStartPos,
+                                    int *textFragmentStartPosPtr,
                                     VfmdSpanTagStack *stack,
                                     VfmdSpanElementHandler *spanHandler, int triggerOptions)
 {
@@ -36,12 +36,17 @@ static inline int applySpanHandler(const VfmdByteArray &text, int currentPos,
                                       VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
 
     if (shouldInvokeBeforeTriggerByte) {
-        int fromPos = textFragmentStartPos;
+        int fromPos = (*textFragmentStartPosPtr);
         if (fromPos < 0) {
             fromPos = currentPos;
         }
-        return spanHandler->identifySpanTagStartingBetween(text, fromPos, currentPos, stack);
+        int consumedBytes = spanHandler->identifySpanTagStartingBetween(text, fromPos, currentPos, stack);
+        if (consumedBytes > 0) {
+            (*textFragmentStartPosPtr) = -1; // The span handler would have handled the text fragment
+            return (fromPos + consumedBytes - currentPos);
+        }
     } else if (shouldInvokeAtTriggerByte) {
+        closeTextFragmentIfOpen(text, currentPos, textFragmentStartPosPtr, stack);
         return spanHandler->identifySpanTagStartingAt(text, currentPos, stack);
     }
 
@@ -62,11 +67,10 @@ static void processSpanElements(const VfmdByteArray &text, const VfmdElementRegi
         // Ask the span element handlers pertaining to this trigger byte
         int n = registry->spanElementCountForTriggerByte(currentByte);
         if (n > 0) {
-            closeTextFragmentIfOpen(text, currentPos, &textFragmentStartPos, stack);
             for (int i = 0; i < n; i++) {
                 VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
                 int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
-                int consumedBytes = applySpanHandler(text, currentPos, textFragmentStartPos, stack, spanHandler, triggerOptions);
+                int consumedBytes = applySpanHandler(text, currentPos, &textFragmentStartPos, stack, spanHandler, triggerOptions);
                 if (consumedBytes > 0) {
                     currentPos += consumedBytes;
                     while ((currentPos < endPos) && (!text.isUTF8CharStartingAt(currentPos))) {
