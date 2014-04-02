@@ -86,6 +86,7 @@ SOURCES += \
            $$SPN/emphasishandler.cpp \
            $$SPN/codespanhandler.cpp \
            $$SPN/imagehandler.cpp \
+           $$SPN/automaticlinkhandler.cpp \
            $$SPN/htmltaghandler.cpp
 
 HEADERS += \
@@ -93,6 +94,7 @@ HEADERS += \
            $$SPN/emphasishandler.h \
            $$SPN/codespanhandler.h \
            $$SPN/imagehandler.h \
+           $$SPN/automaticlinkhandler.h \
            $$SPN/htmltaghandler.h
 
 INCLUDEPATH += $$PWD $$PWD/core

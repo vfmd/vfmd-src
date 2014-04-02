@@ -18,6 +18,7 @@
 #include "spanelements/codespanhandler.h"
 #include "spanelements/imagehandler.h"
 #include "spanelements/htmltaghandler.h"
+#include "spanelements/automaticlinkhandler.h"
 
 VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements(VfmdLinkRefMap *linkRefMap)
 {
@@ -47,6 +48,8 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements(Vfmd
                                 "!", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
     registry->appendSpanElement(VfmdConstants::HTML_ELEMENT, new HtmlTagHandler,
                                 "<", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
+    registry->appendSpanElement(VfmdConstants::AUTOMATIC_LINK_ELEMENT, new AutomaticLinkHandler,
+                                ":", VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE);
 
     return registry;
 }
