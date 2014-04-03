@@ -987,7 +987,7 @@ int VfmdByteArray::previousUTF8CharStartsAt(unsigned int byteIndex) const
 {
     if (byteIndex > 0) {
         for (int i = byteIndex - 1; i >= 0; i--) {
-            if (IS_UTF8_FIRSTBYTE(byteAt(byteIndex))) {
+            if (IS_UTF8_FIRSTBYTE(byteAt(i))) {
                 return i;
             }
         }
