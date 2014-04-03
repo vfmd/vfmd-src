@@ -193,6 +193,30 @@ void VfmdElementTreeNode::renderTreePrefix(VfmdOutputDevice *outputDevice,
     }
 }
 
+void VfmdElementTreeNode::renderTreeText(VfmdOutputDevice *outputDevice,
+                                         const VfmdElementTreeNodeStack *ancestorNodes,
+                                         const VfmdByteArray &text) const
+{
+    const char *data_ptr = text.data();
+    size_t sz = text.size();
+    if (data_ptr && sz) {
+        renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  \"" : "   \""));
+        for (unsigned int i = 0; i < sz; i++) {
+            if (data_ptr[i] == '\n') {
+                outputDevice->write("\\n\"\n");
+                if (i < (sz - 1)) {
+                    renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  \"" : "   \""));
+                }
+            } else {
+                outputDevice->write(data_ptr[i]);
+            }
+        }
+        if (text.lastByte() != '\n') {
+            outputDevice->write("\"\n");
+        }
+    }
+}
+
 void VfmdElementTreeNode::renderHtmlIndent(VfmdOutputDevice *outputDevice,
                                            const VfmdElementTreeNodeStack *ancestorNodes) const
 {

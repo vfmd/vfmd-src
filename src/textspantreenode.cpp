@@ -58,24 +58,7 @@ void TextSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
     if (format == VfmdConstants::TREE_FORMAT) {
         renderTreePrefix(outputDevice, ancestorNodes, "+- span (text)\n");
         if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {
-            const char *data_ptr = m_text.data();
-            size_t sz = m_text.size();
-            if (data_ptr && sz) {
-                renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  \"" : "   \""));
-                for (unsigned int i = 0; i < sz; i++) {
-                    if (data_ptr[i] == '\n') {
-                        outputDevice->write("\\n\"\n");
-                        if (i < (sz - 1)) {
-                            renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  \"" : "   \""));
-                        }
-                    } else {
-                        outputDevice->write(data_ptr[i]);
-                    }
-                }
-                if (m_text.lastByte() != '\n') {
-                    outputDevice->write("\"\n");
-                }
-            }
+            renderTreeText(outputDevice, ancestorNodes, m_text);
         }
         if (hasChildren()) {
             renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));

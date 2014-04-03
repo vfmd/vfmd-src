@@ -50,6 +50,9 @@ public:
     void renderTreePrefix(VfmdOutputDevice *outputDevice,
                           const VfmdElementTreeNodeStack *ancestorNodes,
                           const char *followup = 0) const;
+    void renderTreeText(VfmdOutputDevice *outputDevice,
+                        const VfmdElementTreeNodeStack *ancestorNodes,
+                        const VfmdByteArray &text) const;
     void renderHtmlIndent(VfmdOutputDevice *outputDevice,
                           const VfmdElementTreeNodeStack *ancestorNodes) const;
 
