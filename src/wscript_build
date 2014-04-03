@@ -1,0 +1,87 @@
+
+include_paths = [ "." ]
+
+# 3rdparty code
+
+bld.recurse("../3rdparty")
+
+include_paths.append("../3rdparty/pcre")
+include_paths.append("../3rdparty/redblacktree")
+include_paths.append("../3rdparty/streamhtmlparser/src")
+
+# vfmd code
+
+vfmd_defines = []
+if bld.variant == "debug":
+    vfmd_defines = [ "VFMD_DEBUG" ]
+
+bld.objects(
+
+    source = [
+
+        # Classes required for
+        # extending the core syntax
+
+        "vfmdbytearray.cpp",
+        "vfmdline.cpp",
+        "vfmdspantagstack.cpp",
+        "vfmddocument.cpp",
+        "vfmdelementregistry.cpp",
+        "vfmddefaultelementregistry.cpp",
+        "vfmdinputlinesequence.cpp",
+        "vfmdblockelementhandler.cpp",
+        "vfmdspanelementhandler.cpp",
+        "vfmdregexp.cpp",
+        "vfmdelementtreenode.cpp",
+        "textspantreenode.cpp",
+        "vfmdoutputdevice.cpp",
+        "vfmdelementtreenodestack.cpp",
+
+        # Classes not required for
+        # extending the core syntax
+
+        "core/vfmdpreprocessor.cpp",
+        "core/scanline.c",
+        "core/vfmdspanelementsprocessor.cpp",
+        "core/vfmdcommonregexps.cpp",
+        "core/vfmdcodespanfilter.cpp",
+        "core/htmlstatewatcher.cpp",
+        "core/vfmdlinkrefmap.cpp",
+        "core/htmltextrenderer.cpp",
+        "core/vfmdutils.cpp",
+
+        # Block-element handlers
+        # for the core syntax
+
+        "blockelements/nullblockhandler.cpp",
+        "blockelements/refresolutionblockhandler.cpp",
+        "blockelements/setextheaderhandler.cpp",
+        "blockelements/codeblockhandler.cpp",
+        "blockelements/atxheaderhandler.cpp",
+        "blockelements/blockquotehandler.cpp",
+        "blockelements/horizontalrulehandler.cpp",
+        "blockelements/unorderedlisthandler.cpp",
+        "blockelements/orderedlisthandler.cpp",
+        "blockelements/paragraphhandler.cpp",
+
+        # Span-element handlers
+        # for the core syntax
+
+        "spanelements/linkhandler.cpp",
+        "spanelements/emphasishandler.cpp",
+        "spanelements/codespanhandler.cpp",
+        "spanelements/imagehandler.cpp",
+        "spanelements/automaticlinkhandler.cpp",
+        "spanelements/htmltaghandler.cpp"
+        ],
+
+    target = "src",
+    includes = include_paths,
+    defines = vfmd_defines,
+    use = [
+        "pcre",
+        "redblacktree",
+        "streamhtmlparser"
+        ]
+    )
+
