@@ -57,12 +57,12 @@ CodeBlockTreeNode::CodeBlockTreeNode(const VfmdByteArray &content)
 void CodeBlockTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
-        outputDevice->write("<pre><code>");
+        outputDevice->write("<pre><code>", 11);
         HtmlTextRenderer::render(m_content, outputDevice,
                                  (HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
                                   HtmlTextRenderer::HTML_ESCAPE_ALL_AMP)
                                  );
-        outputDevice->write("</code></pre>\n");
+        outputDevice->write("</code></pre>\n", 14);
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
