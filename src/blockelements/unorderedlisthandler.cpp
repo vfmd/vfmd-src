@@ -154,12 +154,12 @@ void UnorderedListTreeNode::renderNode(VfmdConstants::RenderFormat format, int r
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
-        outputDevice->write("<ul>\n");
+        outputDevice->write("<ul>\n", 5);
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
-        outputDevice->write("</ul>\n");
+        outputDevice->write("</ul>\n", 6);
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
@@ -174,9 +174,9 @@ void UnorderedListItemTreeNode::renderNode(VfmdConstants::RenderFormat format, i
         bool containsASingleParagraph = (firstChildNode()->elementType() == VfmdConstants::PARAGRAPH_ELEMENT &&
                                          firstChildNode()->nextNode() == 0);
         if (containsASingleParagraph) {
-            outputDevice->write("<li>");
+            outputDevice->write("<li>", 4);
         } else {
-            outputDevice->write("<li>\n");
+            outputDevice->write("<li>\n", 5);
         }
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
         if (!containsASingleParagraph) {
@@ -184,7 +184,7 @@ void UnorderedListItemTreeNode::renderNode(VfmdConstants::RenderFormat format, i
                 renderHtmlIndent(outputDevice, ancestorNodes);
             }
         }
-        outputDevice->write("</li>\n");
+        outputDevice->write("</li>\n", 6);
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
