@@ -58,9 +58,10 @@ void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdByteArray &
             if (m_openBackticksCount == 0) {
                 // We've found a possible start of a code span
                 // Output the part of the line before the start of the code span
-                assert(backticksStartIndex > offset);
-                bool isEndOfAddedTextWithinHtmlQuotedAttribute;
-                watcher->addText(lineContent.mid(offset, backticksStartIndex - offset), &isEndOfAddedTextWithinHtmlQuotedAttribute);
+                bool isEndOfAddedTextWithinHtmlQuotedAttribute = false;
+                if (backticksStartIndex > offset) {
+                    watcher->addText(lineContent.mid(offset, backticksStartIndex - offset), &isEndOfAddedTextWithinHtmlQuotedAttribute);
+                }
                 if (isEndOfAddedTextWithinHtmlQuotedAttribute) {
                     // The backtick is inside a quoted HTML attribute,
                     // so it's not the start of a code span.
