@@ -25,10 +25,10 @@ def build(bld):
     bld.program(
 
         source = [
-            "example/main.cpp",
+            "cmd/main.cpp",
             ],
 
-        target = "vfmd-example",
+        target = "vfmd",
         use = "src",
         includes = "src"
         )
