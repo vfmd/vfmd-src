@@ -21,6 +21,10 @@ static bool isWordSeparatorCharacter(VfmdUnicodeProperties::GeneralCategory cate
     case VfmdUnicodeProperties::ucp_Pi:
     case VfmdUnicodeProperties::ucp_Pf:
     case VfmdUnicodeProperties::ucp_Po:
+    case VfmdUnicodeProperties::ucp_Sc:
+    case VfmdUnicodeProperties::ucp_Sk:
+    case VfmdUnicodeProperties::ucp_Sm:
+    case VfmdUnicodeProperties::ucp_So:
     case VfmdUnicodeProperties::ucp_Cc:
     case VfmdUnicodeProperties::ucp_Cf:
         return true;
@@ -33,9 +37,12 @@ int AutomaticLinkHandler::identifySpanTagStartingBetween(const VfmdByteArray &te
                                                          int fromPos, int toPos,
                                                          VfmdSpanTagStack *stack) const
 {
-    assert(fromPos < toPos);
     assert(toPos < text.size());
     assert(text.byteAt(toPos) == ':');
+
+    if (fromPos >= toPos) {
+        return 0;
+    }
 
     // Rewind from toPos to a potential auto-link starting position
     int startPos = -1;
