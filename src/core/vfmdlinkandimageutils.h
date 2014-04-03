@@ -3,7 +3,7 @@
 
 #include "vfmdbytearray.h"
 #include "vfmdregexp.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdcommonregexps.h"
 
 static VfmdByteArray enclosedStringOfQuotedString(const VfmdByteArray &quotedString)
 {

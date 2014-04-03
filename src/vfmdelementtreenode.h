@@ -3,7 +3,6 @@
 
 #include "vfmdbytearray.h"
 #include "vfmdconstants.h"
-#include "vfmdpointerarray.h"
 #include "vfmdoutputdevice.h"
 
 #define UNUSED_ARG(x) (void)x;

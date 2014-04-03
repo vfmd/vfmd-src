@@ -2,7 +2,7 @@
 #include "automaticlinkhandler.h"
 #include "vfmdregexp.h"
 #include "vfmdspantagstack.h"
-#include "htmltextrenderer.h"
+#include "core/htmltextrenderer.h"
 
 AutomaticLinkHandler::AutomaticLinkHandler()
 {

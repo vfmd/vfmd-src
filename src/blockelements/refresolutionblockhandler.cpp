@@ -1,5 +1,5 @@
 #include "refresolutionblockhandler.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdcommonregexps.h"
 
 RefResolutionBlockHandler::RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap)
     : m_linkRefMap(linkRefMap)

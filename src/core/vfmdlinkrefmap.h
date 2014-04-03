@@ -1,7 +1,10 @@
 #ifndef VFMDLINKREFMAP_H
 #define VFMDLINKREFMAP_H
 
-#include "vfmddictionary.h"
+#include "vfmdbytearray.h"
+
+template<class T>
+class VfmdDictionary;
 
 class VfmdLinkRefMap
 {

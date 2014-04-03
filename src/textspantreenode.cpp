@@ -1,7 +1,7 @@
 #include <string.h>
 #include "textspantreenode.h"
 #include "vfmdoutputdevice.h"
-#include "htmltextrenderer.h"
+#include "core/htmltextrenderer.h"
 
 TextSpanTreeNode::TextSpanTreeNode()
 {

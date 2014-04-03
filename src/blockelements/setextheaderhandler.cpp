@@ -1,6 +1,6 @@
 #include "setextheaderhandler.h"
-#include "vfmdcommonregexps.h"
-#include "vfmdspanelementsprocessor.h"
+#include "core/vfmdcommonregexps.h"
+#include "core/vfmdspanelementsprocessor.h"
 #include "vfmdoutputdevice.h"
 #include "vfmdelementtreenodestack.h"
 

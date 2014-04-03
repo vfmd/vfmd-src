@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "emphasishandler.h"
 #include "vfmdspantagstack.h"
-#include "vfmdscopedpointer.h"
 
 EmphasisHandler::EmphasisHandler()
 {

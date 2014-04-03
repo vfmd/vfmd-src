@@ -1,7 +1,7 @@
 #ifndef VFMDSPANTAGSTACK_H
 #define VFMDSPANTAGSTACK_H
 
-#include "vfmdpointerarray.h"
+#include "core/vfmdpointerarray.h"
 #include "vfmdconstants.h"
 #include "vfmdelementtreenode.h"
 #include "vfmdspanelementhandler.h"

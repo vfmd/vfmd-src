@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "paragraphhandler.h"
-#include "vfmdspanelementsprocessor.h"
+#include "core/vfmdspanelementsprocessor.h"
 #include "vfmdinputlinesequence.h"
 #include "textspantreenode.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdcommonregexps.h"
 #include "vfmdelementtreenodestack.h"
 #include "orderedlisthandler.h"
 #include "unorderedlisthandler.h"

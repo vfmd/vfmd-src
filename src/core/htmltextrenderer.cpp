@@ -1,6 +1,6 @@
 #include "htmltextrenderer.h"
 #include "vfmdoutputdevice.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdcommonregexps.h"
 #include <stdio.h>
 
 void HtmlTextRenderer::render(const VfmdByteArray &text, VfmdOutputDevice *outputDevice, int options)

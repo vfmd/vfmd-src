@@ -5,7 +5,7 @@
 #include "vfmdelementtreenode.h"
 #include "vfmdinputlinesequence.h"
 #include "vfmdconstants.h"
-#include "vfmdpointerarray.h"
+#include "core/vfmdpointerarray.h"
 
 #define UNUSED_ARG(x) (void)x;
 

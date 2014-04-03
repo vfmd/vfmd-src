@@ -1,6 +1,6 @@
 #include "atxheaderhandler.h"
 #include "core/vfmdcommonregexps.h"
-#include "vfmdspanelementsprocessor.h"
+#include "core/vfmdspanelementsprocessor.h"
 
 void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {

@@ -1,5 +1,5 @@
 #include "htmlstatewatcher.h"
-#include "vfmdutils.h"
+#include "core/vfmdutils.h"
 
 extern "C" {
 #include "streamhtmlparser/htmlparser.h"

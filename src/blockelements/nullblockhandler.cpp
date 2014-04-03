@@ -1,6 +1,5 @@
 #include "nullblockhandler.h"
 #include "core/vfmdcommonregexps.h"
-#include "vfmdspanelementsprocessor.h"
 
 void NullBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {

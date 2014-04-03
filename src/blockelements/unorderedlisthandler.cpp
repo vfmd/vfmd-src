@@ -1,5 +1,5 @@
 #include "unorderedlisthandler.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdcommonregexps.h"
 #include "vfmdelementtreenodestack.h"
 
 void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const

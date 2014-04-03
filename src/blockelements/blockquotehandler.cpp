@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "blockquotehandler.h"
 #include "vfmdinputlinesequence.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdcommonregexps.h"
 
 void BlockquoteHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {

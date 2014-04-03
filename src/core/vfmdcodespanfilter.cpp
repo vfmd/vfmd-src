@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "vfmdcodespanfilter.h"
-#include "htmlstatewatcher.h"
+#include "core/htmlstatewatcher.h"
 
 VfmdCodeSpanFilter::VfmdCodeSpanFilter()
     : m_reCodeSpanMark(VfmdRegexp("^(`+)([^`]|$)"))

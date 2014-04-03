@@ -1,6 +1,6 @@
 #include "horizontalrulehandler.h"
 #include "vfmdregexp.h"
-#include "vfmdcommonregexps.h"
+#include "core/vfmdcommonregexps.h"
 
 void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {

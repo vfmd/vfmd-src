@@ -1,8 +1,8 @@
 #include "imagehandler.h"
 #include "vfmdspantagstack.h"
 #include "vfmdregexp.h"
-#include "vfmdlinkandimageutils.h"
-#include "htmltextrenderer.h"
+#include "core/vfmdlinkandimageutils.h"
+#include "core/htmltextrenderer.h"
 
 #include <stdio.h>
 

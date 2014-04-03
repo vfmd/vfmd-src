@@ -1,8 +1,7 @@
 #include "htmltaghandler.h"
-#include "vfmddictionary.h"
 #include "vfmdspantagstack.h"
-#include "htmltextrenderer.h"
-#include "vfmdutils.h"
+#include "core/htmltextrenderer.h"
+#include "core/vfmdutils.h"
 
 extern "C" {
 #include "streamhtmlparser/htmlparser.h"

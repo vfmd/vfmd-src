@@ -2,7 +2,7 @@
 #define IMAGEHANDLER_H
 
 #include "vfmdspanelementhandler.h"
-#include "vfmdlinkrefmap.h"
+#include "core/vfmdlinkrefmap.h"
 
 class ImageHandler : public VfmdSpanElementHandler
 {

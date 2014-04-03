@@ -2,7 +2,7 @@
 #define VFMDELEMENTTREENODESTACK_H
 
 #include "vfmdelementtreenode.h"
-#include "vfmdpointerarray.h"
+#include "core/vfmdpointerarray.h"
 
 class VfmdElementTreeNodeStack {
 public:

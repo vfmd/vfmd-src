@@ -1,4 +1,5 @@
 #include "vfmdlinkrefmap.h"
+#include "core/vfmddictionary.h"
 
 VfmdLinkRefMap::VfmdLinkRefMap()
     : m_map(new VfmdDictionary<LinkData>)

@@ -1,7 +1,7 @@
 #ifndef VFMDSPANELEMENTREGISTRY_H
 #define VFMDSPANELEMENTREGISTRY_H
 
-#include "vfmdpointerarray.h"
+#include "core/vfmdpointerarray.h"
 #include "vfmdbytearray.h"
 
 class VfmdSpanElementHandler;

@@ -1,5 +1,5 @@
 #include "codeblockhandler.h"
-#include "htmltextrenderer.h"
+#include "core/htmltextrenderer.h"
 
 void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
 {

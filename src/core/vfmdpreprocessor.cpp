@@ -1,5 +1,5 @@
 #include "vfmdpreprocessor.h"
-#include "scanline.h"
+#include "core/scanline.h"
 #include "vfmdinputlinesequence.h"
 #include <stdlib.h>
 #include <stdio.h>

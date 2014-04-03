@@ -1,7 +1,7 @@
 #include "linkhandler.h"
 #include "vfmdspantagstack.h"
 #include "core/vfmdlinkandimageutils.h"
-#include "htmltextrenderer.h"
+#include "core/htmltextrenderer.h"
 
 LinkHandler::LinkHandler(VfmdLinkRefMap *linkRefMap)
     : m_linkRefMap(linkRefMap)

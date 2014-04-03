@@ -2,7 +2,6 @@
 #include "vfmdspanelementsprocessor.h"
 #include "vfmdelementregistry.h"
 #include "vfmdspantagstack.h"
-#include "vfmdscopedpointer.h"
 #include "vfmdspanelementhandler.h"
 #include "vfmdelementtreenode.h"
 

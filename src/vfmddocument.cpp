@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "vfmddocument.h"
-#include "vfmdpreprocessor.h"
+#include "core/vfmdpreprocessor.h"
 #include "vfmdinputlinesequence.h"
 
 VfmdDocument::VfmdDocument(const VfmdElementRegistry *registry)

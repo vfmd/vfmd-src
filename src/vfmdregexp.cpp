@@ -3,7 +3,6 @@
 #include <string.h>
 #include "pcre.h"
 #include "vfmdregexp.h"
-#include "vfmdscopedpointer.h"
 
 #define MAX_CAPTURE_COUNT 40
 
