@@ -88,12 +88,12 @@ void BlockquoteTreeNode::renderNode(VfmdConstants::RenderFormat format, int rend
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
-        outputDevice->write("<blockquote>\n");
+        outputDevice->write("<blockquote>\n", 13);
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
-        outputDevice->write("</blockquote>\n");
+        outputDevice->write("</blockquote>\n", 14);
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
