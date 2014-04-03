@@ -376,21 +376,26 @@ void HtmlTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOpti
         if (m_htmlElementType == VERBATIM_HTML_CHUNK) {
             outputDevice->write("verbatim-html\n");
             assert(hasChildren() == false);
-            return;
-        }
-        if (m_htmlElementType == COMMENT) {
-            outputDevice->write("comment");
         } else {
-            outputDevice->write(m_tagName);
+            if (m_htmlElementType == COMMENT) {
+                outputDevice->write("comment");
+            } else {
+                outputDevice->write(m_tagName);
+            }
+            if (m_htmlElementType == EMPTY_TAG) {
+                outputDevice->write(", self-closing tag");
+            } if (m_htmlElementType == START_TAG_ONLY) {
+                outputDevice->write(", only start tag");
+            } else if (m_htmlElementType == END_TAG_ONLY) {
+                outputDevice->write(", only end tag");
+            }
+            outputDevice->write("\n");
         }
-        if (m_htmlElementType == EMPTY_TAG) {
-            outputDevice->write(", self-closing tag");
-        } if (m_htmlElementType == START_TAG_ONLY) {
-            outputDevice->write(", only start tag");
-        } else if (m_htmlElementType == END_TAG_ONLY) {
-            outputDevice->write(", only end tag");
+        if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {
+            if (m_htmlElementType == COMMENT || m_htmlElementType == VERBATIM_HTML_CHUNK) {
+                renderTreeText(outputDevice, ancestorNodes, m_html);
+            }
         }
-        outputDevice->write("\n");
         if (hasChildren()) {
             renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
