@@ -61,6 +61,9 @@ void CodeSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
         outputDevice->write("</code>", 7);
         assert(hasChildren() == false);
     } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
+        renderTreePrefix(outputDevice, ancestorNodes, "+- span (code-span)\n");
+        if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {
+            renderTreeText(outputDevice, ancestorNodes, m_content);
+        }
     }
 }
