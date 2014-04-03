@@ -64,6 +64,9 @@ void CodeBlockTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
                                  );
         outputDevice->write("</code></pre>\n", 14);
     } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
+        renderTreePrefix(outputDevice, ancestorNodes, "+- block (code-block)\n");
+        if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {
+            renderTreeText(outputDevice, ancestorNodes, m_content);
+        }
     }
 }
