@@ -4,7 +4,7 @@
 
 VfmdLine::VfmdLine(const VfmdByteArray &ba)
     : m_lineContent(ba)
-    , m_isLineDataPrecomputed(false)
+    , m_isLineDataComputed(false)
     , m_isHorizontalRuleComputed(false)
 {
 }
@@ -62,9 +62,9 @@ static bool isAllBytesWhitespace(const unsigned char *p, int sz)
     return true;
 }
 
-void VfmdLine::precomputeLineData()
+void VfmdLine::ensureLineDataComputed()
 {
-    if (m_isLineDataPrecomputed) {
+    if (m_isLineDataComputed) {
         return;
     }
     const unsigned char *p = reinterpret_cast<const unsigned char *>(m_lineContent.data());
@@ -82,13 +82,13 @@ void VfmdLine::precomputeLineData()
             } else {
                 m_isBlankLine = false;
             }
-            m_isLineDataPrecomputed = true;
+            m_isLineDataComputed = true;
             return;
         }
     }
     m_leadingSpacesCount = m_lineContent.size();
     m_isBlankLine = true;
-    m_isLineDataPrecomputed = true;
+    m_isLineDataComputed = true;
 }
 
 char VfmdLine::firstNonSpace() const
@@ -96,39 +96,33 @@ char VfmdLine::firstNonSpace() const
     if (size() == 0) {
         return 0;
     }
-    if (m_isLineDataPrecomputed) {
-        return (m_lineContent.data()[m_leadingSpacesCount]);
-    }
-    return (firstNonSpaceInString(m_lineContent.data(), m_lineContent.size()));
+    const_cast<VfmdLine *>(this)->ensureLineDataComputed();
+    return (m_lineContent.data()[m_leadingSpacesCount]);
 }
 
 unsigned int VfmdLine::leadingSpacesCount() const
 {
-    if (m_isLineDataPrecomputed) {
-        return m_leadingSpacesCount;
-    }
-    return (leadingSpacesCountInString(m_lineContent.data(), m_lineContent.size()));
+    const_cast<VfmdLine *>(this)->ensureLineDataComputed();
+    return m_leadingSpacesCount;
 }
 
 bool VfmdLine::isBlankLine() const
 {
-    if (m_isLineDataPrecomputed) {
-        return m_isBlankLine;
-    }
-    return (isAllBytesWhitespace(reinterpret_cast<const unsigned char *>(m_lineContent.data()), m_lineContent.size()));
+    const_cast<VfmdLine *>(this)->ensureLineDataComputed();
+    return m_isBlankLine;
 }
 
 void VfmdLine::chopLeft(unsigned int n)
 {
     m_lineContent.chopLeft(n);
-    m_isLineDataPrecomputed = false;
+    m_isLineDataComputed = false;
     m_isHorizontalRuleComputed = false;
 }
 
 void VfmdLine::chopRight(unsigned int n)
 {
     m_lineContent.chopRight(n);
-    m_isLineDataPrecomputed = false;
+    m_isLineDataComputed = false;
     m_isHorizontalRuleComputed = false;
 }
 

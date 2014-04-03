@@ -18,8 +18,6 @@ void VfmdInputLineSequence::addLine(VfmdLine *line)
 {
     assert(line != 0);
 
-    line->precomputeLineData();
-
     if (m_nextLine == 0) {
         m_nextLine = line;
     } else {
