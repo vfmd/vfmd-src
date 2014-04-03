@@ -30,6 +30,10 @@ static int fringeRankForCategory(VfmdUnicodeProperties::GeneralCategory category
     case VfmdUnicodeProperties::ucp_Pi:
     case VfmdUnicodeProperties::ucp_Pf:
     case VfmdUnicodeProperties::ucp_Po:
+    case VfmdUnicodeProperties::ucp_Sc:
+    case VfmdUnicodeProperties::ucp_Sk:
+    case VfmdUnicodeProperties::ucp_Sm:
+    case VfmdUnicodeProperties::ucp_So:
         return 1;
     default:
         return 2;
