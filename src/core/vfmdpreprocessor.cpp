@@ -146,9 +146,11 @@ void VfmdPreprocessor::addBytes(const char *data, int length)
 
 void VfmdPreprocessor::end()
 {
+    m_unconsumedBytes.appendByte('\n');
     m_unconsumedBytes.squeeze();
     if (m_unconsumedBytes.size() > 0) {
-        m_lineSequence->addLine(new VfmdLine(m_unconsumedBytes));
+        consumeLines(reinterpret_cast<const unsigned char *>(m_unconsumedBytes.data()),
+                     m_unconsumedBytes.size(), &m_text, m_lineSequence);
         m_unconsumedBytes.clear();
     }
 }
