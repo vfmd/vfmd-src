@@ -82,7 +82,7 @@ void HtmlTextRenderer::render(const VfmdByteArray &text, VfmdOutputDevice *outpu
                         outputDevice->write(text.data() + plainTextStart, i - plainTextStart);
                     }
                     plainTextStart = i + 1;
-                    outputDevice->write("&amp;");
+                    outputDevice->write("&amp;", 5);
                 } else if (shouldEscapeAmpUnlessCharRef) {
                     VfmdRegexp reCharRef = VfmdCommonRegexps::htmlCharacterReference();
                     if (reCharRef.locateInStringWithoutCapturing(p, sz - i, 0) < 0) {
