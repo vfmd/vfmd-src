@@ -240,9 +240,10 @@ int VfmdElementRegistry::indexOfTriggerByteIn(const VfmdByteArray &ba, int offse
     const unsigned int sz = ba.size();
     const char *p = ba.data() + i;
     while (i < sz) {
-        if (m_spanElementsByTriggerByte[*p++] != 0) {
+        if (m_spanElementsByTriggerByte[(unsigned char) (*p)] != 0) {
             return i;
         }
+        p++;
         i++;
     }
     return sz;
