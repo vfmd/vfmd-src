@@ -21,7 +21,7 @@ void CodeBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     if (isEndOfParentLineSequence) {
         m_isAtEnd = true;
     } else {
-        if (nextLine->leadingSpacesCount() < 4) {
+        if (!nextLine->isBlankLine() && nextLine->leadingSpacesCount() < 4) {
             m_isAtEnd = true;
         }
     }
