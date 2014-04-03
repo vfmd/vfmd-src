@@ -4,8 +4,7 @@
 #include "core/vfmdutils.h"
 
 VfmdCodeSpanFilter::VfmdCodeSpanFilter()
-    : m_reCodeSpanMark(VfmdRegexp("^(`+)([^`]|$)"))
-    , m_openBackticksCount(0)
+    : m_openBackticksCount(0)
 {
 }
 
