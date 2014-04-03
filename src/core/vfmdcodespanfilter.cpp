@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "vfmdcodespanfilter.h"
 #include "core/htmlstatewatcher.h"
+#include "core/vfmdutils.h"
 
 VfmdCodeSpanFilter::VfmdCodeSpanFilter()
     : m_reCodeSpanMark(VfmdRegexp("^(`+)([^`]|$)"))
@@ -34,34 +35,6 @@ static bool isEscapedAtEndOfString(bool startIsEscaped, const char *str, unsigne
     return isEscaped;
 }
 
-static bool findBackticksSpan(const VfmdByteArray &ba, unsigned int offset, int *startIndex, int *backticksCount)
-{
-    static VfmdRegexp reCodeSpanMark("^(`+)([^`]|$)");
-
-    int indexOfFirstUnescapedBacktick = -1;
-    unsigned int sz = ba.size();
-
-    for (unsigned int i = offset; i < sz; i++) {
-        if ((ba.byteAt(i) == '`') && (!isEscapedAtEndOfString(false, ba.data(), sz - i))) {
-            indexOfFirstUnescapedBacktick = i;
-            break;
-        }
-    }
-
-    if (indexOfFirstUnescapedBacktick >= 0) {
-        bool ok = reCodeSpanMark.matches(ba.mid(indexOfFirstUnescapedBacktick));
-        assert(ok);
-        if (!ok) {
-            return false;
-        }
-        int numOfBackticks = (int) reCodeSpanMark.capturedText(1).size();
-        (*startIndex) = indexOfFirstUnescapedBacktick;
-        (*backticksCount) = numOfBackticks;
-        return true;
-    }
-    return false;
-}
-
 void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdByteArray &lineContent, HtmlStateWatcher *watcher)
 {
     unsigned int offset = 0;
@@ -70,8 +43,8 @@ void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdByteArray &
     while (offset < sz) {
 
         int backticksStartIndex, backticksCount;
-        bool backtickFound = findBackticksSpan(lineContent, offset, &backticksStartIndex, &backticksCount);
-
+        bool backtickFound = locateByteRepetitionSequence('`', lineContent, offset, true /* ignoreEscapedBytes */,
+                                                          &backticksStartIndex, &backticksCount);
         if (!backtickFound) {
             if (m_openBackticksCount == 0) {
                 // No backticks found and we're not in a code span. Output the part after the offset.
