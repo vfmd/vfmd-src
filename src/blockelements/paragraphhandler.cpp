@@ -292,22 +292,22 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
         if (isSoleContentOfAListItem) {
             // Use a compact output
             if (canEncloseContentInPTags) {
-                outputDevice->write("<p>");
+                outputDevice->write("<p>", 3);
             }
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
             if (canEncloseContentInPTags) {
-                outputDevice->write("</p>");
+                outputDevice->write("</p>", 4);
             }
         } else {
             if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
                 renderHtmlIndent(outputDevice, ancestorNodes);
             }
             if (canEncloseContentInPTags) {
-                outputDevice->write("<p>");
+                outputDevice->write("<p>", 3);
             }
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
             if (canEncloseContentInPTags) {
-                outputDevice->write("</p>\n");
+                outputDevice->write("</p>\n", 5);
             } else {
                 outputDevice->write('\n');
             }
