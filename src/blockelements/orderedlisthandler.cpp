@@ -183,17 +183,17 @@ void OrderedListTreeNode::renderNode(VfmdConstants::RenderFormat format, int ren
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
         if (m_startingNumber.size() > 0 && !m_startingNumber.isEqualTo("1")) {
-            outputDevice->write("<ol start=\"");
+            outputDevice->write("<ol start=\"", 11);
             outputDevice->write(m_startingNumber);
-            outputDevice->write("\">\n");
+            outputDevice->write("\">\n", 3);
         } else {
-            outputDevice->write("<ol>\n");
+            outputDevice->write("<ol>\n", 5);
         }
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
         if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
             renderHtmlIndent(outputDevice, ancestorNodes);
         }
-        outputDevice->write("</ol>\n");
+        outputDevice->write("</ol>\n", 6);
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
@@ -208,9 +208,9 @@ void OrderedListItemTreeNode::renderNode(VfmdConstants::RenderFormat format, int
         bool containsASingleParagraph = (firstChildNode()->elementType() == VfmdConstants::PARAGRAPH_ELEMENT &&
                                          firstChildNode()->nextNode() == 0);
         if (containsASingleParagraph) {
-            outputDevice->write("<li>");
+            outputDevice->write("<li>", 4);
         } else {
-            outputDevice->write("<li>\n");
+            outputDevice->write("<li>\n", 5);
         }
         renderChildren(format, renderOptions, outputDevice, ancestorNodes);
         if (!containsASingleParagraph) {
@@ -218,7 +218,7 @@ void OrderedListItemTreeNode::renderNode(VfmdConstants::RenderFormat format, int
                 renderHtmlIndent(outputDevice, ancestorNodes);
             }
         }
-        outputDevice->write("</li>\n");
+        outputDevice->write("</li>\n", 6);
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
