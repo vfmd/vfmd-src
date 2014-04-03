@@ -75,11 +75,11 @@ void AtxHeaderTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
         assert(m_headingLevel >= 1);
         assert(m_headingLevel <= 6);
         if (m_headingLevel >= 1 && m_headingLevel <= 6) {
-            outputDevice->write("<h");
+            outputDevice->write("<h", 2);
             outputDevice->write('0' + m_headingLevel);
             outputDevice->write('>');
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-            outputDevice->write("</h");
+            outputDevice->write("</h", 3);
             outputDevice->write('0' + m_headingLevel);
             outputDevice->write(">\n");
         }
