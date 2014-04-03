@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     VfmdScopedPointer<VfmdElementRegistry> registry(VfmdElementRegistry::createRegistryWithDefaultElements(&linkRefMap));
     VfmdDocument document(registry.data());
 
+    // Parse command-line options
     char *fileName = 0;
     FILE *inputFile = 0;
     bool isTreeFormatOutput = false;
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
         inputFile = stdin;
     }
 
+    // Read the input document and pass on to VfmdDocument
     char buffer[BUFFER_SIZE];
     while(!feof(inputFile)) {
         int bytesRead = fread(buffer, sizeof(char), BUFFER_SIZE, inputFile);
@@ -52,9 +54,11 @@ int main(int argc, char *argv[])
     }
     fclose(inputFile);
 
+    // Get the parse tree from the VfmdDocument
     VfmdElementTreeNode *parseTree = document.end();
-    VfmdConsoleOutputDevice console;
 
+    // Render the tree to an output device
+    VfmdConsoleOutputDevice console;
     if (isTreeFormatOutput) {
         parseTree->renderSequence(VfmdConstants::TREE_FORMAT,
                                   (VfmdConstants::TREE_RENDER_INCLUDES_TEXT),
@@ -66,6 +70,7 @@ int main(int argc, char *argv[])
                                   &console);
     }
 
+    // Free the tree
     VfmdElementTreeNode::freeSubtreeSequence(parseTree);
 
     return 0;
