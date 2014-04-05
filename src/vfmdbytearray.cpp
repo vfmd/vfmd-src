@@ -147,29 +147,6 @@ void VfmdByteArray::appendBytes(char byte1, char byte2)
     m_length += 2;
 }
 
-void VfmdByteArray::appendBytes(char byte1, char byte2, char byte3)
-{
-    if ((m_offset + m_length) < d->size) {
-        copyOnWrite(3);
-    }
-    d->appendByte(byte1);
-    d->appendByte(byte2);
-    d->appendByte(byte3);
-    m_length += 3;
-}
-
-void VfmdByteArray::appendBytes(char byte1, char byte2, char byte3, char byte4)
-{
-    if ((m_offset + m_length) < d->size) {
-        copyOnWrite(4);
-    }
-    d->appendByte(byte1);
-    d->appendByte(byte2);
-    d->appendByte(byte3);
-    d->appendByte(byte4);
-    m_length += 4;
-}
-
 void VfmdByteArray::appendByteNtimes(char byte, int n)
 {
     if ((m_offset + m_length) < d->size) {
