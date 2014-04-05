@@ -117,6 +117,17 @@ void VfmdByteArray::invalidate()
 void VfmdByteArray::append(const char *data, int length)
 {
     if ((m_offset + m_length) < d->size) {
+        if ((m_offset + m_length + length) <= d->size) {
+            const char *endOfThisData = (d->data + m_offset + m_length);
+            if ((endOfThisData == data) ||
+                (strncmp(endOfThisData, data, length) == 0)) {
+                // The data to append is already in d->data at the right place.
+                // Just need to update the range we're looking at.
+                // FIXME: strncmp() doesn't like null bytes
+                m_length += length;
+                return;
+            }
+        }
         copyOnWrite(length);
     }
     d->append(data, length);
@@ -131,6 +142,12 @@ void VfmdByteArray::append(const VfmdByteArray &other)
 void VfmdByteArray::appendByte(char byte1)
 {
     if ((m_offset + m_length) < d->size) {
+        if (d->data[m_offset + m_length] == byte1) {
+            // The byte to append is already in d->data at the right place.
+            // Just need to update the range we're looking at.
+            m_length += 1;
+            return;
+        }
         copyOnWrite(1);
     }
     d->appendByte(byte1);
@@ -140,6 +157,15 @@ void VfmdByteArray::appendByte(char byte1)
 void VfmdByteArray::appendBytes(char byte1, char byte2)
 {
     if ((m_offset + m_length) < d->size) {
+        if ((m_offset + m_length + 2) <= d->size) {
+            if ((d->data[m_offset + m_length] == byte1) &&
+                (d->data[m_offset + m_length + 1] == byte2)) {
+                // The bytes to append are already in d->data at the right place.
+                // Just need to update the range we're looking at.
+                m_length += 2;
+                return;
+            }
+        }
         copyOnWrite(2);
     }
     d->appendByte(byte1);
