@@ -119,3 +119,8 @@ void HtmlTextRenderer::renderURL(VfmdOutputDevice *outputDevice, const VfmdByteA
 {
     houdini_escape_href(outputDevice, text.data(), text.size());
 }
+
+void HtmlTextRenderer::renderCode(VfmdOutputDevice *outputDevice, const VfmdByteArray &text)
+{
+    houdini_escape_html(outputDevice, text.data(), text.size());
+}

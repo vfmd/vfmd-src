@@ -58,10 +58,7 @@ void CodeBlockTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
 {
     if (format == VfmdConstants::HTML_FORMAT) {
         outputDevice->write("<pre><code>", 11);
-        HtmlTextRenderer::render(m_content, outputDevice,
-                                 (HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_AMP)
-                                 );
+        HtmlTextRenderer::renderCode(outputDevice, m_content);
         outputDevice->write("</code></pre>\n", 14);
     } else {
         renderTreePrefix(outputDevice, ancestorNodes, "+- block (code-block)\n");

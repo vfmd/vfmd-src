@@ -35,5 +35,6 @@
 class VfmdOutputDevice;
 
 extern void houdini_escape_href(VfmdOutputDevice *outputDevice, const char *src, unsigned int size);
+extern void houdini_escape_html(VfmdOutputDevice *outputDevice, const char *src, unsigned int size);
 
 #endif // __HOUDINI_H__

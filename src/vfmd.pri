@@ -24,7 +24,8 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/core/vfmdlinkrefmap.cpp \
            $$PWD/core/htmltextrenderer.cpp \
            $$PWD/core/vfmdutils.cpp \
-           $$PWD/core/houdini_href_e.cpp
+           $$PWD/core/houdini_href_e.cpp \
+           $$PWD/core/houdini_html_e.cpp
 
 HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/vfmdline.h \
