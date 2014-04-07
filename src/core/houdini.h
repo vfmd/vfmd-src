@@ -34,7 +34,11 @@
 
 class VfmdOutputDevice;
 
+// Input is html-ish text (for e.g. input can have HTML entities like "&copy;").
+// Output should be a URL that can be included in HTML.
 extern void houdini_escape_href(VfmdOutputDevice *outputDevice, const char *src, unsigned int size);
+
+// Input is definitely text. Output should be HTML.
 extern void houdini_escape_html(VfmdOutputDevice *outputDevice, const char *src, unsigned int size);
 
 #endif // __HOUDINI_H__
