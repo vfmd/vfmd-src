@@ -152,10 +152,7 @@ void AutomaticLinkTreeNode::renderNode(VfmdConstants::RenderFormat format, int r
 {
     if (format == VfmdConstants::HTML_FORMAT) {
         outputDevice->write("<a href=\"", 9);
-        HtmlTextRenderer::render(m_url, outputDevice,
-                                 (HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
-                                  HtmlTextRenderer::HTML_ESCAPE_AMP_UNLESS_CHARACTER_REFERENCE |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_QUOTE));
+        HtmlTextRenderer::renderURL(outputDevice, m_url);
         outputDevice->write("\">", 2);
         HtmlTextRenderer::render(m_url, outputDevice,
                                  (HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |

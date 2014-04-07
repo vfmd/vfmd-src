@@ -116,10 +116,7 @@ static void renderImageTag(const VfmdByteArray &url, const VfmdByteArray &title,
 {
     const bool shouldUseSelfClosingTags = ((options & HtmlTextRenderer::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) == HtmlTextRenderer::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
     outputDevice->write("<img src=\"", 10);
-    HtmlTextRenderer::render(url, outputDevice,
-                             (HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
-                              HtmlTextRenderer::HTML_ESCAPE_AMP_UNLESS_CHARACTER_REFERENCE |
-                              HtmlTextRenderer::HTML_ESCAPE_ALL_QUOTE));
+    HtmlTextRenderer::renderURL(outputDevice, url);
     if (altText.isValid()) {
         outputDevice->write("\" alt=\"", 7);
         HtmlTextRenderer::render(altText, outputDevice,
