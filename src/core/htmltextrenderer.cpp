@@ -1,6 +1,7 @@
 #include "htmltextrenderer.h"
 #include "vfmdoutputdevice.h"
 #include "core/vfmdcommonregexps.h"
+#include "core/houdini.h"
 #include <stdio.h>
 
 void HtmlTextRenderer::render(const VfmdByteArray &text, VfmdOutputDevice *outputDevice, int options)
@@ -112,4 +113,9 @@ void HtmlTextRenderer::render(const VfmdByteArray &text, VfmdOutputDevice *outpu
             outputDevice->write(text.data() + plainTextStart, sz - plainTextStart);
         }
     }
+}
+
+void HtmlTextRenderer::renderURL(VfmdOutputDevice *outputDevice, const VfmdByteArray &text)
+{
+    houdini_escape_href(outputDevice, text.data(), text.size());
 }

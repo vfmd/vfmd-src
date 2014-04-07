@@ -23,7 +23,8 @@ SOURCES += $$PWD/vfmdbytearray.cpp \
            $$PWD/core/htmlstatewatcher.cpp \
            $$PWD/core/vfmdlinkrefmap.cpp \
            $$PWD/core/htmltextrenderer.cpp \
-           $$PWD/core/vfmdutils.cpp
+           $$PWD/core/vfmdutils.cpp \
+           $$PWD/core/houdini_href_e.cpp
 
 HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/vfmdline.h \
@@ -51,7 +52,8 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/core/vfmdlinkrefmap.h \
            $$PWD/core/htmltextrenderer.h \
            $$PWD/core/vfmdutils.h \
-           $$PWD/core/vfmdlinkandimageutils.h
+           $$PWD/core/vfmdlinkandimageutils.h \
+           $$PWD/core/houdini.h
 
 BLK = $$PWD/blockelements
 

@@ -49,6 +49,7 @@ bld.objects(
         "core/vfmdlinkrefmap.cpp",
         "core/htmltextrenderer.cpp",
         "core/vfmdutils.cpp",
+        "core/houdini_href_e.cpp",
 
         # Block-element handlers
         # for the core syntax
