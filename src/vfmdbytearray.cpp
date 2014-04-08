@@ -569,6 +569,40 @@ VfmdByteArray VfmdByteArray::chomped() const
     return ba;
 }
 
+VfmdByteArray VfmdByteArray::replaced(char byte, const char *str, int len, bool onlyWhenUnescaped) const
+{
+    const char *data_ptr = data();
+    size_t sz = size();
+
+    int indexOfFirstByteToReplace = -1;
+    for (unsigned int i = 0; i < sz; i++) {
+        if (data_ptr[i] == byte && (!onlyWhenUnescaped || isEscapedAtPosition(i))) {
+            indexOfFirstByteToReplace = i;
+            break;
+        }
+    }
+
+    if (indexOfFirstByteToReplace < 0) {
+        return *(this);
+    }
+
+    VfmdByteArray ba;
+    ba.reserve(sz + len * 10);
+    if (indexOfFirstByteToReplace > 0) {
+        ba.append(data_ptr, indexOfFirstByteToReplace);
+        ba.append(str, len);
+    }
+    for (unsigned int i = indexOfFirstByteToReplace + 1; i < sz; i++) {
+        const char c = data_ptr[i];
+        if (c == byte && (!onlyWhenUnescaped || isEscapedAtPosition(i))) {
+            ba.append(str, len);
+        } else {
+            ba.appendByte(c);
+        }
+    }
+    return ba;
+}
+
 void VfmdByteArray::reserve(size_t length)
 {
     if (d->allocatedSize < length) {

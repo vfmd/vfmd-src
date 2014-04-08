@@ -92,6 +92,9 @@ public:
     void chomp();
     VfmdByteArray chomped() const;
 
+    /* Replacing a byte */
+    VfmdByteArray replaced(char byte, const char *str, int len, bool onlyWhenUnescaped = false) const;
+
     /* Ensure there are atleast 'length' bytes of allocated space.
      * This can cause an internal realloc and/or data copy. */
     void reserve(size_t length);
