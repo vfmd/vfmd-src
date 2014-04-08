@@ -27,6 +27,9 @@ public:
     static void render(const VfmdByteArray &text, VfmdOutputDevice *outputDevice, int options = HtmlTextRenderer::DEFAULT_OPTIONS);
     static void renderURL(VfmdOutputDevice *outputDevice, const VfmdByteArray &text);
     static void renderCode(VfmdOutputDevice *outputDevice, const VfmdByteArray &text);
+    static void renderTagAttribute(VfmdOutputDevice *outputDevice, const VfmdByteArray &text);
+    static void renderURLAsText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text);
+    static void renderText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text, int htmlRenderOptions);
 
 private:
     HtmlTextRenderer(); // Cannot instantiate this class

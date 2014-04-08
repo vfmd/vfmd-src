@@ -34,6 +34,8 @@
 
 #include "houdini.h"
 #include "vfmdoutputdevice.h"
+#include "vfmdconstants.h"
+#include "core/vfmdcommonregexps.h"
 
 /**
  * According to the OWASP rules:
@@ -93,5 +95,130 @@ void houdini_escape_html(VfmdOutputDevice *outputDevice, const char *src, unsign
         outputDevice->write(HTML_ESCAPES[esc]);
 
         i++;
+    }
+}
+
+static const char HTMLISH_ESCAPE_TABLE[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0,    // LF
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0,    // "&'
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0,    // <>
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0,    // Backslash
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray &text, int textProcessingOptions, int renderOptions)
+{
+    const char *src = text.data();
+    size_t size = text.size();
+    size_t i = 0, org, esc = 0;
+    static VfmdRegexp reCharRef = VfmdCommonRegexps::htmlCharacterReference();
+
+    bool shouldConvertSpaceSpaceLFtoBR = false;
+    bool shouldConvertLFtoBR = false;
+    if ((textProcessingOptions & INSERT_BR_TAGS) == INSERT_BR_TAGS) {
+        shouldConvertSpaceSpaceLFtoBR = true;
+        shouldConvertLFtoBR = ((renderOptions & VfmdConstants::HTML_RENDER_ANY_LF_AS_BR) ==
+                               VfmdConstants::HTML_RENDER_ANY_LF_AS_BR);
+    }
+    bool shouldRemoveEscBackslashes = ((textProcessingOptions & REMOVE_ESCAPING_BACKSLASHES) == REMOVE_ESCAPING_BACKSLASHES);
+    bool shouldUseSelfClosingTags = ((renderOptions & VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) ==
+                                     VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
+
+    while (i < size) {
+        org = i;
+        while (i < size && (esc = HTMLISH_ESCAPE_TABLE[src[i]]) == 0)
+            i++;
+
+        if (i < size) {
+
+            assert(esc != 0);
+
+            switch(esc) {
+            case 6: // Backslash
+                if (likely(i > org)) {
+                    outputDevice->write(src + org, i - org);
+                }
+                if (shouldRemoveEscBackslashes && (i + 1) < size) {
+                    VfmdUnicodeProperties::GeneralCategoryMajorClass unicodeMajorClass = text.majorClassOfUTF8CharStartingAt(i + 1);
+                    if (unicodeMajorClass != VfmdUnicodeProperties::ucp_P && unicodeMajorClass != VfmdUnicodeProperties::ucp_S) {
+                        // Backslash is not followed by punctuation/symbol, so output the backslash
+                        outputDevice->write('\\');
+                    } else if (src[i + 1] == '\\') {
+                        // If the following byte is a backslash, output that too (to avoid it being suppressed later)
+                        outputDevice->write('\\');
+                        i++;
+                    }
+                } else {
+                    outputDevice->write('\\');
+                }
+                break;
+
+            case 7: // LF
+                if (shouldConvertSpaceSpaceLFtoBR &&
+                    ((i >= 2) && (src[i - 1] == ' ') && (src[i - 2] == ' '))) {
+                    if (likely((i - 2) > org)) {
+                        outputDevice->write(src + org, i - 2 - org);
+                    }
+                    if (shouldUseSelfClosingTags) {
+                        outputDevice->write("<br />\n", 7);
+                    } else {
+                        outputDevice->write("<br>\n", 5);
+                    }
+                } else {
+                    if (likely(i > org)) {
+                        outputDevice->write(src + org, i - org);
+                    }
+                    if (shouldConvertLFtoBR) {
+                        if (shouldUseSelfClosingTags) {
+                            outputDevice->write("<br />\n", 7);
+                        } else {
+                            outputDevice->write("<br>\n", 5);
+                        }
+                    } else {
+                        outputDevice->write('\n');
+                    }
+                }
+                break;
+
+            case 2: // Ampersand
+                if (likely(i > org)) {
+                    outputDevice->write(src + org, i - org);
+                }
+                if (reCharRef.locateInStringWithoutCapturing(src + i, size - i, 0) == 0) {
+                    // Part of a character reference. Leave it intact.
+                    // TODO: Check if it's really a valid named reference
+                    outputDevice->write('&');
+                } else {
+                    // Not part of a character reference
+                    outputDevice->write("&amp;", 5);
+                }
+                break;
+
+            default:
+                if (likely(i > org)) {
+                    outputDevice->write(src + org, i - org);
+                }
+                outputDevice->write(HTML_ESCAPES[esc]);
+            }
+
+            i++;
+            continue;
+        }
+
+        assert(i == size);
+        if (likely(i > org)) {
+            outputDevice->write(src + org, i - org);
+        }
     }
 }

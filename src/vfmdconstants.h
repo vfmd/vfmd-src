@@ -53,7 +53,8 @@ enum TreeRenderOptions {
 
 enum HtmlRenderOptions {
     HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS = 1, // Render as "<br />" instead of "<br>"
-    HTML_INDENT_ELEMENT_CONTENTS = 2
+    HTML_INDENT_ELEMENT_CONTENTS = 2,
+    HTML_RENDER_ANY_LF_AS_BR = 4
 };
 
 };

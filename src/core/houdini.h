@@ -29,10 +29,17 @@
 #ifndef __HOUDINI_H__
 #define __HOUDINI_H__
 
+#include "vfmdbytearray.h"
+
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
 
 class VfmdOutputDevice;
+
+enum HtmlishTextProcessingOptions {
+    REMOVE_ESCAPING_BACKSLASHES = 1,
+    INSERT_BR_TAGS = 2
+};
 
 // Input is html-ish text (for e.g. input can have HTML entities like "&copy;").
 // Output should be a URL that can be included in HTML.
@@ -40,5 +47,13 @@ extern void houdini_escape_href(VfmdOutputDevice *outputDevice, const char *src,
 
 // Input is definitely text. Output should be HTML.
 extern void houdini_escape_html(VfmdOutputDevice *outputDevice, const char *src, unsigned int size);
+
+// Input is html-ish text (for e.g. input can have HTML entities like "&copy;").
+// Escaping backslashes are always removed.
+// 'textProcessingOptions' can be combinations of HtmlishTextProcessingOptions.
+// 'renderOptions' can be combinations of VfmdConstants::HtmlRenderOptions.
+// Output should be HTML.
+extern void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray &text,
+                                   int textProcessingOptions, int renderOptions);
 
 #endif // __HOUDINI_H__
