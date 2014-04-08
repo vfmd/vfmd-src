@@ -114,7 +114,7 @@ void ImageTreeNode::setLinkRefMap(VfmdLinkRefMap *linkRefMap)
 
 static void renderImageTag(const VfmdByteArray &url, const VfmdByteArray &title, const VfmdByteArray &altText, VfmdOutputDevice *outputDevice, int options)
 {
-    const bool shouldUseSelfClosingTags = ((options & HtmlTextRenderer::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) == HtmlTextRenderer::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
+    const bool shouldUseSelfClosingTags = ((options & VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) == VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
     outputDevice->write("<img src=\"", 10);
     HtmlTextRenderer::renderURL(outputDevice, url);
     if (altText.isValid()) {
