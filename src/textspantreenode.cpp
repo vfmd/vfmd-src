@@ -44,15 +44,7 @@ void TextSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
                                   VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
-        bool shouldUseSelfClosingTags = ((renderOptions & VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) ==  VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
-        int textRenderOptions = (HtmlTextRenderer::REMOVE_ESCAPING_BACKSLASHES |
-                                 HtmlTextRenderer::CONVERT_SPACE_SPACE_LF_TO_LINE_BREAK |
-                                 HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
-                                 HtmlTextRenderer::HTML_ESCAPE_AMP_UNLESS_CHARACTER_REFERENCE);
-        if (shouldUseSelfClosingTags) {
-            textRenderOptions = (textRenderOptions | HtmlTextRenderer::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
-        }
-        HtmlTextRenderer::render(m_text, outputDevice, textRenderOptions);
+        HtmlTextRenderer::renderText(outputDevice, m_text, renderOptions);
     }
 
     if (format == VfmdConstants::TREE_FORMAT) {

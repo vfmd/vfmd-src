@@ -119,19 +119,11 @@ static void renderImageTag(const VfmdByteArray &url, const VfmdByteArray &title,
     HtmlTextRenderer::renderURL(outputDevice, url);
     if (altText.isValid()) {
         outputDevice->write("\" alt=\"", 7);
-        HtmlTextRenderer::render(altText, outputDevice,
-                                 (HtmlTextRenderer::REMOVE_ESCAPING_BACKSLASHES |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
-                                  HtmlTextRenderer::HTML_ESCAPE_AMP_UNLESS_CHARACTER_REFERENCE |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_QUOTE));
+        HtmlTextRenderer::renderTagAttribute(outputDevice, altText);
     }
     if (title.isValid()) {
         outputDevice->write("\" title=\"", 9);
-        HtmlTextRenderer::render(title, outputDevice,
-                                 (HtmlTextRenderer::REMOVE_ESCAPING_BACKSLASHES |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
-                                  HtmlTextRenderer::HTML_ESCAPE_AMP_UNLESS_CHARACTER_REFERENCE |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_QUOTE));
+        HtmlTextRenderer::renderTagAttribute(outputDevice, title);
     }
     if (shouldUseSelfClosingTags) {
         outputDevice->write("\" />", 4);

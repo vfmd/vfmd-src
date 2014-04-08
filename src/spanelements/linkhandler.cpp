@@ -138,11 +138,7 @@ static void renderLinkOpenTag(const VfmdByteArray &url, const VfmdByteArray &tit
     HtmlTextRenderer::renderURL(outputDevice, url);
     if (title.isValid()) {
         outputDevice->write("\" title=\"", 9);
-        HtmlTextRenderer::render(title, outputDevice,
-                                 (HtmlTextRenderer::REMOVE_ESCAPING_BACKSLASHES |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_LT_GT |
-                                  HtmlTextRenderer::HTML_ESCAPE_AMP_UNLESS_CHARACTER_REFERENCE |
-                                  HtmlTextRenderer::HTML_ESCAPE_ALL_QUOTE));
+        HtmlTextRenderer::renderTagAttribute(outputDevice, title);
     }
     outputDevice->write("\">", 2);
 }
