@@ -97,7 +97,7 @@ int AutomaticLinkHandler::identifySpanTagStartingBetween(const VfmdByteArray &te
 
     if (matchingLength > 0) {
         // We found an automatic link
-        AutomaticLinkTreeNode *autoLinkNode = new AutomaticLinkTreeNode(urlText.simplified());
+        AutomaticLinkTreeNode *autoLinkNode = new AutomaticLinkTreeNode(AutomaticLinkTreeNode::OTHER_URL, urlText.simplified());
         if (fromPos < startPos) {
             stack->topNode()->appendToContainedElements(text.mid(fromPos, startPos - fromPos));
         }
@@ -121,6 +121,7 @@ int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray
     assert(text.byteAt(currentPos) == '<');
     VfmdByteArray remainingText = text.mid(currentPos);
     int matchingLength = -1;
+    AutomaticLinkTreeNode::AutomaticUrlType urlType;
     VfmdByteArray urlText;
 
     // Regexp that matches "<http://example.net>"
@@ -129,6 +130,7 @@ int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray
     if (reBracketedAutoUrlLink.matches(remainingText)) {
         matchingLength = reBracketedAutoUrlLink.lengthOfMatch();
         urlText = reBracketedAutoUrlLink.capturedText(1);
+        urlType = AutomaticLinkTreeNode::OTHER_URL;
     } else {
 
         // Regexp that matches "<mailto:someone@example.net?subject=Hi+there>"
@@ -137,6 +139,7 @@ int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray
         if (reBracketedAutoMailtoLink1.matches(remainingText)) {
             matchingLength = reBracketedAutoMailtoLink1.lengthOfMatch();
             urlText = reBracketedAutoMailtoLink1.capturedText(1);
+            urlType = AutomaticLinkTreeNode::MAIL_URL_WITH_MAILTO;
         } else {
 
             // Regexp that matches "<someone@example.net>"
@@ -145,6 +148,7 @@ int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray
             if (reBracketedAutoMailtoLink2.matches(remainingText)) {
                 matchingLength = reBracketedAutoMailtoLink2.lengthOfMatch();
                 urlText = reBracketedAutoMailtoLink2.capturedText(1);
+                urlType = AutomaticLinkTreeNode::MAIL_URL_WITHOUT_MAILTO;
             }
 
         }
@@ -152,7 +156,7 @@ int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray
 
     if (matchingLength > 0) {
         // We found an automatic link
-        AutomaticLinkTreeNode *autoLinkNode = new AutomaticLinkTreeNode(urlText.simplified());
+        AutomaticLinkTreeNode *autoLinkNode = new AutomaticLinkTreeNode(urlType, urlText.simplified());
         stack->topNode()->appendToContainedElements(autoLinkNode);
         return matchingLength;
     }
@@ -166,6 +170,9 @@ void AutomaticLinkTreeNode::renderNode(VfmdConstants::RenderFormat format, int r
 {
     if (format == VfmdConstants::HTML_FORMAT) {
         outputDevice->write("<a href=\"", 9);
+        if (m_type == AutomaticLinkTreeNode::MAIL_URL_WITHOUT_MAILTO) {
+            outputDevice->write("mailto:", 7);
+        }
         HtmlTextRenderer::renderURL(outputDevice, m_url);
         outputDevice->write("\">", 2);
         HtmlTextRenderer::renderURLAsText(outputDevice, m_url);

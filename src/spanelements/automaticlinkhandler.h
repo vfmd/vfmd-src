@@ -26,7 +26,13 @@ public:
 
 class AutomaticLinkTreeNode : public VfmdElementTreeNode {
 public:
-    AutomaticLinkTreeNode(const VfmdByteArray& url) : m_url(url) { }
+    enum AutomaticUrlType {
+        MAIL_URL_WITH_MAILTO,
+        MAIL_URL_WITHOUT_MAILTO,
+        OTHER_URL
+    };
+
+    AutomaticLinkTreeNode(AutomaticUrlType type, const VfmdByteArray& url) : m_type(type), m_url(url) { }
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
@@ -38,6 +44,7 @@ public:
                             VfmdElementTreeNodeStack *ancestorNodes) const;
 
 private:
+    AutomaticUrlType m_type;
     VfmdByteArray m_url;
 };
 
