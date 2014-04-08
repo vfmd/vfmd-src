@@ -52,10 +52,6 @@ int AutomaticLinkHandler::identifySpanTagStartingBetween(const VfmdByteArray &te
             break;
         } else {
             assert(i > 0);
-            if (text.byteAt(i) == '<') {
-                startPos = i;
-                break;
-            }
             int iPrev = text.previousUTF8CharStartsAt(i);
             if (isWordSeparatorCharacter(text.categoryOfUTF8CharStartingAt(iPrev))) {
                 startPos = i;
@@ -74,60 +70,28 @@ int AutomaticLinkHandler::identifySpanTagStartingBetween(const VfmdByteArray &te
     int matchingLength = -1;
     VfmdByteArray urlText;
 
-    if (text.byteAt(startPos) == '<') {
+    // Regexp that matches "http://example.net"
+    static VfmdRegexp reUnbracketedAutoUrlLink("^([a-z0-9\\+\\.\\-]+:\\/\\/)[^<>\\`\\s]+");
 
-        // Regexp that matches "<http://example.net>"
-        static VfmdRegexp reBracketedAutoUrlLink("^<([a-z0-9\\+\\.\\-]+:\\/\\/[^<> \\`]+)>");
+    if (reUnbracketedAutoUrlLink.matches(remainingText)) {
 
-        if (reBracketedAutoUrlLink.matches(remainingText)) {
-            matchingLength = reBracketedAutoUrlLink.lengthOfMatch();
-            urlText = reBracketedAutoUrlLink.capturedText(1);
-        } else {
+        VfmdByteArray urlCandidate = reUnbracketedAutoUrlLink.capturedText(0);
+        VfmdByteArray schemeString = reUnbracketedAutoUrlLink.capturedText(1);
 
-            // Regexp that matches "<mailto:someone@example.net?subject=Hi+there>"
-            static VfmdRegexp reBracketedAutoMailtoLink1("<(mailto:[^<> \\`]+)>");
-
-            if (reBracketedAutoMailtoLink1.matches(remainingText)) {
-                matchingLength = reBracketedAutoMailtoLink1.lengthOfMatch();
-                urlText = reBracketedAutoMailtoLink1.capturedText(1);
-            } else {
-
-                // Regexp that matches "<someone@example.net>"
-                static VfmdRegexp reBracketedAutoMailtoLink2("<([^\\/\\?#@\\`\\s]+@[^\\/\\?#@\\`\\s\\.]+\\.[^\\/\\?#@\\`\\s]+)>");
-
-                if (reBracketedAutoMailtoLink2.matches(remainingText)) {
-                    matchingLength = reBracketedAutoMailtoLink2.lengthOfMatch();
-                    urlText = reBracketedAutoMailtoLink2.capturedText(1);
-                }
-
+        unsigned int i = urlCandidate.size();
+        while (i > 0) {
+            unsigned int iPrev = urlCandidate.previousUTF8CharStartsAt(i);
+            if ((urlCandidate.byteAt(iPrev) == '/') ||
+                (!isWordSeparatorCharacter(urlCandidate.categoryOfUTF8CharStartingAt(iPrev)))) {
+                break;
             }
+            i = iPrev;
         }
+        urlCandidate.chopRight(urlCandidate.size() - i);
 
-    } else { // else of if (text.byteAt(startPos) == '<')
-
-        // Regexp that matches "http://example.net"
-        static VfmdRegexp reUnbracketedAutoUrlLink("^([a-z0-9\\+\\.\\-]+:\\/\\/)[^<>\\`\\s]+");
-
-        if (reUnbracketedAutoUrlLink.matches(remainingText)) {
-
-            VfmdByteArray urlCandidate = reUnbracketedAutoUrlLink.capturedText(0);
-            VfmdByteArray schemeString = reUnbracketedAutoUrlLink.capturedText(1);
-
-            unsigned int i = urlCandidate.size();
-            while (i > 0) {
-                unsigned int iPrev = urlCandidate.previousUTF8CharStartsAt(i);
-                if ((urlCandidate.byteAt(iPrev) == '/') ||
-                    (!isWordSeparatorCharacter(urlCandidate.categoryOfUTF8CharStartingAt(iPrev)))) {
-                    break;
-                }
-                i = iPrev;
-            }
-            urlCandidate.chopRight(urlCandidate.size() - i);
-
-            if (urlCandidate.size() > schemeString.size()) {
-                urlText = urlCandidate;
-                matchingLength = urlText.size();
-            }
+        if (urlCandidate.size() > schemeString.size()) {
+            urlText = urlCandidate;
+            matchingLength = urlText.size();
         }
     }
 
@@ -144,6 +108,56 @@ int AutomaticLinkHandler::identifySpanTagStartingBetween(const VfmdByteArray &te
     // No automatic link found
     stack->topNode()->appendToContainedElements(text.mid(fromPos, toPos - fromPos + 1));
     return (toPos - fromPos + 1);
+}
+
+AutomaticLinkBracketedHandler::AutomaticLinkBracketedHandler()
+{
+}
+
+int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray &text,
+                                                             int currentPos,
+                                                             VfmdSpanTagStack *stack) const
+{
+    assert(text.byteAt(currentPos) == '<');
+    VfmdByteArray remainingText = text.mid(currentPos);
+    int matchingLength = -1;
+    VfmdByteArray urlText;
+
+    // Regexp that matches "<http://example.net>"
+    static VfmdRegexp reBracketedAutoUrlLink("^<([a-z0-9\\+\\.\\-]+:\\/\\/[^<> \\`]+)>");
+
+    if (reBracketedAutoUrlLink.matches(remainingText)) {
+        matchingLength = reBracketedAutoUrlLink.lengthOfMatch();
+        urlText = reBracketedAutoUrlLink.capturedText(1);
+    } else {
+
+        // Regexp that matches "<mailto:someone@example.net?subject=Hi+there>"
+        static VfmdRegexp reBracketedAutoMailtoLink1("^<(mailto:[^<> \\`]+)>");
+
+        if (reBracketedAutoMailtoLink1.matches(remainingText)) {
+            matchingLength = reBracketedAutoMailtoLink1.lengthOfMatch();
+            urlText = reBracketedAutoMailtoLink1.capturedText(1);
+        } else {
+
+            // Regexp that matches "<someone@example.net>"
+            static VfmdRegexp reBracketedAutoMailtoLink2("^<([^\\/\\?#@\\`\\s]+@[^\\/\\?#@\\`\\s\\.]+\\.[^\\/\\?#@\\`\\s]+)>");
+
+            if (reBracketedAutoMailtoLink2.matches(remainingText)) {
+                matchingLength = reBracketedAutoMailtoLink2.lengthOfMatch();
+                urlText = reBracketedAutoMailtoLink2.capturedText(1);
+            }
+
+        }
+    }
+
+    if (matchingLength > 0) {
+        // We found an automatic link
+        AutomaticLinkTreeNode *autoLinkNode = new AutomaticLinkTreeNode(urlText.simplified());
+        stack->topNode()->appendToContainedElements(autoLinkNode);
+        return matchingLength;
+    }
+
+    return 0;
 }
 
 void AutomaticLinkTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,

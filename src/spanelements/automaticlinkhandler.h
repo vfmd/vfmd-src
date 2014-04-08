@@ -13,6 +13,17 @@ public:
     virtual const char *description() const { return "automatic-link"; }
 };
 
+class AutomaticLinkBracketedHandler : public VfmdSpanElementHandler
+{
+public:
+    AutomaticLinkBracketedHandler();
+    virtual int identifySpanTagStartingAt(const VfmdByteArray &text,
+                                          int currentPos,
+                                          VfmdSpanTagStack *stack) const;
+
+    virtual const char *description() const { return "automatic-link <bracketed>"; }
+};
+
 class AutomaticLinkTreeNode : public VfmdElementTreeNode {
 public:
     AutomaticLinkTreeNode(const VfmdByteArray& url) : m_url(url) { }
