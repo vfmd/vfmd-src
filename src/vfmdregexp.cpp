@@ -21,7 +21,7 @@ public:
                                   &errorMsg, &errorOffsetInString,
                                   0 /* use default character tables */);
         if (pcreRegexp) {
-            pcreExtra = pcre_study(pcreRegexp, 0, &errorMsg);
+            pcreExtra = pcre_study(pcreRegexp, (PCRE_STUDY_JIT_COMPILE), &errorMsg);
             pcre_refcount(pcreRegexp, 1);
         } else {
             printf("VfmdRegexp: Bad regexp pattern [%s]. Error \"%s\" at position %d.\n", patternStr, errorMsg, errorOffsetInString);
