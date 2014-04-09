@@ -19,9 +19,11 @@ void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
     , m_containingBlockType(VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
+#ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     , m_isAtEndOfParagraph(false)
     , m_isLookingAhead(false)
     , m_lookaheadLines(0)
+#endif
 {
     const VfmdBlockLineSequence *containingBlockSequence = (parent? parent->parentLineSequence() : 0);
     if (containingBlockSequence) {
@@ -33,7 +35,9 @@ ParagraphLineSequence::~ParagraphLineSequence()
 {
     m_text.clear();
     m_text.squeeze();
+#ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     delete m_lookaheadLines;
+#endif
 }
 
 static void appendLines(VfmdByteArray *dst, VfmdPointerArray<const VfmdLine> *src)
@@ -100,6 +104,11 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
 {
     UNUSED_ARG(currentLine);
     return (isPotentialEndOfParagraph(nextLine, m_containingBlockType, false));
+}
+
+VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
+{
+    return 0;
 }
 
 #else
@@ -205,6 +214,13 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     return m_isAtEndOfParagraph;
 }
 
+VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
+{
+    VfmdPointerArray<const VfmdLine> *lines = m_lookaheadLines;
+    m_lookaheadLines = 0;
+    return lines;
+}
+
 #endif
 
 VfmdElementTreeNode* ParagraphLineSequence::endBlock()
@@ -222,13 +238,6 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
         paragraphNode->setShouldAvoidWrappingInHtmlPTag(true);
     }
     return paragraphNode;
-}
-
-VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
-{
-    VfmdPointerArray<const VfmdLine> *lines = m_lookaheadLines;
-    m_lookaheadLines = 0;
-    return lines;
 }
 
 ParagraphTreeNode::ParagraphTreeNode()
