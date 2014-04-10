@@ -47,7 +47,7 @@ void VfmdCodeSpanFilter::addFilteredLineToHtmlStateWatcher(const VfmdByteArray &
         if (!backtickFound) {
             if (m_openBackticksCount == 0) {
                 // No backticks found and we're not in a code span. Output the part after the offset.
-                watcher->addText(lineContent.mid(offset));
+                watcher->addText(lineContent.mid(offset).replaced('<', "&lt;", 4, true));
             } else {
                 // No backticks found and we're in a code span. Output nothing.
             }
