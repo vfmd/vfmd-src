@@ -104,18 +104,6 @@ for (p = string; length-- > 0; p++)
 
   c = *p;
 
-#ifdef VFMD_NO_UTF8
-
-  if (c == 0x09) /* Tab */
-    {
-    *numOfCodePoints = codePointsCount;
-    *erroroffset = (int)(p - string);
-    return SCANLINE_TAB_BYTE;
-    }
-  codePointsCount++;
-
-#else // VFMD_NO_UTF8
-
   if (c < 128)                          /* ASCII character */
     {
       if (c == 0x09) /* Tab */
@@ -317,8 +305,6 @@ for (p = string; length-- > 0; p++)
     }
 
   codePointsCount++;
-
-#endif // VFMD_NO_UTF8
 
   }
 

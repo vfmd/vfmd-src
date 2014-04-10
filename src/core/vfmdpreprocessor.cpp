@@ -23,6 +23,23 @@ static inline int indexOf(unsigned char byte, const unsigned char *p, int length
     return -1;
 }
 
+#ifdef VFMD_NO_UTF8
+static inline int scan_line_for_tabs(const unsigned char* string, int length, int *numOfBytes, int *numOfCodePoints)
+{
+    int indexOfTab = indexOf(0x09 /* Tab */, string, length);
+    if (indexOfTab >= 0) {
+        // Tab found
+        (*numOfBytes) = indexOfTab;
+        (*numOfCodePoints) = indexOfTab;
+        return SCANLINE_TAB_BYTE;
+    }
+    // Tab not found
+    (*numOfBytes) = length;
+    (*numOfCodePoints) = length;
+    return SCANLINE_EOL;
+}
+#endif
+
 static VfmdLine* createLineFromBytes(VfmdByteArray *ba, const unsigned char *src, int length)
 {
     unsigned int lineStart = ba->size();
@@ -32,7 +49,11 @@ static VfmdLine* createLineFromBytes(VfmdByteArray *ba, const unsigned char *src
         while (1) {
             int numOfBytesScanned;
             int numOfCodePointsScanned;
+#ifdef VFMD_NO_UTF8
+            int result = scan_line_for_tabs(src, (int) (end - src), &numOfBytesScanned, &numOfCodePointsScanned);
+#else
             int result = scan_line(src, (int) (end - src), &numOfBytesScanned, &numOfCodePointsScanned);
+#endif
             if (numOfBytesScanned > 0) {
                 ba->append(reinterpret_cast<const char *>(src), numOfBytesScanned);
                 src += numOfBytesScanned;
