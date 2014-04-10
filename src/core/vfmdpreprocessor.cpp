@@ -135,3 +135,16 @@ void VfmdPreprocessor::end()
     }
     m_unconsumedBytes.squeeze(); // free memory
 }
+
+void VfmdPreprocessor::preprocessByteArray(const VfmdByteArray &text, VfmdInputLineSequence *lineSequence)
+{
+    VfmdByteArray preprocessedText;
+    int bytesConsumed = consumeLines(reinterpret_cast<const unsigned char *>(text.data()), text.size(),
+                                     &preprocessedText, lineSequence);
+    if (bytesConsumed < text.size()) {
+        VfmdLine *line = createLineFromBytes(&preprocessedText,
+                                             reinterpret_cast<const unsigned char *>(text.data() + bytesConsumed),
+                                             (text.size() - bytesConsumed));
+        lineSequence->addLine(line);
+    }
+}

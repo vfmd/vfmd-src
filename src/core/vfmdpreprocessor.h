@@ -14,6 +14,8 @@ public:
     void addBytes(const char *data, int length);
     void end();
 
+    static void preprocessByteArray(const VfmdByteArray &text, VfmdInputLineSequence *lineSequence);
+
 private:
     VfmdByteArray m_text;
     VfmdByteArray m_unconsumedBytes;

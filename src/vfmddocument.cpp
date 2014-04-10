@@ -27,3 +27,10 @@ VfmdElementTreeNode* VfmdDocument::end()
     VfmdElementTreeNode *parseTree = m_documentLineSequence->endSequence();
     return parseTree;
 }
+
+VfmdElementTreeNode* VfmdDocument::parseByteArray(const VfmdByteArray &text, const VfmdElementRegistry *registry)
+{
+    VfmdInputLineSequence lineSequence(registry);
+    VfmdPreprocessor::preprocessByteArray(text, &lineSequence);
+    return lineSequence.endSequence();
+}
