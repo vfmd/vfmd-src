@@ -11,10 +11,6 @@
 
 int main(int argc, char *argv[])
 {
-    VfmdLinkRefMap linkRefMap;
-    VfmdScopedPointer<VfmdElementRegistry> registry(VfmdElementRegistry::createRegistryWithDefaultElements(&linkRefMap));
-    VfmdDocument document(registry.data());
-
     // Parse command-line options
     char *fileName = 0;
     FILE *inputFile = 0;
@@ -47,31 +43,29 @@ int main(int argc, char *argv[])
     }
 
     // Read the input document and pass on to VfmdDocument
+    VfmdDocument document;
     char buffer[BUFFER_SIZE];
     while(!feof(inputFile)) {
         int bytesRead = fread(buffer, sizeof(char), BUFFER_SIZE, inputFile);
-        document.addBytes(buffer, bytesRead);
+        document.addPartialContent(buffer, bytesRead);
     }
-    fclose(inputFile);
+    document.endOfContent();
+    if (inputFile != stdin) {
+        fclose(inputFile);
+    }
 
-    // Get the parse tree from the VfmdDocument
-    VfmdElementTreeNode *parseTree = document.end();
-
-    // Render the tree to an output device
+    // Render the document
     VfmdConsoleOutputDevice console;
     if (isTreeFormatOutput) {
-        parseTree->renderSequence(VfmdConstants::TREE_FORMAT,
-                                  (VfmdConstants::TREE_RENDER_INCLUDES_TEXT),
-                                  &console);
+        document.render(VfmdConstants::TREE_FORMAT,
+                        (VfmdConstants::TREE_RENDER_INCLUDES_TEXT),
+                        &console);
     } else {
-        parseTree->renderSequence(VfmdConstants::HTML_FORMAT,
-                                  (VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS |
-                                   VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS),
-                                  &console);
+        document.render(VfmdConstants::HTML_FORMAT,
+                        (VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS |
+                         VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS),
+                        &console);
     }
-
-    // Free the tree
-    VfmdElementTreeNode::freeSubtreeSequence(parseTree);
 
     return 0;
 }
