@@ -62,15 +62,8 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
     bool isEndOfLineSequence = (nextLine == 0);
     if (isEndOfLineSequence || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
         // End the child block
-        VfmdElementTreeNode *parseSubtree = m_childLineSequence->endBlock();
+        m_childLineSequence->endBlock();
         VfmdPointerArray<const VfmdLine> *unconsumedLines = m_childLineSequence->linesSinceEndOfBlock();
-        if (parseSubtree) {
-            if (m_parseTree) {
-                m_parseTree->appendSubtreeToEndOfSequence(parseSubtree);
-            } else {
-                m_parseTree = parseSubtree;
-            }
-        }
         delete m_childLineSequence;
         m_childLineSequence = 0;
 
@@ -117,5 +110,16 @@ void VfmdInputLineSequence::setChildSequence(VfmdBlockLineSequence *lineSequence
 {
     if (m_childLineSequence == 0) {
         m_childLineSequence = lineSequence;
+    }
+}
+
+void VfmdInputLineSequence::addToParseTree(VfmdElementTreeNode *subtree)
+{
+    if (subtree) {
+        if (m_parseTree) {
+            m_parseTree->appendSubtreeToEndOfSequence(subtree);
+        } else {
+            m_parseTree = subtree;
+        }
     }
 }

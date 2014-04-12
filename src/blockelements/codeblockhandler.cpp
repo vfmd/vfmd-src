@@ -43,10 +43,10 @@ bool CodeBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     return m_isAtEnd;
 }
 
-VfmdElementTreeNode* CodeBlockLineSequence::endBlock()
+void CodeBlockLineSequence::endBlock()
 {
     m_content.squeeze();
-    return new CodeBlockTreeNode(m_content);
+    setBlockParseTree(new CodeBlockTreeNode(m_content));
 }
 
 CodeBlockTreeNode::CodeBlockTreeNode(const VfmdByteArray &content)

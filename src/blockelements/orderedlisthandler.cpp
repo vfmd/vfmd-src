@@ -160,10 +160,10 @@ bool OrderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vf
     return false;
 }
 
-VfmdElementTreeNode* OrderedListLineSequence::endBlock()
+void OrderedListLineSequence::endBlock()
 {
     closeListItem(true /* end of the list*/);
-    return (VfmdElementTreeNode*) m_listNode;
+    setBlockParseTree(m_listNode);
 }
 
 OrderedListTreeNode::OrderedListTreeNode(const VfmdByteArray& startingNumber)

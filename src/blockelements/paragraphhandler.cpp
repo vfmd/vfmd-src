@@ -223,7 +223,7 @@ VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
 
 #endif
 
-VfmdElementTreeNode* ParagraphLineSequence::endBlock()
+void ParagraphLineSequence::endBlock()
 {
     m_text.squeeze();
     m_text.trim();
@@ -237,7 +237,7 @@ VfmdElementTreeNode* ParagraphLineSequence::endBlock()
         spanElementsProcessor.isHtmlCommentSeen()) {
         paragraphNode->setShouldAvoidWrappingInHtmlPTag(true);
     }
-    return paragraphNode;
+    setBlockParseTree(paragraphNode);
 }
 
 ParagraphTreeNode::ParagraphTreeNode()

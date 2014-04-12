@@ -29,7 +29,7 @@ bool AtxHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     return true;
 }
 
-VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
+void AtxHeaderLineSequence::endBlock()
 {
     VfmdRegexp reLineWithHeaderText = VfmdCommonRegexps::atxHeaderLineWithHeaderText();
     VfmdRegexp reLineWithoutHeaderText = VfmdCommonRegexps::atxHeaderLineWithoutHeaderText();
@@ -58,7 +58,7 @@ VfmdElementTreeNode* AtxHeaderLineSequence::endBlock()
         bool ok = atxNode->setChildNodeIfNotSet(spanParseTree);
         assert(ok);
     }
-    return atxNode;
+    setBlockParseTree(atxNode);
 }
 
 AtxHeaderTreeNode::AtxHeaderTreeNode(int headingLevel)

@@ -75,7 +75,7 @@ bool RefResolutionBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, c
     return (m_numOfLinesSeen == m_numOfLinesInSequence);
 }
 
-VfmdElementTreeNode* RefResolutionBlockLineSequence::endBlock()
+void RefResolutionBlockLineSequence::endBlock()
 {
     VfmdByteArray refId, unprocessedUrl, titleContainer;
 
@@ -117,6 +117,4 @@ VfmdElementTreeNode* RefResolutionBlockLineSequence::endBlock()
     if ((refId.size() > 0) && (linkUrl.size() > 0)) {
         m_linkRefMap->add(refId.toLowerCase(), linkUrl, linkTitle);
     }
-
-    return 0;
 }

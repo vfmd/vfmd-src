@@ -31,6 +31,12 @@ public:
     // in a class derived from 'VfmdBlockElementHandler'
     void setChildSequence(VfmdBlockLineSequence *lineSequence);
 
+    // addToParseTree():
+    // Add a parse-subtree to the end of the parse tree held
+    // by this sequence.
+    // The VfmdInputLineSequence owns the subtree.
+    void addToParseTree(VfmdElementTreeNode *subtree);
+
 private:
     /* Prevent copying of this class */
     VfmdInputLineSequence(const VfmdInputLineSequence& other);

@@ -27,6 +27,7 @@ bool NullBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     return (!nextLine->isBlankLine());
 }
 
-VfmdElementTreeNode* NullBlockLineSequence::endBlock() {
-    return 0;
+void NullBlockLineSequence::endBlock()
+{
+    // Nothing to do
 }

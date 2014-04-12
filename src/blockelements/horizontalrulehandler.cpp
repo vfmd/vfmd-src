@@ -29,10 +29,9 @@ bool HorizontalRuleLineSequence::isEndOfBlock(const VfmdLine *currentLine, const
     return true;
 }
 
-VfmdElementTreeNode* HorizontalRuleLineSequence::endBlock()
+void HorizontalRuleLineSequence::endBlock()
 {
-    VfmdElementTreeNode *hrNode = new HorizontalRuleTreeNode;
-    return hrNode;
+    setBlockParseTree(new HorizontalRuleTreeNode);
 }
 
 void HorizontalRuleTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const

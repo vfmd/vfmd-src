@@ -15,8 +15,9 @@ const char *VfmdBlockElementHandler::description() const
 }
 
 VfmdBlockLineSequence::VfmdBlockLineSequence(const VfmdInputLineSequence *parent)
-    : m_parentLineSequence(parent)
 {
+    // Removing const for being able to add to the parent's parse tree
+    m_parentLineSequence = const_cast<VfmdInputLineSequence *>(parent);
 }
 
 VfmdBlockLineSequence::~VfmdBlockLineSequence()
@@ -42,10 +43,9 @@ bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     return false;
 }
 
-VfmdElementTreeNode* VfmdBlockLineSequence::endBlock()
+void VfmdBlockLineSequence::endBlock()
 {
     /* Base implementation does nothing */
-    return 0;
 }
 
 VfmdPointerArray<const VfmdLine>* VfmdBlockLineSequence::linesSinceEndOfBlock()
@@ -62,4 +62,9 @@ const VfmdElementRegistry *VfmdBlockLineSequence::registry() const
 {
     assert(m_parentLineSequence != 0);
     return m_parentLineSequence->registry();
+}
+
+void VfmdBlockLineSequence::setBlockParseTree(VfmdElementTreeNode *subtree)
+{
+    m_parentLineSequence->addToParseTree(subtree);
 }

@@ -67,13 +67,13 @@ bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfm
     return m_isAtEndOfBlockquote;
 }
 
-VfmdElementTreeNode* BlockquoteLineSequence::endBlock()
+void BlockquoteLineSequence::endBlock()
 {
     VfmdElementTreeNode *blockquoteNode = new BlockquoteTreeNode();
     VfmdElementTreeNode *childSubTree = m_childSequence->endSequence();
     bool ok = blockquoteNode->setChildNodeIfNotSet(childSubTree);
     assert(ok);
-    return blockquoteNode;
+    setBlockParseTree(blockquoteNode);
 }
 
 BlockquoteTreeNode::BlockquoteTreeNode()

@@ -16,7 +16,7 @@ public:
     virtual int elementType() const { return VfmdConstants::ATX_HEADER_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
-    virtual VfmdElementTreeNode* endBlock();
+    virtual void endBlock();
 private:
     VfmdByteArray m_headerLineText;
 };

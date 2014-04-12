@@ -35,9 +35,11 @@ public:
     virtual int elementType() const;
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
-    virtual VfmdElementTreeNode* endBlock();
+    virtual void endBlock();
+
     const VfmdInputLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
+    void setBlockParseTree(VfmdElementTreeNode *subtree);
 
     // linesSinceEndOfBlock():
     // This method is called after endBlock() to check if there
@@ -56,7 +58,7 @@ private:
     VfmdBlockLineSequence(const VfmdBlockLineSequence& other);
     VfmdBlockLineSequence& operator=(const VfmdBlockLineSequence& other);
 
-    const VfmdInputLineSequence *m_parentLineSequence;
+    VfmdInputLineSequence *m_parentLineSequence;
 };
 
 #endif // VFMDBLOCKELEMENTHANDLER_H

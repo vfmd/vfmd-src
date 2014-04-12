@@ -17,7 +17,7 @@ public:
     virtual int elementType() const { return VfmdConstants::SETEXT_HEADER_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
-    virtual VfmdElementTreeNode* endBlock();
+    virtual void endBlock();
 private:
     int m_numOfLinesSeen;
     int m_headingLevel;

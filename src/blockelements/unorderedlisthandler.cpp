@@ -141,10 +141,10 @@ bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const 
     return false;
 }
 
-VfmdElementTreeNode* UnorderedListLineSequence::endBlock()
+void UnorderedListLineSequence::endBlock()
 {
     closeListItem(true /* end of the list*/);
-    return (VfmdElementTreeNode*) m_listNode;
+    setBlockParseTree(m_listNode);
 }
 
 void UnorderedListTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
