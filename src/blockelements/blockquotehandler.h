@@ -16,7 +16,7 @@ public:
     virtual ~BlockquoteLineSequence();
     virtual int elementType() const { return VfmdConstants::BLOCKQUOTE_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
-    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 private:
     VfmdInputLineSequence *m_childSequence;

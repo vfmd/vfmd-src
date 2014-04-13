@@ -15,7 +15,7 @@ public:
     AtxHeaderLineSequence(const VfmdInputLineSequence *parent);
     virtual int elementType() const { return VfmdConstants::ATX_HEADER_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
-    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 private:
     VfmdByteArray m_headerLineText;

@@ -79,7 +79,7 @@ void RefResolutionBlockLineSequence::processBlockLine(const VfmdLine *currentLin
     m_numOfLinesSeen++;
 }
 
-bool RefResolutionBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool RefResolutionBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

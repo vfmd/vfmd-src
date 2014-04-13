@@ -106,7 +106,7 @@ void UnorderedListLineSequence::processBlockLine(const VfmdLine *currentLine, co
     m_nextLineStartsWithListStarterString = (nextLine == 0? false : (nextLine->content().startsWith(m_listStarterString)));
 }
 
-bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     bool currentLineIsABlankLine = currentLine->isBlankLine();
 

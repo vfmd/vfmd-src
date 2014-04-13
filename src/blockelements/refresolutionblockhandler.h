@@ -26,7 +26,7 @@ public:
                                    VfmdLinkRefMap *linkRefMap);
     virtual int elementType() const { return VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
-    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 
 private:

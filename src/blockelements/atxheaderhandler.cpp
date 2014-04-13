@@ -21,7 +21,7 @@ void AtxHeaderLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     m_headerLineText = currentLine->content();
 }
 
-bool AtxHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool AtxHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

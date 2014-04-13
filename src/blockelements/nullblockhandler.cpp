@@ -21,7 +21,7 @@ void NullBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     UNUSED_ARG(nextLine);
 }
 
-bool NullBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool NullBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     return (!nextLine->isBlankLine());

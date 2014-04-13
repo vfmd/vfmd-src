@@ -39,7 +39,7 @@ void SetextHeaderLineSequence::processBlockLine(const VfmdLine *currentLine, con
     m_numOfLinesSeen++;
 }
 
-bool SetextHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool SetextHeaderLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     return (m_numOfLinesSeen == 2);
 }

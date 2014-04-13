@@ -16,7 +16,7 @@ public:
     SetextHeaderLineSequence(const VfmdInputLineSequence *parent);
     virtual int elementType() const { return VfmdConstants::SETEXT_HEADER_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
-    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 private:
     int m_numOfLinesSeen;

@@ -38,7 +38,7 @@ void CodeBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     m_content.appendByte('\n');
 }
 
-bool CodeBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool CodeBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     return m_isAtEnd;
 }

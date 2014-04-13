@@ -36,7 +36,7 @@ void VfmdBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     UNUSED_ARG(nextLine);
 }
 
-bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool VfmdBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

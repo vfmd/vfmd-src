@@ -60,7 +60,7 @@ void BlockquoteLineSequence::processBlockLine(const VfmdLine *currentLine, const
     m_childSequence->addLine(line);
 }
 
-bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

@@ -20,7 +20,7 @@ public:
     virtual ~OrderedListLineSequence();
     virtual int elementType() const { return VfmdConstants::ORDERED_LIST_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
-    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 
     void closeListItem(bool isEndOfList);

@@ -21,7 +21,7 @@ void HorizontalRuleLineSequence::processBlockLine(const VfmdLine *currentLine, c
     UNUSED_ARG(nextLine);
 }
 
-bool HorizontalRuleLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool HorizontalRuleLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);

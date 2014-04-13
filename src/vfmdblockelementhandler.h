@@ -34,7 +34,7 @@ public:
     virtual ~VfmdBlockLineSequence();
     virtual int elementType() const;
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
-    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
+    virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 
     const VfmdInputLineSequence *parentLineSequence() const;

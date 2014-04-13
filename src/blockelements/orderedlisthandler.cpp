@@ -128,7 +128,7 @@ void OrderedListLineSequence::processBlockLine(const VfmdLine *currentLine, cons
     m_nextLineListItemStartPrefixLength = (nextLine == 0? 0 : listItemStartPrefixLength(nextLine->content(), m_listStarterStringLength));
 }
 
-bool OrderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool OrderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     bool currentLineIsABlankLine = currentLine->isBlankLine();
     if (currentLineIsABlankLine && nextLine->isBlankLine()) {

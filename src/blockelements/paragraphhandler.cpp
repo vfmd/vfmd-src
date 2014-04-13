@@ -100,7 +100,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     m_text.appendByte('\n');
 }
 
-bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     return (isPotentialEndOfParagraph(nextLine, m_containingBlockType, false));
@@ -207,7 +207,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
 
 }
 
-bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
