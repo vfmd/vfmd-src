@@ -48,11 +48,6 @@ void VfmdBlockLineSequence::endBlock()
     /* Base implementation does nothing */
 }
 
-VfmdPointerArray<const VfmdLine>* VfmdBlockLineSequence::linesSinceEndOfBlock()
-{
-    return 0;
-}
-
 const VfmdInputLineSequence *VfmdBlockLineSequence::parentLineSequence() const
 {
     return m_parentLineSequence;

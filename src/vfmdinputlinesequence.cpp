@@ -3,6 +3,7 @@
 #include "vfmdelementregistry.h"
 #include "vfmdelementtreenode.h"
 #include "vfmdblockelementhandler.h"
+#include "blockelements/paragraphhandler.h"
 
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence)
     : m_registry(registry)
@@ -63,7 +64,12 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
     if (isEndOfLineSequence || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
         // End the child block
         m_childLineSequence->endBlock();
-        VfmdPointerArray<const VfmdLine> *unconsumedLines = m_childLineSequence->linesSinceEndOfBlock();
+        VfmdPointerArray<const VfmdLine> *unconsumedLines = 0;
+        if (m_childLineSequence->elementType() == VfmdConstants::PARAGRAPH_ELEMENT) {
+            ParagraphLineSequence *paraSeq = dynamic_cast<ParagraphLineSequence *>(m_childLineSequence);
+            assert(paraSeq);
+            unconsumedLines = paraSeq->linesSinceEndOfParagraph();
+        }
         delete m_childLineSequence;
         m_childLineSequence = 0;
 

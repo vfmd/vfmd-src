@@ -20,7 +20,13 @@ public:
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual void endBlock();
-    virtual VfmdPointerArray<const VfmdLine> *linesSinceEndOfBlock();
+
+    // linesSinceEndOfParagraph():
+    // If there are lines passed as 'currentLine' to this
+    // block's processBlockLine() that are not consumed in the block,
+    // those lines are returned by this method, in the same order in
+    // which they were given to this block.
+    VfmdPointerArray<const VfmdLine> *linesSinceEndOfParagraph();
 
 private:
     int m_containingBlockType;

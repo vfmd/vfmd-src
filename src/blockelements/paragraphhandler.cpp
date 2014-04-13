@@ -106,7 +106,7 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     return (isPotentialEndOfParagraph(nextLine, m_containingBlockType, false));
 }
 
-VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
+VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfParagraph()
 {
     return 0;
 }
@@ -214,7 +214,7 @@ bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
     return m_isAtEndOfParagraph;
 }
 
-VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfBlock()
+VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfParagraph()
 {
     VfmdPointerArray<const VfmdLine> *lines = m_lookaheadLines;
     m_lookaheadLines = 0;
