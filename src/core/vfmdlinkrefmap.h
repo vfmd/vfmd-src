@@ -16,9 +16,9 @@ public:
     void add(const VfmdByteArray &refId, const VfmdByteArray &url, const VfmdByteArray &title);
 
     // access data
-    bool hasData(const VfmdByteArray &refId);
-    VfmdByteArray linkUrl(const VfmdByteArray &refId);
-    VfmdByteArray linkTitle(const VfmdByteArray &refId);
+    bool hasData(const VfmdByteArray &refId) const;
+    VfmdByteArray linkUrl(const VfmdByteArray &refId) const;
+    VfmdByteArray linkTitle(const VfmdByteArray &refId) const;
 
 private:
     struct LinkData {

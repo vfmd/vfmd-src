@@ -35,24 +35,24 @@ VfmdLinkRefMap::LinkData* VfmdLinkRefMap::linkDataForRefId(const VfmdByteArray &
     return linkData;
 }
 
-bool VfmdLinkRefMap::hasData(const VfmdByteArray &refId)
+bool VfmdLinkRefMap::hasData(const VfmdByteArray &refId) const
 {
-    LinkData *linkData = linkDataForRefId(refId);
+    LinkData *linkData = const_cast<VfmdLinkRefMap *>(this)->linkDataForRefId(refId);
     return (linkData != 0);
 }
 
-VfmdByteArray VfmdLinkRefMap::linkUrl(const VfmdByteArray &refId)
+VfmdByteArray VfmdLinkRefMap::linkUrl(const VfmdByteArray &refId) const
 {
-    LinkData *linkData = linkDataForRefId(refId);
+    LinkData *linkData = const_cast<VfmdLinkRefMap *>(this)->linkDataForRefId(refId);
     if (linkData) {
         return linkData->url;
     }
     return VfmdByteArray();
 }
 
-VfmdByteArray VfmdLinkRefMap::linkTitle(const VfmdByteArray &refId)
+VfmdByteArray VfmdLinkRefMap::linkTitle(const VfmdByteArray &refId) const
 {
-    LinkData *linkData = linkDataForRefId(refId);
+    LinkData *linkData = const_cast<VfmdLinkRefMap *>(this)->linkDataForRefId(refId);
     if (linkData) {
         return linkData->title;
     }
