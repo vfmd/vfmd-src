@@ -97,7 +97,7 @@ public:
 
     // Default vfmd elements
 
-    static VfmdElementRegistry* createRegistryWithDefaultElements(VfmdLinkRefMap *linkRefMap);
+    static VfmdElementRegistry* createRegistryWithDefaultElements();
 
 private:
     /* Prevent copying of this class */

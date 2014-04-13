@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 
-ImageHandler::ImageHandler(VfmdLinkRefMap *linkRefMap)
+ImageHandler::ImageHandler(const VfmdLinkRefMap *linkRefMap)
     : m_linkRefMap(linkRefMap)
 {
 }
@@ -107,7 +107,7 @@ void ImageTreeNode::setAltText(const VfmdByteArray &altText)
     m_altText = altText;
 }
 
-void ImageTreeNode::setLinkRefMap(VfmdLinkRefMap *linkRefMap)
+void ImageTreeNode::setLinkRefMap(const VfmdLinkRefMap *linkRefMap)
 {
     m_linkRefMap = linkRefMap;
 }

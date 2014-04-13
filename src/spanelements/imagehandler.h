@@ -7,14 +7,14 @@
 class ImageHandler : public VfmdSpanElementHandler
 {
 public:
-    ImageHandler(VfmdLinkRefMap *linkRefMap);
+    ImageHandler(const VfmdLinkRefMap *linkRefMap);
     virtual int identifySpanTagStartingAt(const VfmdByteArray &text,
                                           int currentPos,
                                           VfmdSpanTagStack *stack) const;
     virtual const char *description() const { return "image"; }
 
 private:
-    VfmdLinkRefMap *m_linkRefMap;
+    const VfmdLinkRefMap *m_linkRefMap;
 };
 
 class ImageTreeNode : public VfmdElementTreeNode {
@@ -29,7 +29,7 @@ public:
     ImageTreeNode(ImageRefType linkRefType, const VfmdByteArray& ba1, const VfmdByteArray& ba2);
 
     void setAltText(const VfmdByteArray &altText);
-    void setLinkRefMap(VfmdLinkRefMap *linkRefMap);
+    void setLinkRefMap(const VfmdLinkRefMap *linkRefMap);
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
@@ -44,7 +44,7 @@ private:
     ImageRefType m_linkRefType;
     VfmdByteArray m_ba1, m_ba2;
     VfmdByteArray m_altText;
-    VfmdLinkRefMap *m_linkRefMap;
+    const VfmdLinkRefMap *m_linkRefMap;
 };
 
 #endif // IMAGEHANDLER_H

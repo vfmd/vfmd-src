@@ -20,14 +20,14 @@
 #include "spanelements/htmltaghandler.h"
 #include "spanelements/automaticlinkhandler.h"
 
-VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements(VfmdLinkRefMap *linkRefMap)
+VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
 {
     VfmdElementRegistry *registry = new VfmdElementRegistry;
 
     // Block elements
+    RefResolutionBlockHandler *refResolutionBlock = new RefResolutionBlockHandler;
     registry->appendBlockElement(VfmdConstants::NULL_BLOCK_ELEMENT, new NullBlockHandler);
-    registry->appendBlockElement(VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT,
-                                 new RefResolutionBlockHandler(linkRefMap));
+    registry->appendBlockElement(VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT, refResolutionBlock);
     registry->appendBlockElement(VfmdConstants::SETEXT_HEADER_ELEMENT, new SetextHeaderHandler);
     registry->appendBlockElement(VfmdConstants::CODE_BLOCK_ELEMENT, new CodeBlockHandler);
     registry->appendBlockElement(VfmdConstants::ATX_HEADER_ELEMENT, new AtxHeaderHandler);
@@ -38,13 +38,15 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements(Vfmd
     registry->appendBlockElement(VfmdConstants::PARAGRAPH_ELEMENT, new ParagraphHandler);
 
     // Span elements
-    registry->appendSpanElement(VfmdConstants::LINK_ELEMENT, new LinkHandler(linkRefMap),
+    registry->appendSpanElement(VfmdConstants::LINK_ELEMENT,
+                                new LinkHandler(refResolutionBlock->linkReferenceMap()),
                                 "[]", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
     registry->appendSpanElement(VfmdConstants::EMPHASIS_ELEMENT, new EmphasisHandler,
                                 "*_", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
     registry->appendSpanElement(VfmdConstants::CODE_SPAN_ELEMENT, new CodeSpanHandler,
                                 "`", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
-    registry->appendSpanElement(VfmdConstants::IMAGE_ELEMENT, new ImageHandler(linkRefMap),
+    registry->appendSpanElement(VfmdConstants::IMAGE_ELEMENT,
+                                new ImageHandler(refResolutionBlock->linkReferenceMap()),
                                 "!", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
     registry->appendSpanElement(VfmdConstants::HTML_ELEMENT, new HtmlTagHandler,
                                 "<", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);

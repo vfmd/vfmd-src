@@ -7,14 +7,14 @@
 class LinkHandler : public VfmdSpanElementHandler
 {
 public:
-    LinkHandler(VfmdLinkRefMap *linkRefMap);
+    LinkHandler(const VfmdLinkRefMap *linkRefMap);
     virtual int identifySpanTagStartingAt(const VfmdByteArray &text,
                                                    int currentPos,
                                                    VfmdSpanTagStack *stack) const;
     virtual const char *description() const { return "link"; }
 
 private:
-    VfmdLinkRefMap *m_linkRefMap;
+    const VfmdLinkRefMap *m_linkRefMap;
 };
 
 class OpeningLinkTagStackNode : public VfmdOpeningSpanTagStackNode
@@ -41,7 +41,7 @@ public:
 
     LinkTreeNode(LinkRefType linkRefType, const VfmdByteArray& ba1, const VfmdByteArray& ba2);
 
-    void setLinkRefMap(VfmdLinkRefMap *linkRefMap);
+    void setLinkRefMap(const VfmdLinkRefMap *linkRefMap);
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
@@ -54,7 +54,7 @@ public:
 private:
     LinkRefType m_linkRefType;
     VfmdByteArray m_ba1, m_ba2;
-    VfmdLinkRefMap *m_linkRefMap;
+    const VfmdLinkRefMap *m_linkRefMap;
 };
 
 #endif // LINKHANDLER_H

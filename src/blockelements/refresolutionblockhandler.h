@@ -2,13 +2,17 @@
 #define REFRESOLUTIONBLOCKHANDLER_H
 
 #include "vfmdblockelementhandler.h"
-#include "core/vfmdlinkrefmap.h"
+
+class VfmdLinkRefMap;
 
 class RefResolutionBlockHandler : public VfmdBlockElementHandler {
 public:
-    RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap);
+    RefResolutionBlockHandler();
+    virtual ~RefResolutionBlockHandler();
     virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
     virtual const char *description() const { return "ref-resolution-block"; }
+
+    const VfmdLinkRefMap *linkReferenceMap() const;
 
 private:
     VfmdLinkRefMap *m_linkRefMap;

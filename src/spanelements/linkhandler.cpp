@@ -3,7 +3,7 @@
 #include "core/vfmdlinkandimageutils.h"
 #include "core/htmltextrenderer.h"
 
-LinkHandler::LinkHandler(VfmdLinkRefMap *linkRefMap)
+LinkHandler::LinkHandler(const VfmdLinkRefMap *linkRefMap)
     : m_linkRefMap(linkRefMap)
 {
 }
@@ -127,7 +127,7 @@ LinkTreeNode::LinkTreeNode(LinkRefType linkRefType, const VfmdByteArray& ba1, co
 {
 }
 
-void LinkTreeNode::setLinkRefMap(VfmdLinkRefMap *linkRefMap)
+void LinkTreeNode::setLinkRefMap(const VfmdLinkRefMap *linkRefMap)
 {
     m_linkRefMap = linkRefMap;
 }

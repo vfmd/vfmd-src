@@ -1,9 +1,15 @@
 #include "refresolutionblockhandler.h"
 #include "core/vfmdcommonregexps.h"
+#include "core/vfmdlinkrefmap.h"
 
-RefResolutionBlockHandler::RefResolutionBlockHandler(VfmdLinkRefMap *linkRefMap)
-    : m_linkRefMap(linkRefMap)
+RefResolutionBlockHandler::RefResolutionBlockHandler()
+    : m_linkRefMap(new VfmdLinkRefMap)
 {
+}
+
+RefResolutionBlockHandler::~RefResolutionBlockHandler()
+{
+    delete m_linkRefMap;
 }
 
 void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
@@ -46,6 +52,11 @@ void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineS
         }
         lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, numOfLinesInSequence, linkDefText, m_linkRefMap));
     }
+}
+
+const VfmdLinkRefMap *RefResolutionBlockHandler::linkReferenceMap() const
+{
+    return m_linkRefMap;
 }
 
 RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
