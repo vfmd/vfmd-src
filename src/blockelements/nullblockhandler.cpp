@@ -1,13 +1,19 @@
 #include "nullblockhandler.h"
 #include "core/vfmdcommonregexps.h"
 
-void NullBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool NullBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                      int containingBlockType, bool isAbuttingParagraph)
 {
     UNUSED_ARG(nextLine);
-    if (firstLine->isBlankLine()) {
-        NullBlockLineSequence *nullBlockLineSequence = new NullBlockLineSequence(lineSequence);
-        lineSequence->setChildSequence(nullBlockLineSequence);
-    }
+    UNUSED_ARG(containingBlockType);
+    UNUSED_ARG(isAbuttingParagraph);
+    return (currentLine->isBlankLine());
+}
+
+void NullBlockHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    NullBlockLineSequence *s = new NullBlockLineSequence(parentLineSequence);
+    parentLineSequence->setChildSequence(s);
 }
 
 NullBlockLineSequence::NullBlockLineSequence(const VfmdInputLineSequence *parent)

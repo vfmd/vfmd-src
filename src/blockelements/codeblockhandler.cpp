@@ -1,12 +1,20 @@
 #include "codeblockhandler.h"
 #include "core/htmltextrenderer.h"
 
-void CodeBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool CodeBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                      int containingBlockType, bool isAbuttingParagraph)
 {
     UNUSED_ARG(nextLine);
-    if (firstLine->leadingSpacesCount() >= 4) {
-        lineSequence->setChildSequence(new CodeBlockLineSequence(lineSequence));
-    }
+    UNUSED_ARG(containingBlockType);
+    UNUSED_ARG(isAbuttingParagraph);
+    assert(isAbuttingParagraph == false);
+    return (currentLine->leadingSpacesCount() >= 4);
+}
+
+void CodeBlockHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    CodeBlockLineSequence *s = new CodeBlockLineSequence(parentLineSequence);
+    parentLineSequence->setChildSequence(s);
 }
 
 CodeBlockLineSequence::CodeBlockLineSequence(const VfmdInputLineSequence *parent)

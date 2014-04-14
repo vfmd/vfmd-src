@@ -22,6 +22,7 @@ public:
     const VfmdBlockLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
 
+    int containingBlockType() const;
     bool hasChildSequence() const;
 
     // setChildSequence():
@@ -29,13 +30,13 @@ public:
     // The VfmdInputLineSequence owns the child sequence object.
     // This method should be called only from a 'createChildSequence()' method
     // in a class derived from 'VfmdBlockElementHandler'
-    void setChildSequence(VfmdBlockLineSequence *lineSequence);
+    void setChildSequence(VfmdBlockLineSequence *lineSequenceD);
 
     // addToParseTree():
     // Add a parse-subtree to the end of the parse tree held
     // by this sequence.
     // The VfmdInputLineSequence owns the subtree.
-    void addToParseTree(VfmdElementTreeNode *subtree);
+    void addToParseTree(VfmdElementTreeNode *subtreeD);
 
 private:
     /* Prevent copying of this class */
@@ -45,10 +46,12 @@ private:
     void processInChildSequence(const VfmdLine *currentLine, const VfmdLine *nextLine);
 
     const VfmdBlockLineSequence *m_parentLineSequence;
+    const int m_containingBlockType;
     const VfmdElementRegistry *m_registry;
     const VfmdLine *m_nextLine;
     VfmdBlockLineSequence *m_childLineSequence;
     int m_numOfLinesGivenToChildLineSequence;
+    VfmdBlockElementHandler *m_nextBlockHandler;
     VfmdElementTreeNode *m_parseTree;
 };
 

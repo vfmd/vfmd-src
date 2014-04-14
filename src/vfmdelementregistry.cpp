@@ -107,6 +107,26 @@ void VfmdElementRegistry::removeBlockElement(int typeId)
     m_blockElements->removeItemAt((unsigned int) index);
 }
 
+void VfmdElementRegistry::setBlockCanAbutParagraph(int typeId, bool yes)
+{
+    int index = indexOfBlockElement(typeId);
+    if (index >= 0) {
+        m_blockElements->itemAt(index)->canAbutParagraph = yes;
+    }
+}
+
+VfmdPointerArray<VfmdBlockElementHandler>* VfmdElementRegistry::blockHandlersThatCanAbutParagraph() const
+{
+    VfmdPointerArray<VfmdBlockElementHandler> *blockHandlers = new VfmdPointerArray<VfmdBlockElementHandler>(16);
+    for (unsigned int i = 0; i < m_blockElements->size(); i++) {
+        const VfmdElementRegistry::BlockElementData *blockElementData = m_blockElements->itemAt(i);
+        if (blockElementData->canAbutParagraph) {
+            blockHandlers->append(blockElementData->blockElementHandler);
+        }
+    }
+    return blockHandlers;
+}
+
 unsigned int VfmdElementRegistry::blockElementsCount() const
 {
     return m_blockElements->size();

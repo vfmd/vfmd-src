@@ -6,8 +6,13 @@
 class UnorderedListHandler : public VfmdBlockElementHandler {
 public:
     UnorderedListHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                int containingBlockType, bool isAbuttingParagraph);
+    virtual void createLineSequence(VfmdInputLineSequence *parentLineSequence) const;
     virtual const char *description() const { return "unordered-list"; }
+
+private:
+    VfmdByteArray m_listStarterString;
 };
 
 class UnorderedListTreeNode;

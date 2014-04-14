@@ -12,46 +12,53 @@ RefResolutionBlockHandler::~RefResolutionBlockHandler()
     delete m_linkRefMap;
 }
 
-void RefResolutionBlockHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool RefResolutionBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                               int containingBlockType, bool isAbuttingParagraph)
 {
-    if (firstLine->leadingSpacesCount() >= 4) {
-        return;
+    UNUSED_ARG(containingBlockType);
+    UNUSED_ARG(isAbuttingParagraph);
+    assert(isAbuttingParagraph == false);
+
+    if ((currentLine->firstNonSpace() != '[') ||
+        (currentLine->leadingSpacesCount() >= 4)) {
+        return false;
     }
 
-    if (firstLine->firstNonSpace() != '[') {
-        return;
-    }
-
-    bool isRefResolutionBlock = false;
-    VfmdByteArray firstLineText = firstLine->content();
+    VfmdByteArray firstLineText = currentLine->content();
     VfmdByteArray firstLineTrailingText;
     VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
     if (reLabelAndPlainURL.matches(firstLineText)) {
         firstLineTrailingText = reLabelAndPlainURL.capturedText(2);
-        isRefResolutionBlock = true;
     } else {
         VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
         if (reLabelAndBracketedURL.matches(firstLineText)) {
             firstLineTrailingText = reLabelAndBracketedURL.capturedText(2);
-            isRefResolutionBlock = true;
+        } else {
+            return false;
         }
     }
 
-    if (isRefResolutionBlock) {
-        int numOfLinesInSequence = 1;
-        VfmdByteArray linkDefText = firstLineText;
-        if ((nextLine != 0) &&                                     // There exists a next line, and
-            (firstLineTrailingText.indexOfFirstNonSpace() < 0)) {  // The first line does not have trailing non-space chars
-            // The next line is also part of the ref-resolution block
-            VfmdByteArray secondLineText = nextLine->content();
-            VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
-            if (reTitleLine.matches(secondLineText)) {
-                numOfLinesInSequence = 2;
-                linkDefText.append(secondLineText);
-            }
+    m_firstLine = currentLine;
+    m_nextLine = ((firstLineTrailingText.indexOfFirstNonSpace() < 0) ? nextLine : 0);
+    return true;
+}
+
+void RefResolutionBlockHandler::createLineSequence(VfmdInputLineSequence *lineSequence) const
+{
+    int numOfLinesInSequence = 1;
+    VfmdByteArray linkDefText = m_firstLine->content();
+    if (m_nextLine) {
+        VfmdByteArray secondLineText = m_nextLine->content();
+        VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
+        if (reTitleLine.matches(secondLineText)) {
+            numOfLinesInSequence = 2;
+            linkDefText.append(secondLineText);
         }
-        lineSequence->setChildSequence(new RefResolutionBlockLineSequence(lineSequence, numOfLinesInSequence, linkDefText, m_linkRefMap));
     }
+
+    RefResolutionBlockLineSequence *s = new RefResolutionBlockLineSequence(lineSequence,
+                                                numOfLinesInSequence, linkDefText, m_linkRefMap);
+    lineSequence->setChildSequence(s);
 }
 
 const VfmdLinkRefMap *RefResolutionBlockHandler::linkReferenceMap() const

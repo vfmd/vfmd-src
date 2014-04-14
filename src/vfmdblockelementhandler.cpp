@@ -2,11 +2,20 @@
 #include "vfmdblockelementhandler.h"
 #include "vfmdinputlinesequence.h"
 
-void VfmdBlockElementHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *currentLine, const VfmdLine *nextLine) const
+bool VfmdBlockElementHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                             int containingBlockType, bool isAbuttingParagraph)
 {
-    UNUSED_ARG(lineSequence);
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
+    UNUSED_ARG(containingBlockType);
+    UNUSED_ARG(isAbuttingParagraph);
+    return false;
+}
+
+void VfmdBlockElementHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    UNUSED_ARG(parentLineSequence);
+    /* Base implementation does nothing */
 }
 
 const char *VfmdBlockElementHandler::description() const

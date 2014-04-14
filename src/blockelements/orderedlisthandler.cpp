@@ -2,18 +2,34 @@
 #include "core/vfmdcommonregexps.h"
 #include "vfmdelementtreenodestack.h"
 
-void OrderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool OrderedListHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                        int containingBlockType, bool isAbuttingParagraph)
 {
     UNUSED_ARG(nextLine);
-    char firstNonSpaceByte = firstLine->firstNonSpace();
-    if (firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9') {
-        VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
-        if (reStarterPattern.matches(firstLine->content())) {
-            VfmdByteArray listStarterString = reStarterPattern.capturedText(1);
-            VfmdByteArray startingNumber = reStarterPattern.capturedText(2);
-            lineSequence->setChildSequence(new OrderedListLineSequence(lineSequence, listStarterString.size(), startingNumber));
+    if ((!isAbuttingParagraph) ||
+        (containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT) ||
+        (containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT)) {
+        char firstNonSpaceByte = currentLine->firstNonSpace();
+        if ((firstNonSpaceByte >= '0') && (firstNonSpaceByte <= '9')) {
+            VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
+            if (reStarterPattern.matches(currentLine->content())) {
+                m_listStarterString = reStarterPattern.capturedText(1);
+                m_startingNumber = reStarterPattern.capturedText(2);
+                return true;
+            }
         }
     }
+    return false;
+}
+
+void OrderedListHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    assert(m_listStarterString.size() > 0);
+    assert(m_startingNumber.size() > 0);
+    OrderedListLineSequence *s = new OrderedListLineSequence(parentLineSequence,
+                                                             m_listStarterString.size(),
+                                                             m_startingNumber);
+    parentLineSequence->setChildSequence(s);
 }
 
 OrderedListLineSequence::OrderedListLineSequence(const VfmdInputLineSequence *parent,

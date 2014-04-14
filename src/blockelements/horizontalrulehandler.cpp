@@ -2,12 +2,19 @@
 #include "vfmdregexp.h"
 #include "core/vfmdcommonregexps.h"
 
-void HorizontalRuleHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool HorizontalRuleHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                           int containingBlockType, bool isAbuttingParagraph)
 {
     UNUSED_ARG(nextLine);
-    if (firstLine->isHorizontalRuleLine()) {
-        lineSequence->setChildSequence(new HorizontalRuleLineSequence(lineSequence));
-    }
+    UNUSED_ARG(containingBlockType);
+    UNUSED_ARG(isAbuttingParagraph);
+    return (currentLine->isHorizontalRuleLine());
+}
+
+void HorizontalRuleHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    HorizontalRuleLineSequence *s = new HorizontalRuleLineSequence(parentLineSequence);
+    parentLineSequence->setChildSequence(s);
 }
 
 HorizontalRuleLineSequence::HorizontalRuleLineSequence(const VfmdInputLineSequence *parent)

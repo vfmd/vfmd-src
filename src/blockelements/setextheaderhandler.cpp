@@ -4,17 +4,29 @@
 #include "vfmdoutputdevice.h"
 #include "vfmdelementtreenodestack.h"
 
-void SetextHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool SetextHeaderHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                         int containingBlockType, bool isAbuttingParagraph)
 {
-    UNUSED_ARG(firstLine);
+    UNUSED_ARG(currentLine);
+    UNUSED_ARG(containingBlockType);
+    UNUSED_ARG(isAbuttingParagraph);
+    assert(isAbuttingParagraph == false);
+
     if (nextLine == 0) {
-        return;
+        return false;
     }
     const char firstUnderlineByte = nextLine->firstByte();
-    if ((firstUnderlineByte == '=' || firstUnderlineByte == '-') &&
-        (nextLine->matches(VfmdCommonRegexps::setextHeaderUnderline()))) {
-        lineSequence->setChildSequence(new SetextHeaderLineSequence(lineSequence));
+    if (firstUnderlineByte == '=' || firstUnderlineByte == '-') {
+        VfmdRegexp reSetextHeaderUnderline = VfmdCommonRegexps::setextHeaderUnderline();
+        return (nextLine->matches(reSetextHeaderUnderline));
     }
+    return false;
+}
+
+void SetextHeaderHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    SetextHeaderLineSequence *s = new SetextHeaderLineSequence(parentLineSequence);
+    parentLineSequence->setChildSequence(s);
 }
 
 SetextHeaderLineSequence::SetextHeaderLineSequence(const VfmdInputLineSequence *parent)

@@ -2,12 +2,20 @@
 #include "core/vfmdcommonregexps.h"
 #include "core/vfmdspanelementsprocessor.h"
 
-void AtxHeaderHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool AtxHeaderHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                      int containingBlockType, bool isAbuttingParagraph)
 {
     UNUSED_ARG(nextLine);
-    if (firstLine->firstByte() == '#') {
-        lineSequence->setChildSequence(new AtxHeaderLineSequence(lineSequence));
-    }
+    UNUSED_ARG(containingBlockType);
+    UNUSED_ARG(isAbuttingParagraph);
+    assert(isAbuttingParagraph == false);
+    return (currentLine->firstByte() == '#');
+}
+
+void AtxHeaderHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    AtxHeaderLineSequence *s = new AtxHeaderLineSequence(parentLineSequence);
+    parentLineSequence->setChildSequence(s);
 }
 
 AtxHeaderLineSequence::AtxHeaderLineSequence(const VfmdInputLineSequence *parent)

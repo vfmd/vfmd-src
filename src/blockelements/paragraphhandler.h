@@ -8,7 +8,9 @@
 class ParagraphHandler : public VfmdBlockElementHandler {
 public:
     ParagraphHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const;
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                int containingBlockType, bool isAbuttingParagraph);
+    virtual void createLineSequence(VfmdInputLineSequence *parentLineSequence) const;
     virtual const char *description() const { return "paragraph"; }
 };
 
@@ -28,9 +30,23 @@ public:
     // which they were given to this block.
     VfmdPointerArray<const VfmdLine> *linesSinceEndOfParagraph();
 
+    // nextBlockHandler():
+    // If the paragraph sequence knows what the following block is after
+    // this block has ended with an 'endBlock()', this
+    // method returns the block handler for the following block. Else,
+    // this method returns 0.
+    // If this method returns a block handler, then that handler's
+    // VfmdBlockElementHandler::isStartOfBlock() is guaranteed to
+    // have returned true.
+    VfmdBlockElementHandler *nextBlockHandler() const;
+
 private:
-    int m_containingBlockType;
+    bool canEndBeforeLine(const VfmdLine *line, bool isInVerbatimHtmlMode);
+
+    const int m_containingBlockType;
     VfmdByteArray m_text;
+    const VfmdPointerArray<VfmdBlockElementHandler> *m_blockHandlersThatCanAbutParagraph;
+    VfmdBlockElementHandler *m_nextBlockHandler;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     VfmdCodeSpanFilter m_codeSpanFilter;
     HtmlStateWatcher m_htmlStateWatcher;

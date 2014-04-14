@@ -55,5 +55,10 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
     registry->appendSpanElement(VfmdConstants::AUTOMATIC_LINK_ELEMENT, new AutomaticLinkHandler,
                                 ":", VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE);
 
+    registry->setBlockCanAbutParagraph(VfmdConstants::BLOCKQUOTE_ELEMENT);
+    registry->setBlockCanAbutParagraph(VfmdConstants::HORIZONTAL_RULE_ELEMENT);
+    registry->setBlockCanAbutParagraph(VfmdConstants::UNORDERED_LIST_ELEMENT);
+    registry->setBlockCanAbutParagraph(VfmdConstants::ORDERED_LIST_ELEMENT);
+
     return registry;
 }

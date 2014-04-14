@@ -35,6 +35,10 @@ public:
     /* Remove and free a block element handler in the registry */
     void removeBlockElement(int typeId);
 
+    /* Blocks that can abut a paragraph */
+    void setBlockCanAbutParagraph(int typeId, bool yes = true);
+    VfmdPointerArray<VfmdBlockElementHandler> *blockHandlersThatCanAbutParagraph() const;
+
     /* Querying block elements */
     unsigned int blockElementsCount() const;
     VfmdBlockElementHandler *blockElementHandler(unsigned int index) const;
@@ -109,9 +113,11 @@ private:
     void ensureBlockElementsAllocated();
 
     struct BlockElementData {
-        BlockElementData(int t, VfmdBlockElementHandler *h) : typeId(t), blockElementHandler(h) { }
+        BlockElementData(int t, VfmdBlockElementHandler *h)
+            : typeId(t), blockElementHandler(h), canAbutParagraph(false) { }
         int typeId;
         VfmdBlockElementHandler *blockElementHandler;
+        bool canAbutParagraph;
     };
 
     VfmdPointerArray<BlockElementData>* m_blockElements;

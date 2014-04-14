@@ -2,17 +2,30 @@
 #include "core/vfmdcommonregexps.h"
 #include "vfmdelementtreenodestack.h"
 
-void UnorderedListHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool UnorderedListHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                          int containingBlockType, bool isAbuttingParagraph)
 {
     UNUSED_ARG(nextLine);
-    char firstNonSpaceByte = firstLine->firstNonSpace();
-    if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
-        VfmdRegexp reStarterPattern = VfmdCommonRegexps::unorderedListStarter();
-        if (reStarterPattern.matches(firstLine->content())) {
-            VfmdByteArray listStarterString = reStarterPattern.capturedText(1);
-            lineSequence->setChildSequence(new UnorderedListLineSequence(lineSequence, listStarterString));
+    if ((!isAbuttingParagraph) ||
+        (containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT) ||
+        (containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT)) {
+        char firstNonSpaceByte = currentLine->firstNonSpace();
+        if (firstNonSpaceByte == '*' || firstNonSpaceByte == '-' || firstNonSpaceByte == '+') {
+            VfmdRegexp reStarterPattern = VfmdCommonRegexps::unorderedListStarter();
+            if (reStarterPattern.matches(currentLine->content())) {
+                m_listStarterString = reStarterPattern.capturedText(1);
+                return true;
+            }
         }
     }
+    return false;
+}
+
+void UnorderedListHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    UnorderedListLineSequence *s = new UnorderedListLineSequence(parentLineSequence,
+                                                                 m_listStarterString);
+    parentLineSequence->setChildSequence(s);
 }
 
 UnorderedListLineSequence::UnorderedListLineSequence(const VfmdInputLineSequence *parent,

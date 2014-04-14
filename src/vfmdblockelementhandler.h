@@ -16,8 +16,29 @@ class VfmdElementRegistry;
 class VfmdBlockElementHandler {
 public:
     VfmdBlockElementHandler() { }
-    virtual void createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *currentLine, const VfmdLine *nextLine) const;
     virtual ~VfmdBlockElementHandler() { }
+
+    /* isStartOfBlock():
+     * Should return true if the 'currentLine' is the start of the relevant block,
+     * and false if not. The other arguments are:
+     *   nextLine: the line upcoming after the currentLine
+     *   containingBlockType: the type of the block that contains this block
+     *   isAbuttingParagraph: true iff the previous line belongs to a paragraph and
+     *                        is not a blank line.
+     * If 'VfmdElementRegistry::setBlockCanAbutParagraph()' has not been called
+     * on this block type, 'isAbuttingParagraph' is guaranteed to be false.
+     * If 'isStartOfBlock()' returns true, it *might* be followed by
+     * a call to 'createLineSequence()'.
+     */
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                int containingBlockType, bool isAbuttingParagraph);
+
+    /* createLineSequence():
+     * This shall be called only when 'isStartOfBlock()' returns true.
+     * This method is expected to create a block line sequence object as a child
+     * of 'parentLineSequence'.
+     */
+    virtual void createLineSequence(VfmdInputLineSequence *parentLineSequence) const;
 
     /* A short text describing this syntax (eg. "paragraph", "code-block") */
     virtual const char *description() const;

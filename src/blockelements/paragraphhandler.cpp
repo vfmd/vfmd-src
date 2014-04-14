@@ -7,37 +7,70 @@
 #include "vfmdelementtreenodestack.h"
 #include "orderedlisthandler.h"
 #include "unorderedlisthandler.h"
+#include "vfmdelementregistry.h"
 
-void ParagraphHandler::createChildSequence(VfmdInputLineSequence *lineSequence, const VfmdLine *firstLine, const VfmdLine *nextLine) const
+bool ParagraphHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
+                                      int containingBlockType, bool isAbuttingParagraph)
 {
-    UNUSED_ARG(firstLine);
+    UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
-    ParagraphLineSequence *paragraphLineSequence = new ParagraphLineSequence(lineSequence);
-    lineSequence->setChildSequence(paragraphLineSequence);
+    UNUSED_ARG(containingBlockType);
+    assert(isAbuttingParagraph == false);
+    return true;
+}
+
+void ParagraphHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
+{
+    new ParagraphLineSequence(parentLineSequence);
 }
 
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
-    , m_containingBlockType(VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
+    , m_containingBlockType(parent->containingBlockType())
+    , m_blockHandlersThatCanAbutParagraph(registry()->blockHandlersThatCanAbutParagraph())
+    , m_nextBlockHandler(0)
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     , m_isAtEndOfParagraph(false)
     , m_isLookingAhead(false)
     , m_lookaheadLines(0)
 #endif
 {
-    const VfmdBlockLineSequence *containingBlockSequence = (parent? parent->parentLineSequence() : 0);
-    if (containingBlockSequence) {
-        m_containingBlockType = containingBlockSequence->elementType();
-    }
 }
 
 ParagraphLineSequence::~ParagraphLineSequence()
 {
     m_text.clear();
     m_text.squeeze();
+    delete m_blockHandlersThatCanAbutParagraph;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     delete m_lookaheadLines;
 #endif
+}
+
+bool ParagraphLineSequence::canEndBeforeLine(const VfmdLine *line, bool isInVerbatimHtmlMode)
+{
+    m_nextBlockHandler = 0;
+
+    if (line == 0 || line->isBlankLine()) {
+        return true;
+    }
+
+    if (isInVerbatimHtmlMode) {
+        // If we're in verbatim-html mode, we can end the para only at a blank line.
+        // We know that the next line is a non-blank line, so the para can't end here.
+        return false;
+    }
+
+    // Query all the block handlers whether they can start a block at 'line'.
+    for (int i = 0; i < m_blockHandlersThatCanAbutParagraph->size(); i++) {
+        VfmdBlockElementHandler *blockHandler = m_blockHandlersThatCanAbutParagraph->itemAt(i);
+        if (blockHandler->isStartOfBlock(line, 0, m_containingBlockType, true)) {
+            m_nextBlockHandler = blockHandler;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static void appendLines(VfmdByteArray *dst, VfmdPointerArray<const VfmdLine> *src)
@@ -49,44 +82,6 @@ static void appendLines(VfmdByteArray *dst, VfmdPointerArray<const VfmdLine> *sr
             dst->appendByte('\n');
         }
     }
-}
-
-static bool isPotentialEndOfParagraph(const VfmdLine *nextLine, int containingBlockType, bool isInVerbatimHtmlMode)
-{
-    if (nextLine == 0 || nextLine->isBlankLine()) {
-        return true;
-    }
-
-    if (isInVerbatimHtmlMode) {
-        // If we're in verbatim-html mode, we can end the para only at a blank line.
-        // We know that the next line is a non-blank line, so the para can't end here.
-        return false;
-    }
-
-    const char firstNonSpaceByte = nextLine->firstNonSpace();
-
-    if ((containingBlockType == VfmdConstants::BLOCKQUOTE_ELEMENT) &&
-        (firstNonSpaceByte == '>')) {
-        return true;
-    }
-
-    if (containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT ||
-        containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT) {
-        if ((firstNonSpaceByte == '*' || firstNonSpaceByte == '+' || firstNonSpaceByte == '-') &&
-            nextLine->matches(VfmdCommonRegexps::unorderedListStarter())) {
-            return true;
-        }
-        if ((firstNonSpaceByte >= '0' && firstNonSpaceByte <= '9') &&
-            nextLine->matches(VfmdCommonRegexps::orderedListStarter())) {
-            return true;
-        }
-    }
-
-    if (nextLine->isHorizontalRuleLine()) {
-        return true;
-    }
-
-    return false;
 }
 
 #ifdef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
@@ -103,7 +98,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
 bool ParagraphLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
-    return (isPotentialEndOfParagraph(nextLine, m_containingBlockType, false));
+    return (canEndBeforeLine(nextLine, false));
 }
 
 VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfParagraph()
@@ -131,7 +126,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
 
         bool isInVerbatimHtmlMode = ((verbatimContainerElemState != HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN) ||
                                      (verbatimStarterElemState != HtmlStateWatcher::NO_VERBATIM_STARTER_ELEMENT_SEEN));
-        bool isPotentialEnd = isPotentialEndOfParagraph(nextLine, m_containingBlockType, isInVerbatimHtmlMode);
+        bool isPotentialEnd = canEndBeforeLine(nextLine, isInVerbatimHtmlMode);
         if (isPotentialEnd) {
             if ((tagState == HtmlStateWatcher::TEXT_STATE) &&
                 (verbatimContainerElemState == HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN ||
@@ -185,7 +180,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
                 if ((updatedTagState == HtmlStateWatcher::TEXT_STATE) &&
                     (updatedVerbatimContainerElemState == HtmlStateWatcher::NO_VERBATIM_CONTAINER_ELEMENT_SEEN ||
                      updatedVerbatimContainerElemState == HtmlStateWatcher::NOT_WITHIN_WELL_FORMED_VERBATIM_CONTAINER_ELEMENT)) {
-                    m_isAtEndOfParagraph = isPotentialEndOfParagraph(nextLine, m_containingBlockType, isInVerbatimHtmlMode);
+                    m_isAtEndOfParagraph = canEndBeforeLine(nextLine, isInVerbatimHtmlMode);
 
                 } else {
                     // No other states are possible at this point
@@ -238,6 +233,11 @@ void ParagraphLineSequence::endBlock()
         paragraphNode->setShouldAvoidWrappingInHtmlPTag(true);
     }
     setBlockParseTree(paragraphNode);
+}
+
+VfmdBlockElementHandler *ParagraphLineSequence::nextBlockHandler() const
+{
+    return m_nextBlockHandler;
 }
 
 ParagraphTreeNode::ParagraphTreeNode()

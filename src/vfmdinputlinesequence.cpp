@@ -6,11 +6,13 @@
 #include "blockelements/paragraphhandler.h"
 
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence)
-    : m_registry(registry)
+    : m_parentLineSequence(parentLineSequence)
+    , m_containingBlockType(parentLineSequence? parentLineSequence->elementType() : VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
+    , m_registry(registry)
     , m_nextLine(0)
-    , m_parentLineSequence(parentLineSequence)
     , m_childLineSequence(0)
     , m_numOfLinesGivenToChildLineSequence(0)
+    , m_nextBlockHandler(0)
     , m_parseTree(0)
 {
 }
@@ -40,17 +42,23 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
 {
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
-        for (unsigned int i = 0; i < m_registry->blockElementsCount(); i++) {
-            VfmdBlockElementHandler *blockHandler = m_registry->blockElementHandler(i);
-            blockHandler->createChildSequence(this, currentLine, nextLine);
-            if (hasChildSequence()) {
-                // the block handler has created and set a child sequence
-                break;
+        VfmdBlockElementHandler *selectedBlockHandler = 0;
+        if (m_nextBlockHandler) {
+            selectedBlockHandler = m_nextBlockHandler;
+        } else {
+            for (unsigned int i = 0; i < m_registry->blockElementsCount(); i++) {
+                VfmdBlockElementHandler *blockHandler = m_registry->blockElementHandler(i);
+                bool found = blockHandler->isStartOfBlock(currentLine, nextLine, m_containingBlockType, false);
+                if (found) {
+                    selectedBlockHandler = blockHandler;
+                    break;
+                }
             }
         }
-        if (m_childLineSequence) {
-            m_numOfLinesGivenToChildLineSequence = 0;
-        }
+        assert(selectedBlockHandler != 0);
+        selectedBlockHandler->createLineSequence(this);
+        assert(m_childLineSequence != 0);
+        m_numOfLinesGivenToChildLineSequence = 0;
     }
 
     assert(hasChildSequence());
@@ -65,9 +73,11 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
         // End the child block
         m_childLineSequence->endBlock();
         VfmdPointerArray<const VfmdLine> *unconsumedLines = 0;
+        m_nextBlockHandler = 0;
         if (m_childLineSequence->elementType() == VfmdConstants::PARAGRAPH_ELEMENT) {
             ParagraphLineSequence *paraSeq = dynamic_cast<ParagraphLineSequence *>(m_childLineSequence);
             assert(paraSeq);
+            m_nextBlockHandler = paraSeq->nextBlockHandler();
             unconsumedLines = paraSeq->linesSinceEndOfParagraph();
         }
         delete m_childLineSequence;
@@ -105,6 +115,11 @@ const VfmdBlockLineSequence *VfmdInputLineSequence::parentLineSequence() const
 const VfmdElementRegistry *VfmdInputLineSequence::registry() const
 {
     return m_registry;
+}
+
+int VfmdInputLineSequence::containingBlockType() const
+{
+    return m_containingBlockType;
 }
 
 bool VfmdInputLineSequence::hasChildSequence() const
