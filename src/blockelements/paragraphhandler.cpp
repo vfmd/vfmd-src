@@ -9,21 +9,6 @@
 #include "unorderedlisthandler.h"
 #include "vfmdelementregistry.h"
 
-bool ParagraphHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                      int containingBlockType, bool isAbuttingParagraph)
-{
-    UNUSED_ARG(currentLine);
-    UNUSED_ARG(nextLine);
-    UNUSED_ARG(containingBlockType);
-    assert(isAbuttingParagraph == false);
-    return true;
-}
-
-void ParagraphHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const
-{
-    new ParagraphLineSequence(parentLineSequence);
-}
-
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
     , m_containingBlockType(parent->containingBlockType())

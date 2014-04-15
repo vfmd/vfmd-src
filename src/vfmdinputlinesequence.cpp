@@ -11,6 +11,7 @@ VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry
     , m_registry(registry)
     , m_nextLine(0)
     , m_childLineSequence(0)
+    , m_paragraphLineSequence(0)
     , m_numOfLinesGivenToChildLineSequence(0)
     , m_nextBlockHandler(0)
     , m_parseTree(0)
@@ -55,8 +56,14 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
                 }
             }
         }
-        assert(selectedBlockHandler != 0);
-        selectedBlockHandler->createLineSequence(this);
+        if (selectedBlockHandler) {
+            selectedBlockHandler->createLineSequence(this);
+        } else {
+            // If no block handler comes forward to start a block in this line,
+            // start a paragraph.
+            m_paragraphLineSequence = new ParagraphLineSequence(this);
+            m_childLineSequence = m_paragraphLineSequence;
+        }
         assert(m_childLineSequence != 0);
         m_numOfLinesGivenToChildLineSequence = 0;
     }
@@ -70,15 +77,15 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
     // If necessary, end the child sequence
     bool isEndOfLineSequence = (nextLine == 0);
     if (isEndOfLineSequence || m_childLineSequence->isEndOfBlock(currentLine, nextLine)) {
+
         // End the child block
         m_childLineSequence->endBlock();
         VfmdPointerArray<const VfmdLine> *unconsumedLines = 0;
         m_nextBlockHandler = 0;
-        if (m_childLineSequence->elementType() == VfmdConstants::PARAGRAPH_ELEMENT) {
-            ParagraphLineSequence *paraSeq = dynamic_cast<ParagraphLineSequence *>(m_childLineSequence);
-            assert(paraSeq);
-            m_nextBlockHandler = paraSeq->nextBlockHandler();
-            unconsumedLines = paraSeq->linesSinceEndOfParagraph();
+        if (m_paragraphLineSequence) {
+            m_nextBlockHandler = m_paragraphLineSequence->nextBlockHandler();
+            unconsumedLines = m_paragraphLineSequence->linesSinceEndOfParagraph();
+            m_paragraphLineSequence = 0;
         }
         delete m_childLineSequence;
         m_childLineSequence = 0;

@@ -8,6 +8,7 @@ class VfmdBlockElementHandler;
 class VfmdBlockLineSequence;
 class VfmdElementRegistry;
 class VfmdElementTreeNode;
+class ParagraphLineSequence;
 
 class VfmdInputLineSequence
 {
@@ -50,6 +51,7 @@ private:
     const VfmdElementRegistry *m_registry;
     const VfmdLine *m_nextLine;
     VfmdBlockLineSequence *m_childLineSequence;
+    ParagraphLineSequence *m_paragraphLineSequence;
     int m_numOfLinesGivenToChildLineSequence;
     VfmdBlockElementHandler *m_nextBlockHandler;
     VfmdElementTreeNode *m_parseTree;

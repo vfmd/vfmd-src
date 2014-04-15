@@ -5,15 +5,6 @@
 #include "core/vfmdcodespanfilter.h"
 #include "core/htmlstatewatcher.h"
 
-class ParagraphHandler : public VfmdBlockElementHandler {
-public:
-    ParagraphHandler() { }
-    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                int containingBlockType, bool isAbuttingParagraph);
-    virtual void createLineSequence(VfmdInputLineSequence *parentLineSequence) const;
-    virtual const char *description() const { return "paragraph"; }
-};
-
 class ParagraphLineSequence : public VfmdBlockLineSequence {
 public:
     ParagraphLineSequence(const VfmdInputLineSequence *parent);
