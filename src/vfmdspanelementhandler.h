@@ -29,8 +29,8 @@ public:
      * TRIGGER_AT_TRIGGER_BYTE trigger option (which is the default option). */
 
     virtual int identifySpanTagStartingAt(const VfmdByteArray &text,
-                                                   int currentPos,
-                                                   VfmdSpanTagStack *stack) const;
+                                          int currentPos,
+                                          VfmdSpanTagStack *stack) const;
 
     /* identifySpanTagStartingBetween():
      * If this handler identifies a span tag that starts between 'fromPos' and 'toPos',
@@ -46,8 +46,8 @@ public:
      * TRIGGER_BEFORE_TRIGGER_BYTE trigger option. */
 
     virtual int identifySpanTagStartingBetween(const VfmdByteArray &text,
-                                                        int fromPos, int toPos,
-                                                        VfmdSpanTagStack *stack) const;
+                                               int fromPos, int toPos,
+                                               VfmdSpanTagStack *stack) const;
 
     /* A short text describing this syntax (eg. "emphasis", "strikethrough") */
     virtual const char *description() const;
