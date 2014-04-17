@@ -53,9 +53,29 @@ class VfmdBlockLineSequence {
 public:
     VfmdBlockLineSequence(const VfmdInputLineSequence *parentLineSequence);
     virtual ~VfmdBlockLineSequence();
+
+    /* elementType():
+     * For core-syntax blocks, this returns a VfmdConstants::VfmdBlockElementType type.
+     * For your own blocks, please pick a number above VfmdConstants::USER_BLOCK_ELEMENT.
+     */
     virtual int elementType() const;
+
+    /* processBlockLine():
+     * Process 'currentLine' as a member of this block.
+     */
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
+
+    /* isEndOfBlock():
+     * If the block ends at 'currentLine', return true, else return false.
+     */
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
+
+    /* endBlock():
+     * This is called either when isEndOfBlock() returns true, or when there are
+     * no more lines in the parent line sequence.
+     * If this block should be part of the parse tree, this method should create an
+     * appropriate tree node and call 'setBlockParseTree()'.
+     */
     virtual void endBlock();
 
     const VfmdInputLineSequence *parentLineSequence() const;
