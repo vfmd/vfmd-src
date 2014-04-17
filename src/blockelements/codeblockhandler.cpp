@@ -53,7 +53,6 @@ bool CodeBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const Vfmd
 
 void CodeBlockLineSequence::endBlock()
 {
-    m_content.squeeze();
     setBlockParseTree(new CodeBlockTreeNode(m_content));
 }
 

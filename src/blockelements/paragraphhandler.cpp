@@ -25,7 +25,6 @@ ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent
 ParagraphLineSequence::~ParagraphLineSequence()
 {
     m_text.clear();
-    m_text.squeeze();
     delete m_blockHandlersThatCanAbutParagraph;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     delete m_lookaheadLines;
@@ -205,7 +204,6 @@ VfmdPointerArray<const VfmdLine> *ParagraphLineSequence::linesSinceEndOfParagrap
 
 void ParagraphLineSequence::endBlock()
 {
-    m_text.squeeze();
     m_text.trim();
     ParagraphTreeNode *paragraphNode = new ParagraphTreeNode();
     VfmdSpanElementsProcessor spanElementsProcessor(m_text, registry());
