@@ -20,6 +20,8 @@ public:
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 
+    VfmdByteArray content() const;
+
 private:
     VfmdByteArray m_content;
     bool m_isAtEnd;

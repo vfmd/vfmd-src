@@ -57,6 +57,11 @@ void CodeBlockLineSequence::endBlock()
     setBlockParseTree(new CodeBlockTreeNode(m_content));
 }
 
+VfmdByteArray CodeBlockLineSequence::content() const
+{
+    return m_content;
+}
+
 CodeBlockTreeNode::CodeBlockTreeNode(const VfmdByteArray &content)
     : m_content(content)
 {
