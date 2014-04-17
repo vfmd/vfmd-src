@@ -65,6 +65,9 @@ public:
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;
 
+    virtual bool hasTextContent() const;
+    virtual VfmdByteArray textContent() const;
+
 public:
     static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 

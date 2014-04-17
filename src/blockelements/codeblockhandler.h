@@ -40,6 +40,9 @@ public:
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;
 
+    virtual bool hasTextContent() const { return true; }
+    virtual VfmdByteArray textContent() const { return m_content; }
+
 private:
     VfmdByteArray m_content;
 };

@@ -29,7 +29,7 @@ void VfmdElementTreeNode::appendSubtreeToEndOfSequence(VfmdElementTreeNode *node
         TextSpanTreeNode *textLastNode = dynamic_cast<TextSpanTreeNode *>(lastNode);
         assert(textNode != 0);
         assert(textLastNode != 0);
-        textLastNode->appendText(textNode->text());
+        textLastNode->appendText(textNode->textContent());
         bool ok = textLastNode->setNextNodeIfNotSet(nodesToAdd->nextNode());
         assert(ok);
         VfmdElementTreeNode *possibleLastSiblingNode = nodesToAdd->lastSiblingNode();
@@ -244,11 +244,25 @@ void VfmdElementTreeNode::renderNode(VfmdConstants::RenderFormat format, int ren
         }
         outputDevice->write(elementTypeString());
         outputDevice->write(")\n");
+        if (hasTextContent() &&
+            ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT)) {
+            renderTreeText(outputDevice, ancestorNodes, textContent());
+        }
         if (hasChildren()) {
             renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
         }
     }
+}
+
+bool VfmdElementTreeNode::hasTextContent() const
+{
+    return false;
+}
+
+VfmdByteArray VfmdElementTreeNode::textContent() const
+{
+    return VfmdByteArray();
 }
 
 void VfmdElementTreeNode::freeSubtreeSequence(VfmdElementTreeNode *subtree)

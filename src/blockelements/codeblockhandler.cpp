@@ -73,9 +73,6 @@ void CodeBlockTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
         HtmlTextRenderer::renderCode(outputDevice, m_content);
         outputDevice->write("</code></pre>\n", 14);
     } else {
-        renderTreePrefix(outputDevice, ancestorNodes, "+- block (code-block)\n");
-        if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {
-            renderTreeText(outputDevice, ancestorNodes, m_content);
-        }
+        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
 }

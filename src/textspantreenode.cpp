@@ -34,27 +34,13 @@ void TextSpanTreeNode::appendText(const VfmdByteArray &ba)
     m_text.append(ba);
 }
 
-VfmdByteArray TextSpanTreeNode::text() const
-{
-    return m_text;
-}
-
 void TextSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                                   VfmdOutputDevice *outputDevice,
                                   VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
         HtmlTextRenderer::renderText(outputDevice, m_text, renderOptions);
-    }
-
-    if (format == VfmdConstants::TREE_FORMAT) {
-        renderTreePrefix(outputDevice, ancestorNodes, "+- span (text)\n");
-        if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {
-            renderTreeText(outputDevice, ancestorNodes, m_text);
-        }
-        if (hasChildren()) {
-            renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));
-            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        }
+    } else {
+        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
 }
