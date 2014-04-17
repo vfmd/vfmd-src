@@ -101,7 +101,11 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     if (!m_isLookingAhead) {
 
         // Not in lookahead mode
-        m_text.append(currentLine->content());
+        if (m_text.isInvalid()) {
+            m_text = currentLine->content();
+        } else {
+            m_text.append(currentLine->content());
+        }
         m_text.appendByte('\n');
         m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
         HtmlStateWatcher::TagState tagState = m_htmlStateWatcher.tagState();
