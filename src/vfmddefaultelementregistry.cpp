@@ -19,7 +19,7 @@
 #include "spanelements/htmltaghandler.h"
 #include "spanelements/automaticlinkhandler.h"
 
-VfmdElementRegistry *VfmdElementRegistry::createRegistryWithDefaultElements()
+VfmdElementRegistry *VfmdElementRegistry::createRegistryForCoreSyntax()
 {
     VfmdElementRegistry *registry = new VfmdElementRegistry;
 

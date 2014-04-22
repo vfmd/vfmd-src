@@ -101,7 +101,7 @@ public:
 
     // Default vfmd elements
 
-    static VfmdElementRegistry* createRegistryWithDefaultElements();
+    static VfmdElementRegistry* createRegistryForCoreSyntax();
 
 private:
     /* Prevent copying of this class */
