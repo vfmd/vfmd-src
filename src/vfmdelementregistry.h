@@ -8,6 +8,8 @@ class VfmdSpanElementHandler;
 class VfmdBlockElementHandler;
 class VfmdLinkRefMap;
 
+template<class T> class RegistryData;
+
 class VfmdElementRegistry
 {
 public:
@@ -124,22 +126,8 @@ private:
 
     // Span elements
 
-    struct SpanElementData {
-        SpanElementData(int t, VfmdSpanElementHandler *h, int to)
-            : typeId(t), spanElementHandler(h), triggerOptions(to) { }
-        int typeId;
-        VfmdSpanElementHandler *spanElementHandler;
-        int triggerOptions;
-    };
+    RegistryData<VfmdSpanElementHandler> *m_spanElementsData;
 
-    void ensureSpanElementsForTriggerByteAllocated(char c);
-    bool doesSpanElementExistInPointerArray(int typeId, VfmdPointerArray<VfmdElementRegistry::SpanElementData> *array) const;
-    void removeSpanElementFromPointerArray(int typeId, VfmdPointerArray<VfmdElementRegistry::SpanElementData> *array) const;
-
-    VfmdPointerArray<SpanElementData>* m_spanElementsByTriggerByte[256];
-    VfmdByteArray* m_triggerBytesById[256];
-
-    friend void printSpanElementData(VfmdElementRegistry::SpanElementData *e);
     friend void printBlockElementData(VfmdElementRegistry::BlockElementData *e);
 };
 
