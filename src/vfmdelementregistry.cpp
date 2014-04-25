@@ -9,14 +9,14 @@ class RegistryData
 public:
     struct ElementData {
         ElementData(int t, T *h, int to)
-            : typeId(t), elementHandler(h), triggerOptions(to) { }
+            : typeId(t), elementHandler(h), options(to) { }
         int typeId;
         T *elementHandler;
-        int triggerOptions;
+        int options;
 
         void print() {
-            if (triggerOptions) {
-                printf("%s (id: %d, options: 0x%x)  ", elementHandler->description(), typeId, triggerOptions);
+            if (options) {
+                printf("%s (id: %d, options: 0x%x)  ", elementHandler->description(), typeId, options);
             } else {
                 printf("%s (id: %d)  ", elementHandler->description(), typeId);
             }
@@ -65,12 +65,12 @@ public:
         }
     }
 
-    bool append(int typeId, T *elementHandler, const VfmdByteArray &triggerBytes, int triggerOptions = 0) {
+    bool append(int typeId, T *elementHandler, const VfmdByteArray &triggerBytes, int options = 0) {
         if (m_triggerBytesById[typeId] != 0) {
             // Cannot add the same element twice
             return false;
         }
-        ElementData *elementData = new ElementData(typeId, elementHandler, triggerOptions);
+        ElementData *elementData = new ElementData(typeId, elementHandler, options);
         if (triggerBytes.size() > 0) {
             m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
             for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
@@ -86,12 +86,12 @@ public:
         return true;
     }
 
-    bool prepend(int typeId, T *elementHandler, const VfmdByteArray &triggerBytes, int triggerOptions = 0) {
+    bool prepend(int typeId, T *elementHandler, const VfmdByteArray &triggerBytes, int options = 0) {
         if (m_triggerBytesById[typeId] != 0) {
             // Cannot add the same element twice
             return false;
         }
-        ElementData *elementData = new ElementData(typeId, elementHandler, triggerOptions);
+        ElementData *elementData = new ElementData(typeId, elementHandler, options);
         if (triggerBytes.size() > 0) {
             m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
             for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
@@ -134,9 +134,9 @@ public:
         return (elements? elements->itemAt(index)->elementHandler : 0);
     }
 
-    int triggerOptionsForTriggerByte(char byte, unsigned int index) const {
+    int optionsForTriggerByte(char byte, unsigned int index) const {
         VfmdPointerArray<ElementData>* elements = m_elementsByTriggerByte[(unsigned char) byte];
-        return (elements? elements->itemAt(index)->triggerOptions : 0);
+        return (elements? elements->itemAt(index)->options : 0);
     }
 
     int indexOfTriggerByteIn(const VfmdByteArray &ba, int offset) const {
@@ -333,23 +333,23 @@ VfmdBlockElementHandler *VfmdElementRegistry::blockElementHandler(unsigned int i
 // Span elements
 
 bool VfmdElementRegistry::appendSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
-                                            const VfmdByteArray &triggerBytes, int triggerOptions)
+                                            const VfmdByteArray &triggerBytes, int spanElementOptions)
 {
     if (triggerBytes.size() == 0) {
         // Don't allow span elements without trigger-bytes
         return false;
     }
-    return m_spanElementsData->append(typeId, spanElementHandler, triggerBytes, triggerOptions);
+    return m_spanElementsData->append(typeId, spanElementHandler, triggerBytes, spanElementOptions);
 }
 
 bool VfmdElementRegistry::prependSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
-                                             const VfmdByteArray &triggerBytes, int triggerOptions)
+                                             const VfmdByteArray &triggerBytes, int spanElementOptions)
 {
     if (triggerBytes.size() == 0) {
         // Don't allow span elements without trigger-bytes
         return false;
     }
-    return m_spanElementsData->prepend(typeId, spanElementHandler, triggerBytes, triggerOptions);
+    return m_spanElementsData->prepend(typeId, spanElementHandler, triggerBytes, spanElementOptions);
 }
 
 bool VfmdElementRegistry::containsSpanElement(int typeId) const
@@ -362,22 +362,22 @@ void VfmdElementRegistry::removeSpanElement(int typeId)
     m_spanElementsData->remove(typeId);
 }
 
-int VfmdElementRegistry::spanElementCountForTriggerByte(char byte) const
+int VfmdElementRegistry::numberOfSpanElementsForTriggerByte(char byte) const
 {
     return m_spanElementsData->numberOfElementsForTriggerByte(byte);
 }
 
-VfmdSpanElementHandler *VfmdElementRegistry::spanElementForTriggerByte(char byte, unsigned int index) const
+VfmdSpanElementHandler *VfmdElementRegistry::spanElementForTriggerByteAtIndex(char byte, unsigned int index) const
 {
     return m_spanElementsData->elementForTriggerByte(byte, index);
 }
 
-int VfmdElementRegistry::triggerOptionsForTriggerByte(char byte, unsigned int index) const
+int VfmdElementRegistry::spanOptionsForTriggerByteAtIndex(char byte, unsigned int index) const
 {
-    return m_spanElementsData->triggerOptionsForTriggerByte(byte, index);
+    return m_spanElementsData->optionsForTriggerByte(byte, index);
 }
 
-int VfmdElementRegistry::indexOfTriggerByteIn(const VfmdByteArray &ba, int offset) const
+int VfmdElementRegistry::indexOfSpanTriggerByteIn(const VfmdByteArray &ba, int offset) const
 {
     return m_spanElementsData->indexOfTriggerByteIn(ba, offset);
 }

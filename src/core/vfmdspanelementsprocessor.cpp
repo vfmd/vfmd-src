@@ -22,19 +22,17 @@ static inline void closeTextFragmentIfOpen(const VfmdByteArray &text, int curren
 static inline int applySpanHandler(const VfmdByteArray &text, int currentPos,
                                     int *textFragmentStartPosPtr,
                                     VfmdSpanTagStack *stack,
-                                    VfmdSpanElementHandler *spanHandler, int triggerOptions)
+                                    VfmdSpanElementHandler *spanHandler, int spanOptions)
 {
-    bool shouldInvokeEvenIfEscaped = ((triggerOptions & VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED) ==
-                                      VfmdElementRegistry::TRIGGER_EVEN_IF_ESCAPED);
+    bool shouldInvokeEvenIfEscaped = ((spanOptions & VfmdElementRegistry::TRIGGER_EVEN_IF_TRIGGER_BYTE_IS_ESCAPED) ==
+                                      VfmdElementRegistry::TRIGGER_EVEN_IF_TRIGGER_BYTE_IS_ESCAPED);
     if (!shouldInvokeEvenIfEscaped && text.isEscapedAtPosition(currentPos)) {
         return false;
     }
-    bool shouldInvokeBeforeTriggerByte = ((triggerOptions & VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE) ==
+    bool shouldInvokeBeforeTriggerByte = ((spanOptions & VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE) ==
                                           VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE);
-    bool shouldInvokeAtTriggerByte = ((triggerOptions & VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE) ==
-                                      VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
-
     if (shouldInvokeBeforeTriggerByte) {
+        // Should invoke before the trigger byte
         int fromPos = (*textFragmentStartPosPtr);
         if (fromPos < 0) {
             fromPos = currentPos;
@@ -44,7 +42,8 @@ static inline int applySpanHandler(const VfmdByteArray &text, int currentPos,
             (*textFragmentStartPosPtr) = -1; // The span handler would have handled the text fragment
             return (fromPos + consumedBytes - currentPos);
         }
-    } else if (shouldInvokeAtTriggerByte) {
+    } else {
+        // Should invoke at the trigger byte
         closeTextFragmentIfOpen(text, currentPos, textFragmentStartPosPtr, stack);
         return spanHandler->identifySpanTagStartingAt(text, currentPos, stack);
     }
@@ -64,12 +63,12 @@ static void processSpanElements(const VfmdByteArray &text, const VfmdElementRegi
         assert(text.isUTF8CharStartingAt(currentPos));
 
         // Ask the span element handlers pertaining to this trigger byte
-        int n = registry->spanElementCountForTriggerByte(currentByte);
+        int n = registry->numberOfSpanElementsForTriggerByte(currentByte);
         if (n > 0) {
             for (int i = 0; i < n; i++) {
-                VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByte(currentByte, i);
-                int triggerOptions = registry->triggerOptionsForTriggerByte(currentByte, i);
-                int consumedBytes = applySpanHandler(text, currentPos, &textFragmentStartPos, stack, spanHandler, triggerOptions);
+                VfmdSpanElementHandler *spanHandler = registry->spanElementForTriggerByteAtIndex(currentByte, i);
+                int spanOptions = registry->spanOptionsForTriggerByteAtIndex(currentByte, i);
+                int consumedBytes = applySpanHandler(text, currentPos, &textFragmentStartPos, stack, spanHandler, spanOptions);
                 if (consumedBytes > 0) {
                     currentPos += consumedBytes;
                     while ((currentPos < endPos) && (!text.isUTF8CharStartingAt(currentPos))) {
@@ -89,7 +88,7 @@ static void processSpanElements(const VfmdByteArray &text, const VfmdElementRegi
             }
             assert(textFragmentStartPos >= 0);
             // Fast-forward to the next trigger byte
-            currentPos = registry->indexOfTriggerByteIn(text, currentPos + 1);
+            currentPos = registry->indexOfSpanTriggerByteIn(text, currentPos + 1);
         }
     }
 

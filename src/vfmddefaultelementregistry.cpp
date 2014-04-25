@@ -37,21 +37,16 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryForCoreSyntax()
 
     // Span elements
     registry->appendSpanElement(VfmdConstants::LINK_ELEMENT,
-                                new LinkHandler(refResolutionBlock->linkReferenceMap()),
-                                "[]", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
-    registry->appendSpanElement(VfmdConstants::EMPHASIS_ELEMENT, new EmphasisHandler,
-                                "*_", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
-    registry->appendSpanElement(VfmdConstants::CODE_SPAN_ELEMENT, new CodeSpanHandler,
-                                "`", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
+                                new LinkHandler(refResolutionBlock->linkReferenceMap()), "[]");
+    registry->appendSpanElement(VfmdConstants::EMPHASIS_ELEMENT, new EmphasisHandler, "*_");
+    registry->appendSpanElement(VfmdConstants::CODE_SPAN_ELEMENT, new CodeSpanHandler, "`");
     registry->appendSpanElement(VfmdConstants::IMAGE_ELEMENT,
-                                new ImageHandler(refResolutionBlock->linkReferenceMap()),
-                                "!", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
-    registry->appendSpanElement(VfmdConstants::HTML_ELEMENT, new HtmlTagHandler,
-                                "<", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
-    registry->appendSpanElement(VfmdConstants::AUTOMATIC_LINK_BRACKETED_ELEMENT, new AutomaticLinkBracketedHandler,
-                                "<", VfmdElementRegistry::TRIGGER_AT_TRIGGER_BYTE);
-    registry->appendSpanElement(VfmdConstants::AUTOMATIC_LINK_ELEMENT, new AutomaticLinkHandler,
-                                ":", VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE);
+                                new ImageHandler(refResolutionBlock->linkReferenceMap()), "!");
+    registry->appendSpanElement(VfmdConstants::HTML_ELEMENT, new HtmlTagHandler, "<");
+    registry->appendSpanElement(VfmdConstants::AUTOMATIC_LINK_BRACKETED_ELEMENT,
+                                new AutomaticLinkBracketedHandler, "<");
+    registry->appendSpanElement(VfmdConstants::AUTOMATIC_LINK_ELEMENT, new AutomaticLinkHandler, ":",
+                                VfmdElementRegistry::TRIGGER_BEFORE_TRIGGER_BYTE);
 
     registry->setBlockCanAbutParagraph(VfmdConstants::BLOCKQUOTE_ELEMENT);
     registry->setBlockCanAbutParagraph(VfmdConstants::HORIZONTAL_RULE_ELEMENT);
