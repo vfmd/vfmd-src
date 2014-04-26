@@ -2,11 +2,16 @@
 #include "vfmdblockelementhandler.h"
 #include "vfmdinputlinesequence.h"
 
-bool VfmdBlockElementHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                             int containingBlockType, bool isAbuttingParagraph)
+bool VfmdBlockElementHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(currentLine);
     UNUSED_ARG(nextLine);
+    return false;
+}
+
+bool VfmdBlockElementHandler::isStartOfBlock(const VfmdLine *currentLine, int containingBlockType, bool isAbuttingParagraph)
+{
+    UNUSED_ARG(currentLine);
     UNUSED_ARG(containingBlockType);
     UNUSED_ARG(isAbuttingParagraph);
     return false;

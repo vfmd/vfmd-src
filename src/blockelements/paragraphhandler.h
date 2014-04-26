@@ -29,6 +29,7 @@ public:
     // If this method returns a block handler, then that handler's
     // VfmdBlockElementHandler::isStartOfBlock() is guaranteed to
     // have returned true.
+    void setNextBlockHandler(VfmdBlockElementHandler *handler);
     VfmdBlockElementHandler *nextBlockHandler() const;
 
 private:
@@ -36,7 +37,6 @@ private:
 
     const int m_containingBlockType;
     VfmdByteArray m_text;
-    const VfmdPointerArray<VfmdBlockElementHandler> *m_blockHandlersThatCanAbutParagraph;
     VfmdBlockElementHandler *m_nextBlockHandler;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     VfmdCodeSpanFilter m_codeSpanFilter;

@@ -161,6 +161,10 @@ public:
         return (m_elementsWithoutAnyTriggerByte? m_elementsWithoutAnyTriggerByte->itemAt(index)->elementHandler : 0);
     }
 
+    int optionsWithoutAnyTriggerByte(unsigned int index) const {
+        return (m_elementsWithoutAnyTriggerByte? m_elementsWithoutAnyTriggerByte->itemAt(index)->options : 0);
+    }
+
     void ensureElementsForTriggerByteAllocated(char c) {
         if (m_elementsByTriggerByte[(unsigned char) c] == 0) {
             m_elementsByTriggerByte[(unsigned char) c] = new VfmdPointerArray<ElementData>(8);
@@ -223,111 +227,80 @@ public:
 
 VfmdElementRegistry::VfmdElementRegistry()
 {
-    m_blockElements = 0;
+    m_blockElementsData = new RegistryData<VfmdBlockElementHandler>;
     m_spanElementsData = new RegistryData<VfmdSpanElementHandler>;
 }
 
 VfmdElementRegistry::~VfmdElementRegistry()
 {
-    // Free block element handlers
-    if (m_blockElements) {
-        for (unsigned int i = 0; i < m_blockElements->size(); i++) {
-            VfmdElementRegistry::BlockElementData *blockElementData = m_blockElements->itemAt(i);
-            delete blockElementData->blockElementHandler;
-            delete blockElementData;
-        }
-        delete m_blockElements;
-    }
-
-    // Free span element handlers
+    delete m_blockElementsData;
     delete m_spanElementsData;
 }
 
 // Block elements
 
-void VfmdElementRegistry::ensureBlockElementsAllocated()
+bool VfmdElementRegistry::appendBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
+                                             const VfmdByteArray &triggerBytes, int blockElementOptions)
 {
-    if (m_blockElements == 0) {
-        m_blockElements = new VfmdPointerArray<BlockElementData>(16);
-    }
-}
-
-bool VfmdElementRegistry::appendBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler)
-{
-    if (containsBlockElement(typeId)) {
+    if ((triggerBytes.size() == 0) &&
+        ((blockElementOptions & BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH) == BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH)) {
+        // The BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH option requires trigger bytes
+        assert(false);
         return false;
     }
-    ensureBlockElementsAllocated();
-    m_blockElements->append(new VfmdElementRegistry::BlockElementData(typeId, blockElementHandler));
-    return true;
+    return m_blockElementsData->append(typeId, blockElementHandler, triggerBytes, blockElementOptions);
 }
 
-bool VfmdElementRegistry::insertBlockElementBeforeExistingBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler, int existingTypeId)
+bool VfmdElementRegistry::prependBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
+                                              const VfmdByteArray &triggerBytes, int blockElementOptions)
 {
-    if (containsBlockElement(typeId)) {
+    if ((triggerBytes.size() == 0) &&
+        ((blockElementOptions & BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH) == BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH)) {
+        // The BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH option requires trigger bytes
+        assert(false);
         return false;
     }
-    ensureBlockElementsAllocated();
-    for (unsigned int i = 0; i < m_blockElements->size(); i++) {
-        VfmdElementRegistry::BlockElementData *blockElementData = m_blockElements->itemAt(i);
-        if (blockElementData->typeId == existingTypeId) {
-            m_blockElements->insert(new VfmdElementRegistry::BlockElementData(typeId, blockElementHandler), i);
-            return true;
-        }
-    }
-    return false;
-}
-
-int VfmdElementRegistry::indexOfBlockElement(int typeId) const
-{
-    for (unsigned int i = 0; i < m_blockElements->size(); i++) {
-        VfmdElementRegistry::BlockElementData *blockElementData = m_blockElements->itemAt(i);
-        if (blockElementData->typeId == typeId) {
-            return (int) i;
-        }
-    }
-    return -1;
+    return m_blockElementsData->prepend(typeId, blockElementHandler, triggerBytes, blockElementOptions);
 }
 
 bool VfmdElementRegistry::containsBlockElement(int typeId) const
 {
-    return ((m_blockElements != 0) && (indexOfBlockElement(typeId) >= 0));
+    return m_blockElementsData->contains(typeId);
 }
 
 void VfmdElementRegistry::removeBlockElement(int typeId)
 {
-    int index = indexOfBlockElement(typeId);
-    m_blockElements->removeItemAt((unsigned int) index);
+    return m_blockElementsData->remove(typeId);
 }
 
-void VfmdElementRegistry::setBlockCanAbutParagraph(int typeId, bool yes)
+int VfmdElementRegistry::numberOfBlockElementsForTriggerByte(char byte) const
 {
-    int index = indexOfBlockElement(typeId);
-    if (index >= 0) {
-        m_blockElements->itemAt(index)->canAbutParagraph = yes;
-    }
+    return m_blockElementsData->numberOfElementsForTriggerByte(byte);
 }
 
-VfmdPointerArray<VfmdBlockElementHandler>* VfmdElementRegistry::blockHandlersThatCanAbutParagraph() const
+VfmdBlockElementHandler *VfmdElementRegistry::blockElementForTriggerByteAtIndex(char byte, unsigned int index) const
 {
-    VfmdPointerArray<VfmdBlockElementHandler> *blockHandlers = new VfmdPointerArray<VfmdBlockElementHandler>(16);
-    for (unsigned int i = 0; i < m_blockElements->size(); i++) {
-        const VfmdElementRegistry::BlockElementData *blockElementData = m_blockElements->itemAt(i);
-        if (blockElementData->canAbutParagraph) {
-            blockHandlers->append(blockElementData->blockElementHandler);
-        }
-    }
-    return blockHandlers;
+    return m_blockElementsData->elementForTriggerByte(byte, index);
 }
 
-unsigned int VfmdElementRegistry::blockElementsCount() const
+int VfmdElementRegistry::blockOptionsForTriggerByteAtIndex(char byte, unsigned int index) const
 {
-    return m_blockElements->size();
+    return m_blockElementsData->optionsForTriggerByte(byte, index);
 }
 
-VfmdBlockElementHandler *VfmdElementRegistry::blockElementHandler(unsigned int index) const
+int VfmdElementRegistry::numberOfBlockElementsWithoutAnyTriggerByte() const
 {
-    return m_blockElements->itemAt(index)->blockElementHandler;
+    return m_blockElementsData->numberOfElementsWithoutAnyTriggerByte();
+}
+
+VfmdBlockElementHandler *VfmdElementRegistry::blockElementWithoutAnyTriggerByteAtIndex(unsigned int index) const
+{
+    return m_blockElementsData->elementWithoutAnyTriggerByte(index);
+}
+
+int VfmdElementRegistry::blockOptionsWithoutAnyTriggerByteAtIndex(unsigned int index) const
+{
+    return m_blockElementsData->optionsWithoutAnyTriggerByte(index);
 }
 
 // Span elements
@@ -382,15 +355,10 @@ int VfmdElementRegistry::indexOfSpanTriggerByteIn(const VfmdByteArray &ba, int o
     return m_spanElementsData->indexOfTriggerByteIn(ba, offset);
 }
 
-void printBlockElementData(VfmdElementRegistry::BlockElementData *e)
-{
-    printf("  %s (id: %d)\n", e->blockElementHandler->description(), e->typeId);
-}
-
 void VfmdElementRegistry::print() const
 {
     printf("Block element handlers:\n");
-    m_blockElements->map(printBlockElementData);
+    m_blockElementsData->print();
     printf("Span element handlers:\n");
     m_spanElementsData->print();
     printf("\n");

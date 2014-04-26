@@ -26,6 +26,9 @@ public:
     int containingBlockType() const;
     bool hasChildSequence() const;
 
+    void setNextChildBlockHandler(VfmdBlockElementHandler *handler);
+    VfmdBlockElementHandler *nextChildBlockHandler() const;
+
     // setChildSequence():
     // Sets a VfmdBlockLineSequence as the child of this sequence.
     // The VfmdInputLineSequence owns the child sequence object.

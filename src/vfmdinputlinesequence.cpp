@@ -5,6 +5,13 @@
 #include "vfmdblockelementhandler.h"
 #include "blockelements/paragraphhandler.h"
 
+struct BlockCallbackContext {
+    const VfmdLine *currentLine, *nextLine;
+    int containingBlockType;
+    VfmdInputLineSequence *inputLineSequence;
+    bool isUsingTriggerByte;
+};
+
 VfmdInputLineSequence::VfmdInputLineSequence(const VfmdElementRegistry *registry, const VfmdBlockLineSequence *parentLineSequence)
     : m_parentLineSequence(parentLineSequence)
     , m_containingBlockType(parentLineSequence? parentLineSequence->elementType() : VfmdConstants::UNDEFINED_BLOCK_ELEMENT)
@@ -39,23 +46,53 @@ VfmdElementTreeNode* VfmdInputLineSequence::endSequence()
     return m_parseTree;
 }
 
+bool blockElementsCallback(VfmdBlockElementHandler *handler, int options, void *context)
+{
+    UNUSED_ARG(options);
+    struct BlockCallbackContext *ctx = static_cast<struct BlockCallbackContext *>(context);
+    bool found;
+    if (ctx->isUsingTriggerByte) {
+        found = handler->isStartOfBlock(ctx->currentLine, ctx->containingBlockType, false);
+    } else {
+        found = handler->isStartOfBlock(ctx->currentLine, ctx->nextLine);
+    }
+    if (found) {
+        ctx->inputLineSequence->setNextChildBlockHandler(handler);
+    }
+    return found; // If the block handler identified this as the starting line, end the iteration
+}
+
 void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
+
         VfmdBlockElementHandler *selectedBlockHandler = 0;
         if (m_nextBlockHandler) {
             selectedBlockHandler = m_nextBlockHandler;
-        } else {
-            for (unsigned int i = 0; i < m_registry->blockElementsCount(); i++) {
-                VfmdBlockElementHandler *blockHandler = m_registry->blockElementHandler(i);
-                bool found = blockHandler->isStartOfBlock(currentLine, nextLine, m_containingBlockType, false);
-                if (found) {
+        }
+        if (selectedBlockHandler == 0) { // First query block handlers without any trigger byte
+            const unsigned int count = m_registry->numberOfBlockElementsWithoutAnyTriggerByte();
+            for (unsigned int i = 0; i < count; i++) {
+                VfmdBlockElementHandler *blockHandler = m_registry->blockElementWithoutAnyTriggerByteAtIndex(i);
+                if (blockHandler->isStartOfBlock(currentLine, nextLine)) {
                     selectedBlockHandler = blockHandler;
                     break;
                 }
             }
         }
+        if (selectedBlockHandler == 0) { // Failing that, query block handlers with a trigger byte
+            const char triggerByte = currentLine->firstNonSpace();
+            const unsigned int count = m_registry->numberOfBlockElementsForTriggerByte(triggerByte);
+            for (unsigned int i = 0; i < count; i++) {
+                VfmdBlockElementHandler *blockHandler = m_registry->blockElementForTriggerByteAtIndex(triggerByte, i);
+                if (blockHandler->isStartOfBlock(currentLine, m_containingBlockType, false)) {
+                    selectedBlockHandler = blockHandler;
+                    break;
+                }
+            }
+        }
+
         if (selectedBlockHandler) {
             selectedBlockHandler->createLineSequence(this);
         } else {
@@ -64,6 +101,7 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
             m_paragraphLineSequence = new ParagraphLineSequence(this);
             m_childLineSequence = m_paragraphLineSequence;
         }
+
         assert(m_childLineSequence != 0);
         m_numOfLinesGivenToChildLineSequence = 0;
     }
@@ -132,6 +170,16 @@ int VfmdInputLineSequence::containingBlockType() const
 bool VfmdInputLineSequence::hasChildSequence() const
 {
     return (m_childLineSequence != 0);
+}
+
+void VfmdInputLineSequence::setNextChildBlockHandler(VfmdBlockElementHandler *handler)
+{
+    m_nextBlockHandler = handler;
+}
+
+VfmdBlockElementHandler* VfmdInputLineSequence::nextChildBlockHandler() const
+{
+    return m_nextBlockHandler;
 }
 
 void VfmdInputLineSequence::setChildSequence(VfmdBlockLineSequence *lineSequence)

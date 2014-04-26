@@ -20,18 +20,22 @@ public:
 
     /* isStartOfBlock():
      * Should return true if the 'currentLine' is the start of the relevant block,
-     * and false if not. The other arguments are:
-     *   nextLine: the line upcoming after the currentLine
-     *   containingBlockType: the type of the block that contains this block
-     *   isAbuttingParagraph: true iff the previous line belongs to a paragraph and
-     *                        is not a blank line.
-     * If 'VfmdElementRegistry::setBlockCanAbutParagraph()' has not been called
-     * on this block type, 'isAbuttingParagraph' is guaranteed to be false.
+     * and false if not. The other arguments are either:
+     *   (a) For blocks without a triggerByte
+     *       1. nextLine: the line upcoming after the currentLine
+     *       (or)
+     *   (b) For blocks with a triggerByte
+     *       1. containingBlockType: the type of the block that contains this block
+     *       2. isAbuttingParagraph: true iff the previous line belongs to a paragraph and is
+     *                               not a blank line. For blocks that were registred with the
+     *                               VfmdElementRegistry::BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH option,
+     *                               isAbuttingParagraph can be true or false.
+     *                               For other blocks, this option is always false.
      * If 'isStartOfBlock()' returns true, it *might* be followed by
      * a call to 'createLineSequence()'.
      */
-    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                int containingBlockType, bool isAbuttingParagraph);
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, int containingBlockType, bool isAbuttingParagraph);
 
     /* createLineSequence():
      * This shall be called only when 'isStartOfBlock()' returns true.

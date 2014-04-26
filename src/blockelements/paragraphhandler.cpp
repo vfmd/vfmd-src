@@ -12,7 +12,6 @@
 ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
     , m_containingBlockType(parent->containingBlockType())
-    , m_blockHandlersThatCanAbutParagraph(registry()->blockHandlersThatCanAbutParagraph())
     , m_nextBlockHandler(0)
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     , m_isAtEndOfParagraph(false)
@@ -25,7 +24,6 @@ ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent
 ParagraphLineSequence::~ParagraphLineSequence()
 {
     m_text.clear();
-    delete m_blockHandlersThatCanAbutParagraph;
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
     delete m_lookaheadLines;
 #endif
@@ -45,12 +43,16 @@ bool ParagraphLineSequence::canEndBeforeLine(const VfmdLine *line, bool isInVerb
         return false;
     }
 
-    // Query all the block handlers whether they can start a block at 'line'.
-    for (int i = 0; i < m_blockHandlersThatCanAbutParagraph->size(); i++) {
-        VfmdBlockElementHandler *blockHandler = m_blockHandlersThatCanAbutParagraph->itemAt(i);
-        if (blockHandler->isStartOfBlock(line, 0, m_containingBlockType, true)) {
-            m_nextBlockHandler = blockHandler;
-            return true;
+    // Check with the block handlers whether any of them want to start a block at 'line'
+    const char triggerByte = line->firstNonSpace();
+    for (int i = 0; i < registry()->numberOfBlockElementsForTriggerByte(triggerByte); i++) {
+        int blockOptions = registry()->blockOptionsForTriggerByteAtIndex(triggerByte, i);
+        if ((blockOptions & VfmdElementRegistry::BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH) == VfmdElementRegistry::BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH) {
+            VfmdBlockElementHandler *blockHandler = registry()->blockElementForTriggerByteAtIndex(triggerByte, i);
+            if (blockHandler->isStartOfBlock(line, m_containingBlockType, true)) {
+                m_nextBlockHandler = blockHandler;
+                return true;
+            }
         }
     }
 
@@ -220,6 +222,11 @@ void ParagraphLineSequence::endBlock()
         paragraphNode->setShouldAvoidWrappingInHtmlPTag(true);
     }
     setBlockParseTree(paragraphNode);
+}
+
+void ParagraphLineSequence::setNextBlockHandler(VfmdBlockElementHandler *handler)
+{
+    m_nextBlockHandler = handler;
 }
 
 VfmdBlockElementHandler *ParagraphLineSequence::nextBlockHandler() const

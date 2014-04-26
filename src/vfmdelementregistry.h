@@ -18,18 +18,30 @@ public:
 
     // Block elements
 
-    /* Add a block element handler to the registry at the end.
+    enum BlockElementOptions {
+        /* By default, for a block to start immediately after a paragraph,
+         * it needs to be separated from the paragraph by a blank line.
+         * Use this option to tell the registry that the block may start
+         * after a paragraph even without the separating blank line.
+         * This option can be used only if the handler has atleast one triggerByte. */
+        BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH = 1
+    };
+
+    /* Add a block element handler that should be invoked only when one of the triggerBytes
+     * forms the first non-space byte of a line. If no triggerBytes are provided,
+     * the handler is invoked for all block-starting lines irrespective of the first
+     * non-space byte. For a given line, the non-triggerBytes-specific handlers are
+     * invoked before the triggerBytes-specific handlers, if any.
+     * Multiple block element handlers can be registered for a particular triggerByte.
      * The registry owns the added handler.
      * If typeId is already registered, this method does nothing and returns false. */
-    bool appendBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler);
+    bool appendBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
+                           const VfmdByteArray &triggerBytes = VfmdByteArray(), int blockElementOptions = 0);
 
-    /* Add a block element handler to be invoked before an existing block element handler.
-     * The registry owns the added handler.
-     * If typeId is already registered, this method does nothing and returns false. */
-    bool insertBlockElementBeforeExistingBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler, int existingTypeId);
-
-    /* Returns the index of a block element given the typeId. Returns -1 on no match. */
-    int indexOfBlockElement(int typeId) const;
+    /* Same as 'appendBlockElement()', except that this handler is registered such that
+     * it's invoked before any previously registered handlers. */
+    bool prependBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
+                            const VfmdByteArray &triggerBytes = VfmdByteArray(), int blockElementOptions = 0);
 
     /* Check for existence of a block element */
     bool containsBlockElement(int typeId) const;
@@ -37,13 +49,14 @@ public:
     /* Remove and free a block element handler in the registry */
     void removeBlockElement(int typeId);
 
-    /* Blocks that can abut a paragraph */
-    void setBlockCanAbutParagraph(int typeId, bool yes = true);
-    VfmdPointerArray<VfmdBlockElementHandler> *blockHandlersThatCanAbutParagraph() const;
-
     /* Querying block elements */
-    unsigned int blockElementsCount() const;
-    VfmdBlockElementHandler *blockElementHandler(unsigned int index) const;
+    int numberOfBlockElementsForTriggerByte(char byte) const;
+    VfmdBlockElementHandler *blockElementForTriggerByteAtIndex(char byte, unsigned int index) const;
+    int blockOptionsForTriggerByteAtIndex(char byte, unsigned int index) const;
+
+    int numberOfBlockElementsWithoutAnyTriggerByte() const;
+    VfmdBlockElementHandler *blockElementWithoutAnyTriggerByteAtIndex(unsigned int index) const;
+    int blockOptionsWithoutAnyTriggerByteAtIndex(unsigned int index) const;
 
     // Span elements
 
@@ -100,25 +113,9 @@ private:
     VfmdElementRegistry(const VfmdElementRegistry& other);
     VfmdElementRegistry& operator=(const VfmdElementRegistry& other);
 
-    // Block elements
-
-    void ensureBlockElementsAllocated();
-
-    struct BlockElementData {
-        BlockElementData(int t, VfmdBlockElementHandler *h)
-            : typeId(t), blockElementHandler(h), canAbutParagraph(false) { }
-        int typeId;
-        VfmdBlockElementHandler *blockElementHandler;
-        bool canAbutParagraph;
-    };
-
-    VfmdPointerArray<BlockElementData>* m_blockElements;
-
-    // Span elements
-
+    /* Member variables */
+    RegistryData<VfmdBlockElementHandler> *m_blockElementsData;
     RegistryData<VfmdSpanElementHandler> *m_spanElementsData;
-
-    friend void printBlockElementData(VfmdElementRegistry::BlockElementData *e);
 };
 
 #endif // VFMDSPANELEMENTREGISTRY_H
