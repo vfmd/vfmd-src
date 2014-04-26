@@ -4,14 +4,8 @@
 #include "vfmdoutputdevice.h"
 #include "vfmdelementtreenodestack.h"
 
-bool SetextHeaderHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                         int containingBlockType, bool isAbuttingParagraph)
+bool SetextHeaderHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    UNUSED_ARG(currentLine);
-    UNUSED_ARG(containingBlockType);
-    UNUSED_ARG(isAbuttingParagraph);
-    assert(isAbuttingParagraph == false);
-
     if (nextLine == 0) {
         return false;
     }

@@ -9,8 +9,7 @@ class RefResolutionBlockHandler : public VfmdBlockElementHandler {
 public:
     RefResolutionBlockHandler();
     virtual ~RefResolutionBlockHandler();
-    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                int containingBlockType, bool isAbuttingParagraph);
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void createLineSequence(VfmdInputLineSequence *parentLineSequence) const;
     virtual const char *description() const { return "ref-resolution-block"; }
 

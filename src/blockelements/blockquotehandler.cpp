@@ -4,12 +4,10 @@
 #include "vfmdinputlinesequence.h"
 #include "core/vfmdcommonregexps.h"
 
-bool BlockquoteHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                       int containingBlockType, bool isAbuttingParagraph)
+bool BlockquoteHandler::isStartOfBlock(const VfmdLine *currentLine, int containingBlockType, bool isAbuttingParagraph)
 {
-    UNUSED_ARG(nextLine);
-    return ((!isAbuttingParagraph || containingBlockType == VfmdConstants::BLOCKQUOTE_ELEMENT) &&
-            (currentLine->firstNonSpace() == '>'));
+    assert(currentLine->firstNonSpace() == '>');
+    return ((!isAbuttingParagraph) || (containingBlockType == VfmdConstants::BLOCKQUOTE_ELEMENT));
 }
 
 void BlockquoteHandler::createLineSequence(VfmdInputLineSequence *parentLineSequence) const

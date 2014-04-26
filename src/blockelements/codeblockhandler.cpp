@@ -1,13 +1,9 @@
 #include "codeblockhandler.h"
 #include "core/htmltextrenderer.h"
 
-bool CodeBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                      int containingBlockType, bool isAbuttingParagraph)
+bool CodeBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
-    UNUSED_ARG(containingBlockType);
-    UNUSED_ARG(isAbuttingParagraph);
-    assert(isAbuttingParagraph == false);
     return (currentLine->leadingSpacesCount() >= 4);
 }
 

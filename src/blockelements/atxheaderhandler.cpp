@@ -2,10 +2,8 @@
 #include "core/vfmdcommonregexps.h"
 #include "core/vfmdspanelementsprocessor.h"
 
-bool AtxHeaderHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                      int containingBlockType, bool isAbuttingParagraph)
+bool AtxHeaderHandler::isStartOfBlock(const VfmdLine *currentLine, int containingBlockType, bool isAbuttingParagraph)
 {
-    UNUSED_ARG(nextLine);
     UNUSED_ARG(containingBlockType);
     UNUSED_ARG(isAbuttingParagraph);
     assert(isAbuttingParagraph == false);

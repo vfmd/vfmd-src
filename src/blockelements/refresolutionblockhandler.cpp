@@ -12,13 +12,8 @@ RefResolutionBlockHandler::~RefResolutionBlockHandler()
     delete m_linkRefMap;
 }
 
-bool RefResolutionBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                               int containingBlockType, bool isAbuttingParagraph)
+bool RefResolutionBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    UNUSED_ARG(containingBlockType);
-    UNUSED_ARG(isAbuttingParagraph);
-    assert(isAbuttingParagraph == false);
-
     if ((currentLine->firstNonSpace() != '[') ||
         (currentLine->leadingSpacesCount() >= 4)) {
         return false;

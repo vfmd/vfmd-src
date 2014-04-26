@@ -6,8 +6,7 @@
 class HorizontalRuleHandler : public VfmdBlockElementHandler {
 public:
     HorizontalRuleHandler() { }
-    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                int containingBlockType, bool isAbuttingParagraph);
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, int containingBlockType, bool isAbuttingParagraph);
     virtual void createLineSequence(VfmdInputLineSequence *parentLineSequence) const;
     virtual const char *description() const { return "horizontal-rule"; }
 };

@@ -2,21 +2,17 @@
 #include "core/vfmdcommonregexps.h"
 #include "vfmdelementtreenodestack.h"
 
-bool OrderedListHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                        int containingBlockType, bool isAbuttingParagraph)
+bool OrderedListHandler::isStartOfBlock(const VfmdLine *currentLine, int containingBlockType, bool isAbuttingParagraph)
 {
-    UNUSED_ARG(nextLine);
+    assert((currentLine->firstNonSpace() >= '0') && (currentLine->firstNonSpace() <= '9'));
     if ((!isAbuttingParagraph) ||
         (containingBlockType == VfmdConstants::UNORDERED_LIST_ELEMENT) ||
         (containingBlockType == VfmdConstants::ORDERED_LIST_ELEMENT)) {
-        char firstNonSpaceByte = currentLine->firstNonSpace();
-        if ((firstNonSpaceByte >= '0') && (firstNonSpaceByte <= '9')) {
-            VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
-            if (reStarterPattern.matches(currentLine->content())) {
-                m_listStarterString = reStarterPattern.capturedText(1);
-                m_startingNumber = reStarterPattern.capturedText(2);
-                return true;
-            }
+        VfmdRegexp reStarterPattern = VfmdCommonRegexps::orderedListStarter();
+        if (reStarterPattern.matches(currentLine->content())) {
+            m_listStarterString = reStarterPattern.capturedText(1);
+            m_startingNumber = reStarterPattern.capturedText(2);
+            return true;
         }
     }
     return false;

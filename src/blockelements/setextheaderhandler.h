@@ -7,8 +7,7 @@
 class SetextHeaderHandler : public VfmdBlockElementHandler {
 public:
     SetextHeaderHandler() { }
-    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                int containingBlockType, bool isAbuttingParagraph);
+    virtual bool isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void createLineSequence(VfmdInputLineSequence *parentLineSequence) const;
     virtual const char *description() const { return "setext-header"; }
 };

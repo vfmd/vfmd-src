@@ -1,12 +1,9 @@
 #include "nullblockhandler.h"
 #include "core/vfmdcommonregexps.h"
 
-bool NullBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine,
-                                      int containingBlockType, bool isAbuttingParagraph)
+bool NullBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
-    UNUSED_ARG(containingBlockType);
-    UNUSED_ARG(isAbuttingParagraph);
     return (currentLine->isBlankLine());
 }
 
