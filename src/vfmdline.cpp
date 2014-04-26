@@ -93,7 +93,7 @@ void VfmdLine::ensureLineDataComputed()
 
 char VfmdLine::firstNonSpace() const
 {
-    if (size() == 0) {
+    if (size() == m_leadingSpacesCount) {
         return 0;
     }
     const_cast<VfmdLine *>(this)->ensureLineDataComputed();
