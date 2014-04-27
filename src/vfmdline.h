@@ -45,7 +45,7 @@ private:
     void ensureLineDataComputed();
     bool m_isLineDataComputed;
     unsigned int m_leadingSpacesCount;
-    unsigned int m_isBlankLine;
+    bool m_isBlankLine;
 
     // Checking if the line is a <hr/>
     void ensureIsHorizontalRuleComputed();
