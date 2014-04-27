@@ -43,6 +43,11 @@ bool ParagraphLineSequence::canEndBeforeLine(const VfmdLine *line, bool isInVerb
         return false;
     }
 
+    if (line->leadingSpacesCount() >= 4) {
+        // Code spans always require a separating blank line
+        return false;
+    }
+
     // Check with the block handlers whether any of them want to start a block at 'line'
     const char triggerByte = line->firstNonSpace();
     for (int i = 0; i < registry()->numberOfBlockElementsForTriggerByte(triggerByte); i++) {
