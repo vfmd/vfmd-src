@@ -23,7 +23,7 @@ public:
 
 private:
     VfmdByteArray m_content;
-    bool m_isAtEnd;
+    int m_numOfBytesExcludingLastSeenBlankLine;
 };
 
 class CodeBlockTreeNode : public VfmdElementTreeNode {

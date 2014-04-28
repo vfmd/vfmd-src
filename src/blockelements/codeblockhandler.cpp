@@ -14,47 +14,41 @@ void CodeBlockHandler::createLineSequence(VfmdInputLineSequence *parentLineSeque
 }
 
 CodeBlockLineSequence::CodeBlockLineSequence(const VfmdInputLineSequence *parent)
-    : VfmdBlockLineSequence(parent), m_isAtEnd(false)
+    : VfmdBlockLineSequence(parent)
+    , m_numOfBytesExcludingLastSeenBlankLine(0)
 {
 }
 
 void CodeBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    bool isEndOfParentLineSequence = (nextLine == 0);
-    assert(currentLine->isBlankLine() || (currentLine->leadingSpacesCount() >= 4));
-    if (isEndOfParentLineSequence) {
-        m_isAtEnd = true;
-    } else {
-        if (!nextLine->isBlankLine() && nextLine->leadingSpacesCount() < 4) {
-            m_isAtEnd = true;
-        }
-    }
     VfmdByteArray lineContent = currentLine->content();
-    if (m_isAtEnd && currentLine->isBlankLine()) {
-        // Don't let the last line be a blank line
-        return;
-    }
     int indexOfFirstNonSpace = currentLine->leadingSpacesCount();
     if (indexOfFirstNonSpace >= 4) {
         lineContent.chopLeft(4);
     }
     m_content.append(lineContent);
     m_content.appendByte('\n');
+    if (!currentLine->isBlankLine()) {
+        m_numOfBytesExcludingLastSeenBlankLine = m_content.size();
+    }
 }
 
 bool CodeBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    return m_isAtEnd;
+    return ((nextLine == 0) ||
+            (nextLine->isBlankLine() && currentLine->isBlankLine()) ||
+            (!nextLine->isBlankLine() && (nextLine->leadingSpacesCount() < 4))
+            );
 }
 
 void CodeBlockLineSequence::endBlock()
 {
-    setBlockParseTree(new CodeBlockTreeNode(m_content));
+    setBlockParseTree(new CodeBlockTreeNode(content()));
 }
 
 VfmdByteArray CodeBlockLineSequence::content() const
 {
-    return m_content;
+    return m_content.left(m_numOfBytesExcludingLastSeenBlankLine);
 }
 
 CodeBlockTreeNode::CodeBlockTreeNode(const VfmdByteArray &content)
