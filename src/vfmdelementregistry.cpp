@@ -122,6 +122,9 @@ public:
                 RegistryData::removeElementFromPointerArray(typeId, m_elementsByTriggerByte[(unsigned char) triggerBytes->byteAt(i)]);
             }
         }
+        if (m_elementsWithoutAnyTriggerByte) {
+            RegistryData::removeElementFromPointerArray(typeId, m_elementsWithoutAnyTriggerByte);
+        }
     }
 
     void replace(int typeId, T *handler) {
