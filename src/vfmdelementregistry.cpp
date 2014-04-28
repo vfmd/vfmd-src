@@ -16,9 +16,9 @@ public:
 
         void print() {
             if (options) {
-                printf("%s (id: %d, options: 0x%x)  ", elementHandler->description(), typeId, options);
+                printf("[%s: %d (options: 0x%x)] ", elementHandler->description(), typeId, options);
             } else {
-                printf("%s (id: %d)  ", elementHandler->description(), typeId);
+                printf("[%s: %d] ", elementHandler->description(), typeId);
             }
         }
     };
@@ -178,6 +178,13 @@ public:
     }
 
     void print() const {
+        if (m_elementsWithoutAnyTriggerByte && m_elementsWithoutAnyTriggerByte->size() > 0) {
+            printf("  No trigger byte: ");
+            for (int i = 0; i < m_elementsWithoutAnyTriggerByte->size(); i++) {
+                m_elementsWithoutAnyTriggerByte->itemAt(i)->print();
+            }
+            printf("\n");
+        }
         for (unsigned int byte = 0; byte < 256; byte++) {
             VfmdPointerArray<ElementData>* elements = m_elementsByTriggerByte[(unsigned char) byte];
             if (elements) {
@@ -189,10 +196,6 @@ public:
             }
         }
         printf("\n");
-        printf("  No trigger byte: ");
-        for (int i = 0; i < m_elementsWithoutAnyTriggerByte->size(); i++) {
-            m_elementsWithoutAnyTriggerByte->itemAt(i)->print();
-        }
     }
 
     static bool doesElementExistInPointerArray(int typeId, VfmdPointerArray<ElementData> *array) {
