@@ -59,7 +59,6 @@ HEADERS += $$PWD/vfmdbytearray.h \
 BLK = $$PWD/blockelements
 
 SOURCES += \
-           $$BLK/nullblockhandler.cpp \
            $$BLK/refresolutionblockhandler.cpp \
            $$BLK/setextheaderhandler.cpp \
            $$BLK/codeblockhandler.cpp \
@@ -71,7 +70,6 @@ SOURCES += \
            $$BLK/paragraphhandler.cpp
 
 HEADERS += \
-           $$BLK/nullblockhandler.h \
            $$BLK/setextheaderhandler.h \
            $$BLK/refresolutionblockhandler.h \
            $$BLK/codeblockhandler.h \

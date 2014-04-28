@@ -67,6 +67,10 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
 
+        if (currentLine->isBlankLine()) { // Null-block. Ignore.
+            return;
+        }
+
         VfmdBlockElementHandler *selectedBlockHandler = 0;
         if (m_nextBlockHandler) {
             selectedBlockHandler = m_nextBlockHandler;

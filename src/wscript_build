@@ -55,7 +55,6 @@ bld.objects(
         # Block-element handlers
         # for the core syntax
 
-        "blockelements/nullblockhandler.cpp",
         "blockelements/refresolutionblockhandler.cpp",
         "blockelements/setextheaderhandler.cpp",
         "blockelements/codeblockhandler.cpp",

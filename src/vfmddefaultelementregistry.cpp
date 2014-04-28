@@ -2,7 +2,6 @@
 #include "vfmdconstants.h"
 #include "core/vfmdlinkrefmap.h"
 
-#include "blockelements/nullblockhandler.h"
 #include "blockelements/refresolutionblockhandler.h"
 #include "blockelements/setextheaderhandler.h"
 #include "blockelements/codeblockhandler.h"
@@ -25,7 +24,6 @@ VfmdElementRegistry *VfmdElementRegistry::createRegistryForCoreSyntax()
     RefResolutionBlockHandler *refResolutionBlock = new RefResolutionBlockHandler;
 
     // Block elements without trigger bytes
-    registry->appendBlockElement(VfmdConstants::NULL_BLOCK_ELEMENT, new NullBlockHandler);
     registry->appendBlockElement(VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT, refResolutionBlock);
     registry->appendBlockElement(VfmdConstants::SETEXT_HEADER_ELEMENT, new SetextHeaderHandler);
     registry->appendBlockElement(VfmdConstants::CODE_BLOCK_ELEMENT, new CodeBlockHandler);
