@@ -116,6 +116,16 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdByteAr
 
 void VfmdPreprocessor::addBytes(const char *data, int length)
 {
+    if (m_text.isInvalid()) {
+        if (length < 3) {
+            return;
+        }
+        // Ignore UTF-8 Byte-Order-Mark
+        if ((data[0] == '\xef') && (data[1] == '\xbb') && (data[2] == '\xbf')) {
+            data += 3;
+        }
+    }
+
     m_text.reserveAdditionalBytes(length);
     if (m_unconsumedBytes.size() > 0) {
         int indexOfLF = indexOf(0x0a /* LF */, reinterpret_cast<const unsigned char *>(data), length);
@@ -159,6 +169,13 @@ void VfmdPreprocessor::end()
 
 void VfmdPreprocessor::preprocessByteArray(const char *data, unsigned int length, VfmdInputLineSequence *lineSequence)
 {
+    // Ignore UTF-8 Byte-Order-Mark
+    if (length >= 3) {
+        if ((data[0] == '\xef') && (data[1] == '\xbb') && (data[2] == '\xbf')) {
+            data += 3;
+        }
+    }
+
     VfmdByteArray preprocessedText;
     int bytesConsumed = consumeLines(reinterpret_cast<const unsigned char *>(data), length,
                                      &preprocessedText, lineSequence);

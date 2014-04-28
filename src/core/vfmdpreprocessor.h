@@ -11,7 +11,7 @@ public:
     VfmdPreprocessor(VfmdInputLineSequence *lineSequence);
     ~VfmdPreprocessor();
 
-    void addBytes(const char *data, int length);
+    void addBytes(const char *data, int length); // minimum 3 bytes per call
     void end();
 
     static void preprocessByteArray(const char *data, unsigned int length, VfmdInputLineSequence *lineSequence);
