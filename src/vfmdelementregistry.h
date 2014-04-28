@@ -49,6 +49,10 @@ public:
     /* Remove and free a block element handler in the registry */
     void removeBlockElement(int typeId);
 
+    /* Replace a block element handler.
+     * The existing handler that's getting replaced will be freed. */
+    void replaceBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler);
+
     /* Querying block elements */
     int numberOfBlockElementsForTriggerByte(char byte) const;
     VfmdBlockElementHandler *blockElementForTriggerByteAtIndex(char byte, unsigned int index) const;
@@ -95,6 +99,10 @@ public:
 
     /* Remove and free a span element handler in the registry */
     void removeSpanElement(int typeId);
+
+    /* Replace a span element handler.
+     * The existing handler that's getting replaced will be freed. */
+    void replaceSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler);
 
     /* Querying span elements */
     int numberOfSpanElementsForTriggerByte(char byte) const;

@@ -124,6 +124,30 @@ public:
         }
     }
 
+    void replace(int typeId, T *handler) {
+        VfmdByteArray *triggerBytes = m_triggerBytesById[typeId];
+        T* existingHandler = 0;
+        if (triggerBytes && triggerBytes->size() > 0) {
+            existingHandler = RegistryData::replaceElementInPointerArray(
+                                   typeId,
+                                   m_elementsByTriggerByte[(unsigned char) triggerBytes->byteAt(0)],
+                                   handler);
+            for (unsigned int i = 1; i < triggerBytes->size(); i++) {
+                T *h = RegistryData::replaceElementInPointerArray(
+                            typeId,
+                            m_elementsByTriggerByte[(unsigned char) triggerBytes->byteAt(i)],
+                            handler);
+                assert(existingHandler == h);
+            }
+        } else {
+            existingHandler = RegistryData::replaceElementInPointerArray(
+                                   typeId,
+                                   m_elementsWithoutAnyTriggerByte,
+                                   handler);
+        }
+        delete existingHandler;
+    }
+
     int numberOfElementsForTriggerByte(char byte) const {
         VfmdPointerArray<ElementData>* elements = m_elementsByTriggerByte[(unsigned char) byte];
         return (elements? elements->size() : 0);
@@ -223,6 +247,20 @@ public:
         }
     }
 
+    static T* replaceElementInPointerArray(int typeId, VfmdPointerArray<ElementData> *array, T *replacingHandler) {
+        if (array) {
+            for (unsigned int i = 0; i < array->size(); i++) {
+                ElementData *elementData = array->itemAt(i);
+                if (typeId == elementData->typeId) {
+                    T *replacedHandler = elementData->elementHandler;
+                    elementData->elementHandler = replacingHandler;
+                    return replacedHandler;
+                }
+            }
+        }
+        return 0;
+    }
+
     VfmdPointerArray<ElementData>* m_elementsByTriggerByte[256];
     VfmdByteArray* m_triggerBytesById[256];
     VfmdPointerArray<ElementData>* m_elementsWithoutAnyTriggerByte;
@@ -274,6 +312,11 @@ bool VfmdElementRegistry::containsBlockElement(int typeId) const
 void VfmdElementRegistry::removeBlockElement(int typeId)
 {
     return m_blockElementsData->remove(typeId);
+}
+
+void VfmdElementRegistry::replaceBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler)
+{
+    m_blockElementsData->replace(typeId, blockElementHandler);
 }
 
 int VfmdElementRegistry::numberOfBlockElementsForTriggerByte(char byte) const
@@ -336,6 +379,11 @@ bool VfmdElementRegistry::containsSpanElement(int typeId) const
 void VfmdElementRegistry::removeSpanElement(int typeId)
 {
     m_spanElementsData->remove(typeId);
+}
+
+void VfmdElementRegistry::replaceSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler)
+{
+    m_spanElementsData->replace(typeId, spanElementHandler);
 }
 
 int VfmdElementRegistry::numberOfSpanElementsForTriggerByte(char byte) const
