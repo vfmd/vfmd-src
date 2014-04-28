@@ -21,7 +21,7 @@ public:
     virtual void endBlock();
 private:
     VfmdInputLineSequence *m_childSequence;
-    bool m_isAtEndOfBlockquote;
+    VfmdLine *m_trailingBlankLine;
 };
 
 class BlockquoteTreeNode : public VfmdElementTreeNode {

@@ -18,57 +18,50 @@ void BlockquoteHandler::createLineSequence(VfmdInputLineSequence *parentLineSequ
 
 BlockquoteLineSequence::BlockquoteLineSequence(const VfmdInputLineSequence *parent)
     : VfmdBlockLineSequence(parent)
+    , m_childSequence(new VfmdInputLineSequence(registry(), this))
+    , m_trailingBlankLine(0)
 {
-    m_childSequence = new VfmdInputLineSequence(registry(), this);
 }
 
 BlockquoteLineSequence::~BlockquoteLineSequence()
 {
+    delete m_trailingBlankLine;
     delete m_childSequence;
 }
 
 void BlockquoteLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    // Check if we're at the end of the blockquote
-    bool isEndOfBlockquote = false;
-    if (nextLine == 0) {
-        isEndOfBlockquote = true;
-    } else {
-        if (currentLine->isBlankLine()) {
-            if (nextLine->isBlankLine() ||
-                (nextLine->leadingSpacesCount() >= 4) ||
-                (nextLine->firstNonSpace() != '>')) {
-                isEndOfBlockquote = true;
-            }
-        } else {
-            if ((nextLine->leadingSpacesCount() < 4) &&
-                nextLine->isHorizontalRuleLine()) {
-                isEndOfBlockquote = true;
-            }
-        }
+    if (m_trailingBlankLine) {
+        // The last-seen blank line is not the last line of the blockquote,
+        // and so it will be passed on to the child sequence.
+        m_childSequence->addLine(m_trailingBlankLine);
+        m_trailingBlankLine = 0;
     }
-    m_isAtEndOfBlockquote = isEndOfBlockquote;
 
-    // Process the line
-    if (m_isAtEndOfBlockquote && currentLine->isBlankLine()) {
-        // If the last line is a blank line, ignore it
-        return;
-    }
     VfmdLine *line = currentLine->copy();
-    if (currentLine->firstNonSpace() == '>') {
-        line->chopLeft(currentLine->leadingSpacesCount() + 1);
-        if (line->firstByte() == ' ') {
-            line->chopLeft(1);
+
+    if (line->isBlankLine()) {
+        // If the blank line turns out to be the last line of the blockquote,
+        // it will not be passed on to the child sequence.
+        m_trailingBlankLine = line;
+    } else {
+        if (currentLine->firstNonSpace() == '>') {
+            line->chopLeft(currentLine->leadingSpacesCount() + 1);
+            if (line->firstByte() == ' ') {
+                line->chopLeft(1);
+            }
         }
+        m_childSequence->addLine(line);
     }
-    m_childSequence->addLine(line);
 }
 
 bool BlockquoteLineSequence::isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
-    UNUSED_ARG(currentLine);
-    UNUSED_ARG(nextLine);
-    return m_isAtEndOfBlockquote;
+    if (currentLine->isBlankLine()) {
+        return (nextLine->isBlankLine() || nextLine->leadingSpacesCount() >= 4 || nextLine->firstNonSpace() != '>');
+    } else {
+        return (nextLine->leadingSpacesCount() < 4 && nextLine->isHorizontalRuleLine());
+    }
 }
 
 void BlockquoteLineSequence::endBlock()
