@@ -23,7 +23,7 @@ static inline int indexOf(unsigned char byte, const unsigned char *p, int length
     return -1;
 }
 
-#ifdef VFMD_NO_UTF8
+#ifdef VFMD_NO_UTF8_AUTOCORRECT_AND_TAB_EXPANSION
 static inline int scan_line_for_tabs(const unsigned char* string, int length, int *numOfBytes, int *numOfCodePoints)
 {
     int indexOfTab = indexOf(0x09 /* Tab */, string, length);
@@ -49,7 +49,7 @@ static VfmdLine* createLineFromBytes(VfmdByteArray *ba, const unsigned char *src
         while (1) {
             int numOfBytesScanned;
             int numOfCodePointsScanned;
-#ifdef VFMD_NO_UTF8
+#ifdef VFMD_NO_UTF8_AUTOCORRECT_AND_TAB_EXPANSION
             int result = scan_line_for_tabs(src, (int) (end - src), &numOfBytesScanned, &numOfCodePointsScanned);
 #else
             int result = scan_line(src, (int) (end - src), &numOfBytesScanned, &numOfCodePointsScanned);
