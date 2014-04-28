@@ -14,6 +14,7 @@ ParagraphLineSequence::ParagraphLineSequence(const VfmdInputLineSequence *parent
     , m_containingBlockType(parent->containingBlockType())
     , m_nextBlockHandler(0)
 #ifndef VFMD_NO_HTML_AWARE_END_OF_PARAGRAPH
+    , m_isUsingHtmlStateWatcher(false)
     , m_isAtEndOfParagraph(false)
     , m_isLookingAhead(false)
     , m_lookaheadLines(0)
@@ -105,16 +106,26 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
 {
     UNUSED_ARG(nextLine);
 
+    VfmdByteArray currentLineContent = currentLine->content();
+
     if (!m_isLookingAhead) {
 
         // Not in lookahead mode
+
         if (m_text.isInvalid()) {
-            m_text = currentLine->content();
+            m_text = currentLineContent;
         } else {
-            m_text.append(currentLine->content());
+            m_text.append(currentLineContent);
         }
         m_text.appendByte('\n');
-        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
+
+        if (!m_isUsingHtmlStateWatcher && (currentLineContent.indexOf('<') >= 0)) {
+            m_isUsingHtmlStateWatcher = true;
+        }
+        if (m_isUsingHtmlStateWatcher) {
+            m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLineContent, &m_htmlStateWatcher);
+        }
+
         HtmlStateWatcher::TagState tagState = m_htmlStateWatcher.tagState();
         HtmlStateWatcher::VerbatimContainerElementState verbatimContainerElemState = m_htmlStateWatcher.verbatimContainerElementState();
         HtmlStateWatcher::VerbatimStarterElementState verbatimStarterElemState = m_htmlStateWatcher.verbatimStarterElementState();
@@ -147,7 +158,7 @@ void ParagraphLineSequence::processBlockLine(const VfmdLine *currentLine, const 
         // In lookahead mode
         assert(m_lookaheadLines);
         m_lookaheadLines->append(currentLine->copy());
-        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLine->content(), &m_htmlStateWatcher);
+        m_codeSpanFilter.addFilteredLineToHtmlStateWatcher(currentLineContent, &m_htmlStateWatcher);
         HtmlStateWatcher::TagState tagState = m_htmlStateWatcher.tagState();
         HtmlStateWatcher::VerbatimContainerElementState verbatimContainerElemState = m_htmlStateWatcher.verbatimContainerElementState();
 
