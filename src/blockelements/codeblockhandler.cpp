@@ -26,7 +26,11 @@ void CodeBlockLineSequence::processBlockLine(const VfmdLine *currentLine, const 
     if (indexOfFirstNonSpace >= 4) {
         lineContent.chopLeft(4);
     }
-    m_content.append(lineContent);
+    if (m_content.isInvalid()) {
+        m_content = lineContent;
+    } else {
+        m_content.append(lineContent);
+    }
     m_content.appendByte('\n');
     if (!currentLine->isBlankLine()) {
         m_numOfBytesExcludingLastSeenBlankLine = m_content.size();
