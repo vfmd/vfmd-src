@@ -49,8 +49,6 @@ public:
     VfmdBufferOutputDevice(VfmdByteArray *buffer);
     virtual ~VfmdBufferOutputDevice();
     int bytesWritten() const;
-    const VfmdByteArray& buffer() const;
-    void squeezeBuffer();
 
 protected:
     virtual bool writeData(const char *data, int len);
