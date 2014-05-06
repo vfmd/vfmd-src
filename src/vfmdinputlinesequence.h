@@ -18,8 +18,6 @@ public:
     void addLine(VfmdLine *line);
     VfmdElementTreeNode* endSequence();
 
-    bool isAtEnd() const;
-
     const VfmdBlockLineSequence *parentLineSequence() const;
     const VfmdElementRegistry *registry() const;
 
