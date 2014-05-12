@@ -123,6 +123,7 @@ void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray 
                             bool isLineBreakOnNewlinesEnabled)
 {
     const char *src = text.data();
+    const unsigned char *src_u = reinterpret_cast<const unsigned char *>(src);
     size_t size = text.size();
     size_t i = 0, org, esc = 0;
     static VfmdRegexp reCharRef = VfmdCommonRegexps::htmlCharacterReference();
@@ -138,7 +139,7 @@ void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray 
 
     while (i < size) {
         org = i;
-        while (i < size && (esc = HTMLISH_ESCAPE_TABLE[src[i]]) == 0)
+        while (i < size && (esc = HTMLISH_ESCAPE_TABLE[src_u[i]]) == 0)
             i++;
 
         if (i < size) {
