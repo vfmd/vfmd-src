@@ -85,9 +85,9 @@ bool UnorderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
     bool isBottomPacked = false;
     if (isFirstListItem && isLastListItem) {
         isBottomPacked = true;
-    } else if (!lastLineOfListItem->isBlankLine()) {
-        isBottomPacked = true;
     } else if (isLastListItem && !m_isCurrentListItemPrecededByABlankLine) {
+        isBottomPacked = true;
+    } else if (!isLastListItem && !lastLineOfListItem->isBlankLine()) {
         isBottomPacked = true;
     }
     return isBottomPacked;
