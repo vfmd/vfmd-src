@@ -54,7 +54,7 @@ void CodeSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
 {
     if (format == VfmdConstants::HTML_FORMAT) {
         outputDevice->write("<code>", 6);
-        HtmlTextRenderer::renderCode(outputDevice, m_content);
+        HtmlTextRenderer::renderCode(outputDevice, m_content.trimmed());
         outputDevice->write("</code>", 7);
         assert(hasChildren() == false);
     } else {
