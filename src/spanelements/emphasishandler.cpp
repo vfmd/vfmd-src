@@ -215,10 +215,21 @@ void EmphasisTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
         return;
     }
     if (format == VfmdConstants::HTML_FORMAT) {
-        bool emTag = (m_repetitionCount < 2);
-        outputDevice->write(emTag? "<em>" : "<strong>");
-        renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        outputDevice->write(emTag? "</em>" : "</strong>");
+        const char *openTag = 0;
+        const char *closeTag = 0;
+        if (m_repetitionCount == 1) {
+            outputDevice->write("<em>", 4);
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+            outputDevice->write("</em>", 5);
+        } else if (m_repetitionCount == 2) {
+            outputDevice->write("<strong>", 8);
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+            outputDevice->write("</strong>", 9);
+        } else if (m_repetitionCount > 2) {
+            outputDevice->write("<strong><em>", 12);
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+            outputDevice->write("</em></strong>", 14);
+        }
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
