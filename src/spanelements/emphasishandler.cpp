@@ -230,6 +230,14 @@ void EmphasisTreeNode::renderNode(VfmdConstants::RenderFormat format, int render
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
             outputDevice->write("</em></strong>", 14);
         }
+    } else if (format == VfmdConstants::TREE_FORMAT) {
+        renderTreePrefix(outputDevice, ancestorNodes, "+- span (emphasis) ");
+        outputDevice->write(m_char, m_repetitionCount);
+        outputDevice->write('\n');
+        if (hasChildren()) {
+            renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));
+            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
+        }
     } else {
         VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
     }
