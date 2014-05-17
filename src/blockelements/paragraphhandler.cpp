@@ -326,9 +326,9 @@ void ParagraphTreeNode::renderNode(VfmdConstants::RenderFormat format, int rende
             }
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
             if (canEncloseContentInPTags) {
-                outputDevice->write("</p>\n", 5);
+                outputDevice->write("</p>\n\n", 6);
             } else {
-                outputDevice->write('\n');
+                outputDevice->write("\n\n", 2);
             }
         }
 
