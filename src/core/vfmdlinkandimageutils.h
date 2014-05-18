@@ -63,7 +63,7 @@ static T* handlePossibleUrlTitleCloseTag(const VfmdByteArray &remainingText, int
         // Regexp that matches "] (<url>"
         static VfmdRegexp reCloseStartWithBracketedURL("^\\]\\s*\\(\\s*<([^<>\\`]*)>");
 
-        if (reCloseStartWithBracketedURL.matches(remainingText) == 0) {
+        if (reCloseStartWithBracketedURL.matches(remainingText)) {
             lengthOfCloseStart = reCloseStartWithBracketedURL.lengthOfMatch();
             rawUrlString = reCloseStartWithBracketedURL.capturedText(1);
         }
