@@ -174,7 +174,7 @@ void LinkTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOpti
                 // We didn't find a definition for this ref id
                 outputDevice->write('[');
                 renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-                outputDevice->write(m_ba2);
+                HtmlTextRenderer::renderText(outputDevice, m_ba2, renderOptions);
             }
             break;
         }
