@@ -169,7 +169,7 @@ void ImageTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOpt
                 // We didn't find a definition for this ref id
                 outputDevice->write("![", 2);
                 outputDevice->write(m_altText);
-                outputDevice->write(m_ba2);
+                HtmlTextRenderer::renderText(outputDevice, m_ba2, renderOptions);
             }
             break;
         }
