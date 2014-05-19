@@ -143,7 +143,14 @@ int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray
         } else {
 
             // Regexp that matches "<someone@example.net>"
-            static VfmdRegexp reBracketedAutoMailtoLink2("^<([^\\/\\?#@\\`\\s]+@[^\\/\\?#@\\`\\s\\.]+\\.[^\\/\\?#@\\`\\s]+)>");
+            static VfmdRegexp reBracketedAutoMailtoLink2(
+                    "^<("
+                          "[^\\(\\)\\<\\>\\[\\]\\:\\'\\@\\\\\\,\\\"\\s\\`]+"     // some.one
+                          "@"                                                    // @
+                          "[^\\(\\)\\<\\>\\[\\]\\:\\'\\@\\\\\\,\\\"\\s\\`\\.]+"  // example
+                          "\\."                                                  // .
+                          "[^\\(\\)\\<\\>\\[\\]\\:\\'\\@\\\\\\,\\\"\\s\\`]+"     // net
+                    ")>");
 
             if (reBracketedAutoMailtoLink2.matches(remainingText)) {
                 matchingLength = reBracketedAutoMailtoLink2.lengthOfMatch();
