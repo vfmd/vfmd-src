@@ -67,7 +67,7 @@ void VfmdInputLineSequence::processInChildSequence(const VfmdLine *currentLine, 
     // If there's no running child sequence, find and create one
     if (!m_childLineSequence) {
 
-        if (currentLine->isBlankLine()) { // Null-block. Ignore.
+        if (currentLine == 0 || currentLine->isBlankLine()) { // Null-block. Ignore.
             return;
         }
 
