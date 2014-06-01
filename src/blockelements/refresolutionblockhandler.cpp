@@ -4,6 +4,7 @@
 
 RefResolutionBlockHandler::RefResolutionBlockHandler()
     : m_linkRefMap(new VfmdLinkRefMap)
+    , m_numOfLines(0)
 {
 }
 
@@ -14,46 +15,52 @@ RefResolutionBlockHandler::~RefResolutionBlockHandler()
 
 bool RefResolutionBlockHandler::isStartOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
+    m_numOfLines = 0;
+
     if ((currentLine->firstNonSpace() != '[') ||
         (currentLine->leadingSpacesCount() >= 4)) {
         return false;
     }
 
     VfmdByteArray firstLineText = currentLine->content();
-    VfmdByteArray firstLineTrailingText;
-    VfmdRegexp reLabelAndPlainURL = VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL();
-    if (reLabelAndPlainURL.matches(firstLineText)) {
-        firstLineTrailingText = reLabelAndPlainURL.capturedText(2);
-    } else {
-        VfmdRegexp reLabelAndBracketedURL = VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL();
-        if (reLabelAndBracketedURL.matches(firstLineText)) {
-            firstLineTrailingText = reLabelAndBracketedURL.capturedText(2);
-        } else {
-            return false;
+    VfmdRegexp reKeyPart = VfmdCommonRegexps::refResolutionBlockStartLineKeyPart();
+
+    if (reKeyPart.matches(firstLineText)) {
+
+        m_rawRefIdString = reKeyPart.capturedText(1);
+        VfmdByteArray refValueSequence = reKeyPart.capturedText(reKeyPart.captureCount() - 1);
+        VfmdRegexp reValuePart = VfmdCommonRegexps::refResolutionBlockStartLineValuePart();
+
+        if (reValuePart.matches(refValueSequence)) {
+
+            m_rawUrlString = reValuePart.capturedText(1);
+            m_titleContainerString = reValuePart.capturedText(2);
+            m_numOfLines = 1;
+            if (m_titleContainerString.indexOfFirstNonSpace() < 0 && nextLine) {
+                VfmdByteArray secondLineText = nextLine->content();
+                VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
+                if (reTitleLine.matches(secondLineText)) {
+                    m_titleContainerString = secondLineText;
+                    m_numOfLines = 2;
+                }
+            }
+            return true;
+
         }
     }
 
-    m_firstLine = currentLine;
-    m_nextLine = ((firstLineTrailingText.indexOfFirstNonSpace() < 0) ? nextLine : 0);
-    return true;
+    return false;
 }
 
 void RefResolutionBlockHandler::createLineSequence(VfmdInputLineSequence *lineSequence) const
 {
-    int numOfLinesInSequence = 1;
-    VfmdByteArray linkDefText = m_firstLine->content();
-    if (m_nextLine) {
-        VfmdByteArray secondLineText = m_nextLine->content();
-        VfmdRegexp reTitleLine = VfmdCommonRegexps::refResolutionBlockTitleLine();
-        if (reTitleLine.matches(secondLineText)) {
-            numOfLinesInSequence = 2;
-            linkDefText.append(secondLineText);
-        }
+    if (m_numOfLines > 0) {
+        assert(m_numOfLines <= 2);
+        RefResolutionBlockLineSequence *s = new RefResolutionBlockLineSequence(lineSequence,
+                                                    m_rawRefIdString, m_rawUrlString, m_titleContainerString,
+                                                    m_numOfLines, m_linkRefMap);
+        lineSequence->setChildSequence(s);
     }
-
-    RefResolutionBlockLineSequence *s = new RefResolutionBlockLineSequence(lineSequence,
-                                                numOfLinesInSequence, linkDefText, m_linkRefMap);
-    lineSequence->setChildSequence(s);
 }
 
 const VfmdLinkRefMap *RefResolutionBlockHandler::linkReferenceMap() const
@@ -62,13 +69,17 @@ const VfmdLinkRefMap *RefResolutionBlockHandler::linkReferenceMap() const
 }
 
 RefResolutionBlockLineSequence::RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
+                                                               const VfmdByteArray &rawRefIdString,
+                                                               const VfmdByteArray &rawUrlString,
+                                                               const VfmdByteArray &titleContainerString,
                                                                int numOfLines,
-                                                               const VfmdByteArray &linkDefinitionText,
                                                                VfmdLinkRefMap *linkRefMap)
     : VfmdBlockLineSequence(parent)
     , m_numOfLinesSeen(0)
+    , m_rawRefIdString(rawRefIdString)
+    , m_rawUrlString(rawUrlString)
+    , m_titleContainerString(titleContainerString)
     , m_numOfLinesInSequence(numOfLines)
-    , m_linkDefText(linkDefinitionText)
     , m_linkRefMap(linkRefMap)
 {
     assert(numOfLines == 1 || numOfLines == 2);
@@ -90,37 +101,25 @@ bool RefResolutionBlockLineSequence::isEndOfBlock(const VfmdLine *currentLine, c
 
 void RefResolutionBlockLineSequence::endBlock()
 {
-    VfmdByteArray refId, unprocessedUrl, titleContainer;
+    VfmdByteArray refId = m_rawRefIdString.simplified();
+    VfmdByteArray linkUrl = m_rawUrlString.bytesInStringRemoved("<> \n\t\f\r");
 
-    VfmdRegexp reFullLabelAndURL = VfmdCommonRegexps::refResolutionBlockFullLabelAndURL();
-    if (reFullLabelAndURL.matches(m_linkDefText)) {
-        refId = reFullLabelAndURL.capturedText(1).simplified();
-        unprocessedUrl = reFullLabelAndURL.capturedText(3);
-    } else {
-        VfmdRegexp& reFullLabelURLAndText = VfmdCommonRegexps::refResolutionBlockFullLabelURLAndText();
-        if (reFullLabelURLAndText.matches(m_linkDefText)) {
-            refId = reFullLabelURLAndText.capturedText(1).simplified();
-            unprocessedUrl = reFullLabelURLAndText.capturedText(3);
-            titleContainer = reFullLabelURLAndText.capturedText(4);
-        }
-    }
-
-    VfmdByteArray linkUrl = unprocessedUrl.bytesInStringRemoved("<> \n\t\f\r");
     VfmdByteArray linkTitle;
-    if (titleContainer.isValid() && titleContainer.size() > 0) {
+    m_titleContainerString.trim();
+    if (m_titleContainerString.isValid() && m_titleContainerString.size() > 0) {
         VfmdRegexp reBracketedTitle = VfmdCommonRegexps::refResolutionBlockBracketedTitle();
-        if (reBracketedTitle.matches(titleContainer)) {
+        if (reBracketedTitle.matches(m_titleContainerString)) {
             linkTitle = reBracketedTitle.capturedText(1);
         } else {
-            char firstByte = titleContainer.byteAt(0);
+            char firstByte = m_titleContainerString.byteAt(0);
             if (firstByte == '\'') {
                 VfmdRegexp reQuotedString = VfmdCommonRegexps::beginningWithSingleQuotedString();
-                if (reQuotedString.matches(titleContainer)) {
+                if (reQuotedString.matches(m_titleContainerString)) {
                     linkTitle = reQuotedString.capturedText(1);
                 }
             } else if (firstByte == '\"') {
                 VfmdRegexp reQuotedString = VfmdCommonRegexps::beginningWithDoubleQuotedString();
-                if (reQuotedString.matches(titleContainer)) {
+                if (reQuotedString.matches(m_titleContainerString)) {
                     linkTitle = reQuotedString.capturedText(1);
                 }
             }

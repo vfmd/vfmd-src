@@ -12,33 +12,21 @@ VfmdRegexp& VfmdCommonRegexps::beginningWithDoubleQuotedString()
     return re;
 }
 
-VfmdRegexp& VfmdCommonRegexps::refResolutionBlockLabelAndPlainURL()
+VfmdRegexp& VfmdCommonRegexps::refResolutionBlockStartLineKeyPart()
 {
-    static VfmdRegexp re("^ *\\[([^\\\\\\[\\]]|\\\\.)*\\] *: *[^ <>]+( .*)?$");
+    static VfmdRegexp re("^ *\\[(([^\\\\\\[\\]\\!]|\\\\.|\\![^\\[])*((\\!\\[([^\\\\\\[\\]]|\\\\.)*\\](\\[([^\\\\\\[\\]]|\\\\.)*\\])?)?([^\\\\\\[\\]]|\\\\.)*)*)\\] *:(.*)$");
     return re;
 }
 
-VfmdRegexp& VfmdCommonRegexps::refResolutionBlockLabelAndBracketedURL()
+VfmdRegexp& VfmdCommonRegexps::refResolutionBlockStartLineValuePart()
 {
-    static VfmdRegexp re("^ *\\[([^\\\\\\[\\]]|\\\\.)*\\] *: *<[^<>]*>(.*)$");
+    static VfmdRegexp re("^ *([^ \\<\\>]+|\\<[^\\<\\>]*\\>)( .*)?$");
     return re;
 }
 
 VfmdRegexp& VfmdCommonRegexps::refResolutionBlockTitleLine()
 {
     static VfmdRegexp re("^ +(\\\"(([^\\\"\\\\]|\\\\.)*)\\\"|\\'(([^\\'\\\\]|\\\\.)*)\\'|\\(([^\\\\\\(\\)]|\\\\.)*\\)) *$");
-    return re;
-}
-
-VfmdRegexp& VfmdCommonRegexps::refResolutionBlockFullLabelAndURL()
-{
-    static VfmdRegexp re("^ *\\[(([^\\\\\\[\\]]|\\\\.)*)\\] *: *([^ <>]+|<[^<>]*>) *$");
-    return re;
-}
-
-VfmdRegexp& VfmdCommonRegexps::refResolutionBlockFullLabelURLAndText()
-{
-    static VfmdRegexp re("^ *\\[(([^\\\\\\[\\]]|\\\\.)*)\\] *: *([^ <>]+|<[^<>]*>) +([^ ].*)$");
     return re;
 }
 

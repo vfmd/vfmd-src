@@ -18,8 +18,8 @@ public:
     static VfmdRegexp& beginningWithDoubleQuotedString();
 
     // Reference-resolution block
-    static VfmdRegexp& refResolutionBlockLabelAndPlainURL();
-    static VfmdRegexp& refResolutionBlockLabelAndBracketedURL();
+    static VfmdRegexp& refResolutionBlockStartLineKeyPart();
+    static VfmdRegexp& refResolutionBlockStartLineValuePart();
     static VfmdRegexp& refResolutionBlockTitleLine();
     static VfmdRegexp& refResolutionBlockFullLabelAndURL();
     static VfmdRegexp& refResolutionBlockFullLabelURLAndText();

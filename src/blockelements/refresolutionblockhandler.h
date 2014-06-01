@@ -17,14 +17,17 @@ public:
 
 private:
     VfmdLinkRefMap *m_linkRefMap;
-    const VfmdLine *m_firstLine, *m_nextLine;
+    VfmdByteArray m_rawRefIdString, m_rawUrlString, m_titleContainerString;
+    int m_numOfLines;
 };
 
 class RefResolutionBlockLineSequence : public VfmdBlockLineSequence {
 public:
     RefResolutionBlockLineSequence(const VfmdInputLineSequence *parent,
+                                   const VfmdByteArray &rawRefIdString,
+                                   const VfmdByteArray &rawUrlString,
+                                   const VfmdByteArray &titleContainerString,
                                    int numOfLines,
-                                   const VfmdByteArray &linkDefText,
                                    VfmdLinkRefMap *linkRefMap);
     virtual int elementType() const { return VfmdConstants::REF_RESOLUTION_BLOCK_ELEMENT; }
     virtual void processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine);
@@ -33,8 +36,8 @@ public:
 
 private:
     int m_numOfLinesSeen;
+    VfmdByteArray m_rawRefIdString, m_rawUrlString, m_titleContainerString;
     const int m_numOfLinesInSequence;
-    VfmdByteArray m_linkDefText;
     VfmdLinkRefMap *m_linkRefMap;
 };
 
