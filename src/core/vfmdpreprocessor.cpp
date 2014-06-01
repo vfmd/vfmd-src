@@ -123,13 +123,11 @@ bool VfmdPreprocessor::addBytes(const char *data, int length)
     } else {
         m_notEnoughBytesInLastAddBytesCall = (length < 8);
     }
-    if (m_text.isInvalid()) {
-        if (length < 3) {
-            return true;
-        }
+    if (m_text.isInvalid() && length >= 3) {
         // Ignore UTF-8 Byte-Order-Mark
         if ((data[0] == '\xef') && (data[1] == '\xbb') && (data[2] == '\xbf')) {
             data += 3;
+            length -= 3;
         }
     }
 
