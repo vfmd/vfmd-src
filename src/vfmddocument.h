@@ -19,10 +19,14 @@ public:
 
     // If you get the document content in chunks:
     // Use one or more addPartialContent() calls followed
-    // by an endOfContent() call.
+    // by an endOfContent() call. The length of each partial
+    // content should be at least 8 bytes, unless there is
+    // no more content to add.
     // After a setContent() or an endOfContent() call,
     // addPartialContent() has no effect.
-    void addPartialContent(const char *data, int length);
+    // This method returns true if the partial content was
+    // added successfully and false if not.
+    bool addPartialContent(const char *data, int length);
     void endOfContent();
 
     // After a setContent() or an endOfContent() call,

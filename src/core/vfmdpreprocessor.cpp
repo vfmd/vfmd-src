@@ -6,6 +6,7 @@
 
 VfmdPreprocessor::VfmdPreprocessor(VfmdInputLineSequence *lineSequence)
     : m_lineSequence(lineSequence)
+    , m_notEnoughBytesInLastAddBytesCall(false)
 {
 }
 
@@ -114,11 +115,17 @@ static inline int consumeLines(const unsigned char *data, int length, VfmdByteAr
     return (int) (p - data);
 }
 
-void VfmdPreprocessor::addBytes(const char *data, int length)
+bool VfmdPreprocessor::addBytes(const char *data, int length)
 {
+    if (m_notEnoughBytesInLastAddBytesCall) {
+        printf("VfmdPreprocessor: Ignoring %d bytes\n", length);
+        return false;
+    } else {
+        m_notEnoughBytesInLastAddBytesCall = (length < 8);
+    }
     if (m_text.isInvalid()) {
         if (length < 3) {
-            return;
+            return true;
         }
         // Ignore UTF-8 Byte-Order-Mark
         if ((data[0] == '\xef') && (data[1] == '\xbb') && (data[2] == '\xbf')) {
@@ -132,7 +139,7 @@ void VfmdPreprocessor::addBytes(const char *data, int length)
         if (indexOfLF < 0) {
             // LF still not found
             m_unconsumedBytes.append(data, length);
-            return;
+            return true;
         } else {
             // LF found
             if (indexOfLF > 0) {
@@ -153,6 +160,8 @@ void VfmdPreprocessor::addBytes(const char *data, int length)
     if (bytesConsumed < length) {
         m_unconsumedBytes = VfmdByteArray(data + bytesConsumed, length - bytesConsumed);
     }
+
+    return true;
 }
 
 void VfmdPreprocessor::end()

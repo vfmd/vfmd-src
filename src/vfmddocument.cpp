@@ -36,10 +36,10 @@ void VfmdDocument::setContent(const char *data, int length)
     m_isEndOfContent = true;
 }
 
-void VfmdDocument::addPartialContent(const char *data, int length)
+bool VfmdDocument::addPartialContent(const char *data, int length)
 {
     if (m_isEndOfContent) {
-        return;
+        return false;
     }
     if (!m_isReadingPartialContent) {
         m_documentLineSequence = new VfmdInputLineSequence(m_registry);
@@ -47,7 +47,7 @@ void VfmdDocument::addPartialContent(const char *data, int length)
         m_isReadingPartialContent = true;
     }
     assert(m_preprocessor);
-    m_preprocessor->addBytes(data, length);
+    return m_preprocessor->addBytes(data, length);
 }
 
 void VfmdDocument::endOfContent()
