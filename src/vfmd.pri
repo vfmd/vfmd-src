@@ -53,6 +53,7 @@ HEADERS += $$PWD/vfmdbytearray.h \
            $$PWD/core/vfmdlinkrefmap.h \
            $$PWD/core/htmltextrenderer.h \
            $$PWD/core/vfmdutils.h \
+           $$PWD/core/vfmdlistutils.h \
            $$PWD/core/vfmdlinkandimageutils.h \
            $$PWD/core/houdini.h
 

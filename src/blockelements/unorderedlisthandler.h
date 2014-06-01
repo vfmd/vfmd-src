@@ -25,10 +25,6 @@ public:
     virtual bool isEndOfBlock(const VfmdLine *currentLine, const VfmdLine *nextLine);
     virtual void endBlock();
 
-    void closeListItem(bool isEndOfList);
-    bool isTopPackedListItem(bool isEndOfList) const;
-    bool isBottomPackedListItem(bool isEndOfList) const;
-
 private:
     VfmdByteArray m_listStarterString;
     VfmdInputLineSequence *m_childSequence;

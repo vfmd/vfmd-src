@@ -1,5 +1,6 @@
 #include "unorderedlisthandler.h"
 #include "core/vfmdcommonregexps.h"
+#include "core/vfmdlistutils.h"
 #include "vfmdelementtreenodestack.h"
 
 bool UnorderedListHandler::isStartOfBlock(const VfmdLine *currentLine, int containingBlockType, bool isAbuttingParagraph)
@@ -43,75 +44,43 @@ UnorderedListLineSequence::~UnorderedListLineSequence()
     delete m_childSequence;
 }
 
-void UnorderedListLineSequence::closeListItem(bool isEndOfList)
-{
-    if (m_childSequence) {
-        UnorderedListItemTreeNode *listItemNode = new UnorderedListItemTreeNode();
-        listItemNode->setTopPacked(isTopPackedListItem(isEndOfList));
-        listItemNode->setBottomPacked(isBottomPackedListItem(isEndOfList));
-        VfmdElementTreeNode *childSubTree = m_childSequence->endSequence();
-        bool ok = listItemNode->setChildNodeIfNotSet(childSubTree);
-        assert(ok);
-        m_listNode->adoptAsLastChild(listItemNode);
-        delete m_childSequence;
-        m_childSequence = 0;
-        m_numOfClosedListItems++;
-    }
-}
-
-bool UnorderedListLineSequence::isTopPackedListItem(bool isEndOfList) const
-{
-    // This method is assumed to be called only from closeListItem()
-    const VfmdLine *lastLineOfListItem = m_previousLine;
-    bool isFirstListItem = (m_numOfClosedListItems == 0);
-    bool isLastListItem = isEndOfList;
-    bool isTopPacked = false;
-    if (isFirstListItem && isLastListItem) {
-        isTopPacked = true;
-    } else if (isFirstListItem && !lastLineOfListItem->isBlankLine()) {
-        isTopPacked = true;
-    } else if (!isFirstListItem && !m_isCurrentListItemPrecededByABlankLine) {
-        isTopPacked = true;
-    }
-    return isTopPacked;
-}
-
-bool UnorderedListLineSequence::isBottomPackedListItem(bool isEndOfList) const
-{
-    // This method is assumed to be called only from closeListItem()
-    const VfmdLine *lastLineOfListItem = m_previousLine;
-    bool isFirstListItem = (m_numOfClosedListItems == 0);
-    bool isLastListItem = isEndOfList;
-    bool isBottomPacked = false;
-    if (isFirstListItem && isLastListItem) {
-        isBottomPacked = true;
-    } else if (isLastListItem && !m_isCurrentListItemPrecededByABlankLine) {
-        isBottomPacked = true;
-    } else if (!isLastListItem && !lastLineOfListItem->isBlankLine()) {
-        isBottomPacked = true;
-    }
-    return isBottomPacked;
-}
-
 void UnorderedListLineSequence::processBlockLine(const VfmdLine *currentLine, const VfmdLine *nextLine)
 {
     UNUSED_ARG(nextLine);
     VfmdLine *line = currentLine->copy();
     bool isListItemStartLine = m_nextLineStartsWithListStarterString; // is current line starting with m_listStarterString
-    if (isListItemStartLine) {
-        // current line is the starting line of a list item
-        closeListItem(false /* not the end of the list */);
+
+    if (isListItemStartLine) { // current line is the starting line of a list item
+
+        // Close the previous list item and add to the parse tree
+        if (m_childSequence) {
+            bool isFirstListItem = (m_numOfClosedListItems == 0);
+            bool isLastListItem = false;
+            const VfmdLine *lastLineOfListItem = m_previousLine;
+            UnorderedListItemTreeNode *listItemNode = closeListItem<UnorderedListItemTreeNode>(
+                        &m_childSequence, isFirstListItem, isLastListItem,
+                        lastLineOfListItem, m_isCurrentListItemPrecededByABlankLine);
+            m_listNode->adoptAsLastChild(listItemNode);
+            m_numOfClosedListItems++;
+        }
+        assert(m_childSequence == 0); // closeListItem() should have zeroed it
+
+        // Start a new list item
         m_childSequence = new VfmdInputLineSequence(registry(), this);
         m_isCurrentListItemPrecededByABlankLine = (m_previousLine && m_previousLine->isBlankLine());
         line->chopLeft(m_listStarterString.size());
+
     } else {
+
         // current line is not the starting line of a list item
         int prefixedSpacesToRemove = line->leadingSpacesCount();
         if (prefixedSpacesToRemove > m_listStarterString.size()) {
             prefixedSpacesToRemove = m_listStarterString.size();
         }
         line->chopLeft(prefixedSpacesToRemove);
+
     }
+
     m_childSequence->addLine(line);
     m_previousLine = currentLine->copy();
     m_nextLineStartsWithListStarterString = (nextLine == 0? false : (nextLine->content().startsWith(m_listStarterString)));
@@ -154,7 +123,20 @@ bool UnorderedListLineSequence::isEndOfBlock(const VfmdLine *currentLine, const 
 
 void UnorderedListLineSequence::endBlock()
 {
-    closeListItem(true /* end of the list*/);
+    // Close the last list item and add to the parse tree
+    if (m_childSequence) {
+        bool isFirstListItem = (m_numOfClosedListItems == 0);
+        bool isLastListItem = true;
+        const VfmdLine *lastLineOfListItem = m_previousLine;
+        UnorderedListItemTreeNode *listItemNode = closeListItem<UnorderedListItemTreeNode>(
+                    &m_childSequence, isFirstListItem, isLastListItem,
+                    lastLineOfListItem, m_isCurrentListItemPrecededByABlankLine);
+        m_listNode->adoptAsLastChild(listItemNode);
+        m_numOfClosedListItems++;
+    }
+    assert(m_childSequence == 0); // closeListItem() should have zeroed it
+
+    // The parse tree for the list is ready
     setBlockParseTree(m_listNode);
 }
 
