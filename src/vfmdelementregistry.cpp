@@ -65,17 +65,17 @@ public:
         }
     }
 
-    bool append(int typeId, T *elementHandler, const VfmdByteArray &triggerBytes, int options = 0) {
+    bool append(int typeId, T *elementHandler, const char *triggerBytes, int options = 0) {
         if (m_triggerBytesById[typeId] != 0) {
             // Cannot add the same element twice
             return false;
         }
         ElementData *elementData = new ElementData(typeId, elementHandler, options);
-        if (triggerBytes.size() > 0) {
+        unsigned int numOfTriggerBytes = (triggerBytes? strlen(triggerBytes) : 0);
+        if (numOfTriggerBytes  > 0) {
             m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
-            for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
-                assert(triggerBytes.isUTF8CharStartingAt(byteIndex));
-                char byte = triggerBytes.byteAt(byteIndex);
+            for (unsigned int byteIndex = 0; byteIndex < numOfTriggerBytes; byteIndex++) {
+                char byte = triggerBytes[byteIndex];
                 ensureElementsForTriggerByteAllocated(byte);
                 m_elementsByTriggerByte[(unsigned char) byte]->append(elementData);
             }
@@ -86,17 +86,17 @@ public:
         return true;
     }
 
-    bool prepend(int typeId, T *elementHandler, const VfmdByteArray &triggerBytes, int options = 0) {
+    bool prepend(int typeId, T *elementHandler, const char *triggerBytes, int options = 0) {
         if (m_triggerBytesById[typeId] != 0) {
             // Cannot add the same element twice
             return false;
         }
         ElementData *elementData = new ElementData(typeId, elementHandler, options);
-        if (triggerBytes.size() > 0) {
+        unsigned int numOfTriggerBytes = (triggerBytes? strlen(triggerBytes) : 0);
+        if (numOfTriggerBytes > 0) {
             m_triggerBytesById[typeId] = new VfmdByteArray(triggerBytes);
-            for (unsigned int byteIndex = 0; byteIndex < triggerBytes.size(); byteIndex++) {
-                assert(triggerBytes.isUTF8CharStartingAt(byteIndex));
-                char byte = triggerBytes.byteAt(byteIndex);
+            for (unsigned int byteIndex = 0; byteIndex < numOfTriggerBytes; byteIndex++) {
+                char byte = triggerBytes[byteIndex];
                 ensureElementsForTriggerByteAllocated(byte);
                 m_elementsByTriggerByte[(unsigned char) byte]->prepend(elementData);
             }
@@ -284,9 +284,9 @@ VfmdElementRegistry::~VfmdElementRegistry()
 // Block elements
 
 bool VfmdElementRegistry::appendBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
-                                             const VfmdByteArray &triggerBytes, int blockElementOptions)
+                                             const char *triggerBytes, int blockElementOptions)
 {
-    if ((triggerBytes.size() == 0) &&
+    if ((triggerBytes == 0 || triggerBytes[0] == 0) &&
         ((blockElementOptions & BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH) == BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH)) {
         // The BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH option requires trigger bytes
         assert(false);
@@ -296,9 +296,9 @@ bool VfmdElementRegistry::appendBlockElement(int typeId, VfmdBlockElementHandler
 }
 
 bool VfmdElementRegistry::prependBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
-                                              const VfmdByteArray &triggerBytes, int blockElementOptions)
+                                              const char *triggerBytes, int blockElementOptions)
 {
-    if ((triggerBytes.size() == 0) &&
+    if ((triggerBytes == 0 || triggerBytes[0] == 0) &&
         ((blockElementOptions & BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH) == BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH)) {
         // The BLOCK_CAN_ABUT_PRECEDING_PARAGRAPH option requires trigger bytes
         assert(false);
@@ -355,9 +355,9 @@ int VfmdElementRegistry::blockOptionsWithoutAnyTriggerByteAtIndex(unsigned int i
 // Span elements
 
 bool VfmdElementRegistry::appendSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
-                                            const VfmdByteArray &triggerBytes, int spanElementOptions)
+                                            const char *triggerBytes, int spanElementOptions)
 {
-    if (triggerBytes.size() == 0) {
+    if (triggerBytes == 0 || triggerBytes[0] == 0) {
         // Don't allow span elements without trigger-bytes
         return false;
     }
@@ -365,9 +365,9 @@ bool VfmdElementRegistry::appendSpanElement(int typeId, VfmdSpanElementHandler *
 }
 
 bool VfmdElementRegistry::prependSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
-                                             const VfmdByteArray &triggerBytes, int spanElementOptions)
+                                             const char *triggerBytes, int spanElementOptions)
 {
-    if (triggerBytes.size() == 0) {
+    if (triggerBytes == 0 || triggerBytes[0] == 0) {
         // Don't allow span elements without trigger-bytes
         return false;
     }

@@ -36,12 +36,12 @@ public:
      * The registry owns the added handler.
      * If typeId is already registered, this method does nothing and returns false. */
     bool appendBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
-                           const VfmdByteArray &triggerBytes = VfmdByteArray(), int blockElementOptions = 0);
+                           const char *triggerBytes = 0, int blockElementOptions = 0);
 
     /* Same as 'appendBlockElement()', except that this handler is registered such that
      * it's invoked before any previously registered handlers. */
     bool prependBlockElement(int typeId, VfmdBlockElementHandler *blockElementHandler,
-                            const VfmdByteArray &triggerBytes = VfmdByteArray(), int blockElementOptions = 0);
+                            const char *triggerBytes = 0, int blockElementOptions = 0);
 
     /* Check for existence of a block element */
     bool containsBlockElement(int typeId) const;
@@ -87,12 +87,12 @@ public:
      * The registry owns the added handler.
      * If typeId is already registered, this method does nothing and returns false. */
     bool appendSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
-                           const VfmdByteArray &triggerBytes, int spanElementOptions = 0);
+                           const char *triggerBytes = 0, int spanElementOptions = 0);
 
     /* Same as 'appendSpanElement()', except that the handler is added such that
      * it shall get invoked before any previously registered handlers. */
     bool prependSpanElement(int typeId, VfmdSpanElementHandler *spanElementHandler,
-                            const VfmdByteArray &triggerBytes, int spanElementOptions = 0);
+                            const char *triggerBytes = 0, int spanElementOptions = 0);
 
     /* Check for existence of a span element */
     bool containsSpanElement(int typeId) const;
