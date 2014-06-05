@@ -29,6 +29,8 @@ class SetextHeaderTreeNode : public VfmdElementTreeNode {
 public:
     SetextHeaderTreeNode(int headingLevel);
 
+    int headingLevel() const { return m_headingLevel; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::SETEXT_HEADER_ELEMENT; }

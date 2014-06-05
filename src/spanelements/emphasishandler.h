@@ -34,6 +34,9 @@ class EmphasisTreeNode : public VfmdElementTreeNode {
 public:
     EmphasisTreeNode(char c, int r) : m_char(c), m_repetitionCount(r) { }
 
+    char emphasisCharacter() const { return m_char; }
+    int repetitionCount() const { return m_repetitionCount; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
     virtual int elementType() const { return VfmdConstants::EMPHASIS_ELEMENT; }

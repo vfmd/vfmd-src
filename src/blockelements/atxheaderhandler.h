@@ -26,6 +26,8 @@ class AtxHeaderTreeNode : public VfmdElementTreeNode {
 public:
     AtxHeaderTreeNode(int headingLevel);
 
+    int headingLevel() const { return m_headingLevel; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::ATX_HEADER_ELEMENT; }

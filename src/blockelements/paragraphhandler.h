@@ -52,6 +52,7 @@ public:
     ParagraphTreeNode();
 
     void setShouldAvoidWrappingInHtmlPTag(bool avoidPTag);
+    bool shouldAvoidWrappingInHtmlPTag() const { return m_shouldAvoidWrappingInHtmlPTag; }
 
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }

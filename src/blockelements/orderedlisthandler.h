@@ -48,6 +48,8 @@ public:
     virtual int elementType() const { return VfmdConstants::ORDERED_LIST_ELEMENT; }
     virtual const char *elementTypeString() const { return "ordered-list"; }
 
+    VfmdByteArray startingNumber() const { return m_startingNumber; }
+
     virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;

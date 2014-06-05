@@ -77,6 +77,12 @@ public:
     HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &tagName, const VfmdByteArray& html);
     HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &verbatimHtml);
 
+    HtmlElementType htmlNodeType() const { return m_htmlElementType; }
+    VfmdByteArray tagName() const { return m_tagName; }
+    VfmdByteArray startTagText() const;
+    VfmdByteArray endTagText() const;
+    VfmdByteArray fullHtmlText() const;
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
     virtual int elementType() const { return VfmdConstants::HTML_ELEMENT; }

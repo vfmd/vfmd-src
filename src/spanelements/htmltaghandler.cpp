@@ -348,6 +348,34 @@ HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &verbatimHt
     assert(type == HtmlTreeNode::VERBATIM_HTML_CHUNK);
 }
 
+VfmdByteArray HtmlTreeNode::startTagText() const
+{
+    if (m_htmlElementType == START_TAG_ONLY ||
+        m_htmlElementType == START_TAG_WITH_MATCHING_END_TAG) {
+        return m_html;
+    }
+    return VfmdByteArray();
+}
+
+VfmdByteArray HtmlTreeNode::endTagText() const
+{
+    if (m_htmlElementType == START_TAG_WITH_MATCHING_END_TAG) {
+        return m_endTagHtml;
+    } else if (m_htmlElementType == END_TAG_ONLY) {
+        return m_html;
+    }
+    return VfmdByteArray();
+}
+
+VfmdByteArray HtmlTreeNode::fullHtmlText() const
+{
+    if (m_htmlElementType == START_TAG_WITH_MATCHING_END_TAG) {
+        // We don't have the enclosed html, so we cannot provide the full HTML text
+        return VfmdByteArray();
+    }
+    return m_html;
+}
+
 void HtmlTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {

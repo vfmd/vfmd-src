@@ -34,6 +34,9 @@ public:
 
     AutomaticLinkTreeNode(AutomaticUrlType type, const VfmdByteArray& url) : m_type(type), m_url(url) { }
 
+    AutomaticUrlType urlType() const { return m_type; }
+    VfmdByteArray url() const { return m_url; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
     virtual int elementType() const { return VfmdConstants::AUTOMATIC_LINK_ELEMENT; }
