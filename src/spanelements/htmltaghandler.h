@@ -64,7 +64,7 @@ public:
 
 class HtmlTreeNode : public VfmdElementTreeNode {
 public:
-    enum HtmlElementType {
+    enum HtmlNodeType {
         START_TAG_WITH_MATCHING_END_TAG,
         EMPTY_TAG,
         START_TAG_ONLY,
@@ -73,11 +73,11 @@ public:
         VERBATIM_HTML_CHUNK
     };
 
-    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &tagName, const VfmdByteArray &startTagHtml, const VfmdByteArray& endTagHtml);
-    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &tagName, const VfmdByteArray& html);
-    HtmlTreeNode(HtmlElementType htmlElementType, const VfmdByteArray &verbatimHtml);
+    HtmlTreeNode(HtmlNodeType htmlNodeType, const VfmdByteArray &tagName, const VfmdByteArray &startTagHtml, const VfmdByteArray& endTagHtml);
+    HtmlTreeNode(HtmlNodeType htmlNodeType, const VfmdByteArray &tagName, const VfmdByteArray& html);
+    HtmlTreeNode(HtmlNodeType htmlNodeType, const VfmdByteArray &verbatimHtml);
 
-    HtmlElementType htmlNodeType() const { return m_htmlElementType; }
+    HtmlNodeType htmlNodeType() const { return m_htmlNodeType; }
     VfmdByteArray tagName() const { return m_tagName; }
     VfmdByteArray startTagText() const;
     VfmdByteArray endTagText() const;
@@ -92,7 +92,7 @@ public:
                             VfmdOutputDevice *outputDevice,
                             VfmdElementTreeNodeStack *ancestorNodes) const;
 private:
-    const HtmlElementType m_htmlElementType;
+    const HtmlNodeType m_htmlNodeType;
     const VfmdByteArray m_tagName, m_html, m_endTagHtml;
 };
 

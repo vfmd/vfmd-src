@@ -324,16 +324,16 @@ HtmlTreeNode *OpeningHtmlTagStackNode::toUnclosedStartHtmlTagTreeNode() const
     return (new HtmlTreeNode(HtmlTreeNode::START_TAG_ONLY, m_tagName, m_html));
 }
 
-HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &tagName, const VfmdByteArray &html)
-    : m_htmlElementType(type)
+HtmlTreeNode::HtmlTreeNode(HtmlNodeType type, const VfmdByteArray &tagName, const VfmdByteArray &html)
+    : m_htmlNodeType(type)
     , m_tagName(tagName)
     , m_html(html)
 {
     assert(type != HtmlTreeNode::START_TAG_WITH_MATCHING_END_TAG);
 }
 
-HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &tagName, const VfmdByteArray& startTagHtml, const VfmdByteArray &endTagHtml)
-    : m_htmlElementType(type)
+HtmlTreeNode::HtmlTreeNode(HtmlNodeType type, const VfmdByteArray &tagName, const VfmdByteArray& startTagHtml, const VfmdByteArray &endTagHtml)
+    : m_htmlNodeType(type)
     , m_tagName(tagName)
     , m_html(startTagHtml)
     , m_endTagHtml(endTagHtml)
@@ -341,8 +341,8 @@ HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &tagName, c
     assert(type == HtmlTreeNode::START_TAG_WITH_MATCHING_END_TAG);
 }
 
-HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &verbatimHtmlChunk)
-    : m_htmlElementType(type)
+HtmlTreeNode::HtmlTreeNode(HtmlNodeType type, const VfmdByteArray &verbatimHtmlChunk)
+    : m_htmlNodeType(type)
     , m_html(verbatimHtmlChunk)
 {
     assert(type == HtmlTreeNode::VERBATIM_HTML_CHUNK);
@@ -350,8 +350,8 @@ HtmlTreeNode::HtmlTreeNode(HtmlElementType type, const VfmdByteArray &verbatimHt
 
 VfmdByteArray HtmlTreeNode::startTagText() const
 {
-    if (m_htmlElementType == START_TAG_ONLY ||
-        m_htmlElementType == START_TAG_WITH_MATCHING_END_TAG) {
+    if (m_htmlNodeType == START_TAG_ONLY ||
+        m_htmlNodeType == START_TAG_WITH_MATCHING_END_TAG) {
         return m_html;
     }
     return VfmdByteArray();
@@ -359,9 +359,9 @@ VfmdByteArray HtmlTreeNode::startTagText() const
 
 VfmdByteArray HtmlTreeNode::endTagText() const
 {
-    if (m_htmlElementType == START_TAG_WITH_MATCHING_END_TAG) {
+    if (m_htmlNodeType == START_TAG_WITH_MATCHING_END_TAG) {
         return m_endTagHtml;
-    } else if (m_htmlElementType == END_TAG_ONLY) {
+    } else if (m_htmlNodeType == END_TAG_ONLY) {
         return m_html;
     }
     return VfmdByteArray();
@@ -369,7 +369,7 @@ VfmdByteArray HtmlTreeNode::endTagText() const
 
 VfmdByteArray HtmlTreeNode::fullHtmlText() const
 {
-    if (m_htmlElementType == START_TAG_WITH_MATCHING_END_TAG) {
+    if (m_htmlNodeType == START_TAG_WITH_MATCHING_END_TAG) {
         // We don't have the enclosed html, so we cannot provide the full HTML text
         return VfmdByteArray();
     }
@@ -379,7 +379,7 @@ VfmdByteArray HtmlTreeNode::fullHtmlText() const
 void HtmlTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
 {
     if (format == VfmdConstants::HTML_FORMAT) {
-        switch (m_htmlElementType) {
+        switch (m_htmlNodeType) {
         case START_TAG_WITH_MATCHING_END_TAG:
             outputDevice->write(m_html);
             renderChildren(format, renderOptions, outputDevice, ancestorNodes);
@@ -401,26 +401,26 @@ void HtmlTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOpti
         }
     } else if (format == VfmdConstants::TREE_FORMAT) {
         renderTreePrefix(outputDevice, ancestorNodes, "+- span (raw-html) ");
-        if (m_htmlElementType == VERBATIM_HTML_CHUNK) {
+        if (m_htmlNodeType == VERBATIM_HTML_CHUNK) {
             outputDevice->write("verbatim-html\n");
             assert(hasChildren() == false);
         } else {
-            if (m_htmlElementType == COMMENT) {
+            if (m_htmlNodeType == COMMENT) {
                 outputDevice->write("comment");
             } else {
                 outputDevice->write(m_tagName);
             }
-            if (m_htmlElementType == EMPTY_TAG) {
+            if (m_htmlNodeType == EMPTY_TAG) {
                 outputDevice->write(", self-closing tag");
-            } if (m_htmlElementType == START_TAG_ONLY) {
+            } if (m_htmlNodeType == START_TAG_ONLY) {
                 outputDevice->write(", only start tag");
-            } else if (m_htmlElementType == END_TAG_ONLY) {
+            } else if (m_htmlNodeType == END_TAG_ONLY) {
                 outputDevice->write(", only end tag");
             }
             outputDevice->write("\n");
         }
         if ((renderOptions & VfmdConstants::TREE_RENDER_INCLUDES_TEXT) ==  VfmdConstants::TREE_RENDER_INCLUDES_TEXT) {
-            if (m_htmlElementType == COMMENT || m_htmlElementType == VERBATIM_HTML_CHUNK) {
+            if (m_htmlNodeType == COMMENT || m_htmlNodeType == VERBATIM_HTML_CHUNK) {
                 renderTreeText(outputDevice, ancestorNodes, m_html);
             }
         }
