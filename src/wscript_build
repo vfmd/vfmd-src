@@ -73,7 +73,13 @@ bld.objects(
         "spanelements/codespanhandler.cpp",
         "spanelements/imagehandler.cpp",
         "spanelements/automaticlinkhandler.cpp",
-        "spanelements/htmltaghandler.cpp"
+        "spanelements/htmltaghandler.cpp",
+
+        # Rendering the parse tree for output
+
+        "renderers/vfmdrenderer.cpp",
+        "renderers/htmlrenderer.cpp"
+
         ],
 
     target = "src",
