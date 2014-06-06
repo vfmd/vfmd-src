@@ -51,9 +51,10 @@ extern void houdini_escape_html(VfmdOutputDevice *outputDevice, const char *src,
 // Input is html-ish text (for e.g. input can have HTML entities like "&copy;").
 // Escaping backslashes are always removed.
 // 'textProcessingOptions' can be combinations of HtmlishTextProcessingOptions.
-// 'renderOptions' can be combinations of VfmdConstants::HtmlRenderOptions.
 // Output should be HTML.
 extern void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray &text,
-                                   int textProcessingOptions, int renderOptions);
+                                   int textProcessingOptions = 0,
+                                   bool isSelfClosingVoidTagsEnabled = false,
+                                   bool isLineBreakOnNewlinesEnabled = false);
 
 #endif // __HOUDINI_H__

@@ -426,7 +426,9 @@ void HtmlRenderer::renderLink(const LinkTreeNode *node, VfmdElementTreeNodeStack
             // We didn't find a definition for this ref id
             outputDevice()->write('[');
             renderChildNodesOf(node, ancestorNodes);
-            HtmlTextRenderer::renderText(outputDevice(), node->closeTagText(), 0 /* FIXME */);
+            HtmlTextRenderer::renderText(outputDevice(), node->closeTagText(),
+                                         isSelfClosingVoidTagsEnabled(),
+                                         isLineBreakOnNewlinesEnabled());
         }
     }
 }
@@ -515,7 +517,9 @@ void HtmlRenderer::renderImage(const ImageTreeNode *node, VfmdElementTreeNodeSta
             // We didn't find a definition for this ref id
             outputDevice()->write("![", 2);
             outputDevice()->write(node->altText());
-            HtmlTextRenderer::renderText(outputDevice(), node->closeTagText(), isSelfClosingVoidTagsEnabled());
+            HtmlTextRenderer::renderText(outputDevice(), node->closeTagText(),
+                                         isSelfClosingVoidTagsEnabled(),
+                                         isLineBreakOnNewlinesEnabled());
         }
     }
 }
@@ -577,5 +581,7 @@ void HtmlRenderer::renderTextSpan(const TextSpanTreeNode *node, VfmdElementTreeN
 
     assert(node->hasChildren() == false);
 
-    HtmlTextRenderer::renderText(outputDevice(), node->textContent(), 0 /* FIXME */);
+    HtmlTextRenderer::renderText(outputDevice(), node->textContent(),
+                                 isSelfClosingVoidTagsEnabled(),
+                                 isLineBreakOnNewlinesEnabled());
 }

@@ -16,15 +16,20 @@ void HtmlTextRenderer::renderCode(VfmdOutputDevice *outputDevice, const VfmdByte
 
 void HtmlTextRenderer::renderTagAttribute(VfmdOutputDevice *outputDevice, const VfmdByteArray &text)
 {
-    houdini_escape_htmlish(outputDevice, text, (REMOVE_ESCAPING_BACKSLASHES), 0);
+    houdini_escape_htmlish(outputDevice, text, (REMOVE_ESCAPING_BACKSLASHES));
 }
 
 void HtmlTextRenderer::renderURLAsText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text)
 {
-    houdini_escape_htmlish(outputDevice, text, 0, 0);
+    houdini_escape_htmlish(outputDevice, text);
 }
 
-void HtmlTextRenderer::renderText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text, int htmlRenderOptions)
+void HtmlTextRenderer::renderText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text,
+                                  bool isSelfClosingVoidTagsEnabled,
+                                  bool isLineBreakOnNewlinesEnabled)
 {
-    houdini_escape_htmlish(outputDevice, text, (REMOVE_ESCAPING_BACKSLASHES | INSERT_BR_TAGS), htmlRenderOptions);
+    houdini_escape_htmlish(outputDevice, text,
+                           (REMOVE_ESCAPING_BACKSLASHES | INSERT_BR_TAGS),
+                           isSelfClosingVoidTagsEnabled,
+                           isLineBreakOnNewlinesEnabled);
 }

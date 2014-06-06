@@ -117,7 +117,10 @@ static const char HTMLISH_ESCAPE_TABLE[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray &text, int textProcessingOptions, int renderOptions)
+void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray &text,
+                            int textProcessingOptions,
+                            bool isSelfClosingVoidTagsEnabled,
+                            bool isLineBreakOnNewlinesEnabled)
 {
     const char *src = text.data();
     size_t size = text.size();
@@ -128,12 +131,10 @@ void houdini_escape_htmlish(VfmdOutputDevice *outputDevice, const VfmdByteArray 
     bool shouldConvertLFtoBR = false;
     if ((textProcessingOptions & INSERT_BR_TAGS) == INSERT_BR_TAGS) {
         shouldConvertSpaceSpaceLFtoBR = true;
-        shouldConvertLFtoBR = ((renderOptions & VfmdConstants::HTML_RENDER_ANY_LF_AS_BR) ==
-                               VfmdConstants::HTML_RENDER_ANY_LF_AS_BR);
+        shouldConvertLFtoBR = isLineBreakOnNewlinesEnabled;
     }
     bool shouldRemoveEscBackslashes = ((textProcessingOptions & REMOVE_ESCAPING_BACKSLASHES) == REMOVE_ESCAPING_BACKSLASHES);
-    bool shouldUseSelfClosingTags = ((renderOptions & VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) ==
-                                     VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
+    bool shouldUseSelfClosingTags = isSelfClosingVoidTagsEnabled;
 
     while (i < size) {
         org = i;

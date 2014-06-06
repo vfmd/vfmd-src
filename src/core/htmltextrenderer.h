@@ -15,7 +15,9 @@ public:
     static void renderCode(VfmdOutputDevice *outputDevice, const VfmdByteArray &text);
     static void renderTagAttribute(VfmdOutputDevice *outputDevice, const VfmdByteArray &text);
     static void renderURLAsText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text);
-    static void renderText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text, int htmlRenderOptions);
+    static void renderText(VfmdOutputDevice *outputDevice, const VfmdByteArray &text,
+                           bool isSelfClosingVoidTagsEnabled,
+                           bool isLineBreakOnNewlinesEnabled);
 
 private:
     HtmlTextRenderer(); // Cannot instantiate this class
