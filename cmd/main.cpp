@@ -6,6 +6,7 @@
 #include "vfmdelementtreenode.h"
 #include "core/vfmdscopedpointer.h"
 #include "vfmdoutputdevice.h"
+#include "renderers/htmlrenderer.h"
 
 #define BUFFER_SIZE 1024
 
@@ -55,16 +56,11 @@ int main(int argc, char *argv[])
     }
 
     // Render the document
-    VfmdConsoleOutputDevice console;
     if (isTreeFormatOutput) {
-        document.render(VfmdConstants::TREE_FORMAT,
-                        (VfmdConstants::TREE_RENDER_INCLUDES_TEXT),
-                        &console);
+        // Temporarily left unimplemented
     } else {
-        document.render(VfmdConstants::HTML_FORMAT,
-                        (VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS |
-                         VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS),
-                        &console);
+        HtmlRenderer htmlRenderer;
+        htmlRenderer.render(document.parseTree());
     }
 
     return 0;
