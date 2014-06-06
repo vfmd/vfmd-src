@@ -42,10 +42,6 @@ public:
     virtual int elementType() const { return VfmdConstants::AUTOMATIC_LINK_ELEMENT; }
     virtual const char *elementTypeString() const { return "automatic-link"; }
 
-    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                            VfmdOutputDevice *outputDevice,
-                            VfmdElementTreeNodeStack *ancestorNodes) const;
-
 private:
     AutomaticUrlType m_type;
     VfmdByteArray m_url;

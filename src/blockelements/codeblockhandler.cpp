@@ -59,14 +59,3 @@ CodeBlockTreeNode::CodeBlockTreeNode(const VfmdByteArray &content)
     : m_content(content)
 {
 }
-
-void CodeBlockTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (format == VfmdConstants::HTML_FORMAT) {
-        outputDevice->write("<pre><code>", 11);
-        HtmlTextRenderer::renderCode(outputDevice, m_content);
-        outputDevice->write("</code></pre>\n", 14);
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}

@@ -47,10 +47,6 @@ public:
     virtual int elementType() const { return VfmdConstants::IMAGE_ELEMENT; }
     virtual const char *elementTypeString() const { return "image"; }
 
-    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                            VfmdOutputDevice *outputDevice,
-                            VfmdElementTreeNodeStack *ancestorNodes) const;
-
 private:
     ImageRefType m_linkRefType;
     VfmdByteArray m_ba1, m_ba2;

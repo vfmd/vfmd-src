@@ -41,29 +41,10 @@ public:
     bool setNextNodeIfNotSet(VfmdElementTreeNode *node);
     bool setChildNodeIfNotSet(VfmdElementTreeNode *node);
 
-    // Methods for rendering the output
-    void renderSequence(VfmdConstants::RenderFormat format, int renderOptions,
-                        VfmdOutputDevice *outputDevice) const;
-    void renderChildren(VfmdConstants::RenderFormat format, int renderOptions,
-                        VfmdOutputDevice *outputDevice,
-                        VfmdElementTreeNodeStack *ancestorNodes) const;
-    void renderTreePrefix(VfmdOutputDevice *outputDevice,
-                          const VfmdElementTreeNodeStack *ancestorNodes,
-                          const char *followup = 0) const;
-    void renderTreeText(VfmdOutputDevice *outputDevice,
-                        const VfmdElementTreeNodeStack *ancestorNodes,
-                        const VfmdByteArray &text) const;
-    void renderHtmlIndent(VfmdOutputDevice *outputDevice,
-                          const VfmdElementTreeNodeStack *ancestorNodes) const;
-
     // Methods to reimplement in a subclass
     virtual ElementClassification elementClassification() const { return UNDEFINED; }
     virtual int elementType() const { return -1; }
     virtual const char *elementTypeString() const { return ""; }
-
-    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                            VfmdOutputDevice *outputDevice,
-                            VfmdElementTreeNodeStack *ancestorNodes) const;
 
     virtual bool hasTextContent() const;
     virtual VfmdByteArray textContent() const;

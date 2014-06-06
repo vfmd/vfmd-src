@@ -62,13 +62,6 @@ void VfmdDocument::endOfContent()
     m_isEndOfContent = true;
 }
 
-void VfmdDocument::render(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice) const
-{
-    if (m_isEndOfContent && m_parseTree) {
-        m_parseTree->renderSequence(format, renderOptions, outputDevice);
-    }
-}
-
 VfmdElementRegistry* VfmdDocument::syntaxRegistry() const
 {
     return m_registry;

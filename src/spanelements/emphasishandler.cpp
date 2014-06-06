@@ -206,39 +206,3 @@ void OpeningEmphasisTagStackNode::print() const
     }
     printf("\")");
 }
-
-void EmphasisTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                                  VfmdOutputDevice *outputDevice,
-                                  VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (m_repetitionCount <= 0) {
-        return;
-    }
-    if (format == VfmdConstants::HTML_FORMAT) {
-        const char *openTag = 0;
-        const char *closeTag = 0;
-        if (m_repetitionCount == 1) {
-            outputDevice->write("<em>", 4);
-            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-            outputDevice->write("</em>", 5);
-        } else if (m_repetitionCount == 2) {
-            outputDevice->write("<strong>", 8);
-            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-            outputDevice->write("</strong>", 9);
-        } else if (m_repetitionCount > 2) {
-            outputDevice->write("<strong><em>", 12);
-            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-            outputDevice->write("</em></strong>", 14);
-        }
-    } else if (format == VfmdConstants::TREE_FORMAT) {
-        renderTreePrefix(outputDevice, ancestorNodes, "+- span (emphasis) ");
-        outputDevice->write(m_char, m_repetitionCount);
-        outputDevice->write('\n');
-        if (hasChildren()) {
-            renderTreePrefix(outputDevice, ancestorNodes, (hasNext()? "|  |\n" : "   |\n"));
-            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        }
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}

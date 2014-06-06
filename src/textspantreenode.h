@@ -21,10 +21,6 @@ public:
     virtual int elementType() const { return VfmdConstants::TEXTSPAN_ELEMENT; }
     virtual const char *elementTypeString() const { return "text-span"; }
 
-    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                            VfmdOutputDevice *outputDevice,
-                            VfmdElementTreeNodeStack *ancestorNodes) const;
-
     virtual bool hasTextContent() const { return true; }
     virtual VfmdByteArray textContent() const { return m_text; }
 

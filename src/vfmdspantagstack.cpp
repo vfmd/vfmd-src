@@ -193,10 +193,7 @@ void VfmdSpanTagStack::print() const
         VfmdElementTreeNode *tree = node->m_containedElements;
         if (tree) {
             printf("Contained elements for node [%d]:\n", i);
-            VfmdConsoleOutputDevice console;
-            tree->renderSequence(VfmdConstants::TREE_FORMAT,
-                                 VfmdConstants::TREE_RENDER_INCLUDES_TEXT,
-                                 &console);
+            // FIXME: Render the tree of contained elements here
             printf("\n");
         }
         i--;

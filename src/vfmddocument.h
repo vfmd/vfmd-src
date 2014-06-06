@@ -29,11 +29,6 @@ public:
     bool addPartialContent(const char *data, int length);
     void endOfContent();
 
-    // After a setContent() or an endOfContent() call,
-    // you can render the parsed document.
-    void render(VfmdConstants::RenderFormat format, int renderOptions,
-                VfmdOutputDevice *outputDevice) const;
-
     // You can obtain and modify the syntax registry before
     // adding content to influence how the content shall be parsed.
     VfmdElementRegistry *syntaxRegistry() const;

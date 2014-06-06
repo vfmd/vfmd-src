@@ -76,22 +76,3 @@ void BlockquoteLineSequence::endBlock()
 BlockquoteTreeNode::BlockquoteTreeNode()
 {
 }
-
-void BlockquoteTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                                   VfmdOutputDevice *outputDevice,
-                                   VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (format == VfmdConstants::HTML_FORMAT) {
-        if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-            renderHtmlIndent(outputDevice, ancestorNodes);
-        }
-        outputDevice->write("<blockquote>\n", 13);
-        renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-            renderHtmlIndent(outputDevice, ancestorNodes);
-        }
-        outputDevice->write("</blockquote>\n", 14);
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}

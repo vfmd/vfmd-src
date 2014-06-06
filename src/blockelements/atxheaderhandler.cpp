@@ -71,25 +71,3 @@ AtxHeaderTreeNode::AtxHeaderTreeNode(int headingLevel)
     : m_headingLevel(headingLevel)
 {
 }
-
-void AtxHeaderTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (format == VfmdConstants::HTML_FORMAT) {
-        if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-            renderHtmlIndent(outputDevice, ancestorNodes);
-        }
-        assert(m_headingLevel >= 1);
-        assert(m_headingLevel <= 6);
-        if (m_headingLevel >= 1 && m_headingLevel <= 6) {
-            outputDevice->write("<h", 2);
-            outputDevice->write('0' + m_headingLevel);
-            outputDevice->write('>');
-            renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-            outputDevice->write("</h", 3);
-            outputDevice->write('0' + m_headingLevel);
-            outputDevice->write(">\n");
-        }
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}

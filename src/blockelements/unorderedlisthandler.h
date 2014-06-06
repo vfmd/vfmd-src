@@ -43,10 +43,6 @@ public:
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::UNORDERED_LIST_ELEMENT; }
     virtual const char *elementTypeString() const { return "unordered-list"; }
-
-    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                            VfmdOutputDevice *outputDevice,
-                            VfmdElementTreeNodeStack *ancestorNodes) const;
 };
 
 class UnorderedListItemTreeNode : public VfmdElementTreeNode {
@@ -63,10 +59,6 @@ public:
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::UNORDERED_LIST_ELEMENT; }
     virtual const char *elementTypeString() const { return "unordered-list-item"; }
-
-    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                            VfmdOutputDevice *outputDevice,
-                            VfmdElementTreeNodeStack *ancestorNodes) const;
 
 private:
     bool m_isTopPacked, m_isBottomPacked;

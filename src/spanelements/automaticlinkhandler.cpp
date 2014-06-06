@@ -170,22 +170,3 @@ int AutomaticLinkBracketedHandler::identifySpanTagStartingAt(const VfmdByteArray
 
     return 0;
 }
-
-void AutomaticLinkTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                                       VfmdOutputDevice *outputDevice,
-                                       VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (format == VfmdConstants::HTML_FORMAT) {
-        outputDevice->write("<a href=\"", 9);
-        if (m_type == AutomaticLinkTreeNode::MAIL_URL_WITHOUT_MAILTO) {
-            outputDevice->write("mailto:", 7);
-        }
-        HtmlTextRenderer::renderURL(outputDevice, m_url);
-        outputDevice->write("\">", 2);
-        HtmlTextRenderer::renderURLAsText(outputDevice, m_url);
-        outputDevice->write("</a>", 4);
-        assert(hasChildren() == false);
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}

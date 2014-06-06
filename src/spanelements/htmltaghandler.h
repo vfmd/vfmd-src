@@ -88,9 +88,6 @@ public:
     virtual int elementType() const { return VfmdConstants::HTML_ELEMENT; }
     virtual const char *elementTypeString() const { return "raw-html"; }
 
-    virtual void renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                            VfmdOutputDevice *outputDevice,
-                            VfmdElementTreeNodeStack *ancestorNodes) const;
 private:
     const HtmlNodeType m_htmlNodeType;
     const VfmdByteArray m_tagName, m_html, m_endTagHtml;

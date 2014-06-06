@@ -38,13 +38,3 @@ void HorizontalRuleLineSequence::endBlock()
 {
     setBlockParseTree(new HorizontalRuleTreeNode);
 }
-
-void HorizontalRuleTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions, VfmdOutputDevice *outputDevice, VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (format == VfmdConstants::HTML_FORMAT) {
-        bool shouldUseSelfClosingTags = ((renderOptions & VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS) ==  VfmdConstants::HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS);
-        outputDevice->write(shouldUseSelfClosingTags? "<hr />\n" : "<hr>\n");
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}

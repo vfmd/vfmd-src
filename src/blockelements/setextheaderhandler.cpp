@@ -64,19 +64,3 @@ SetextHeaderTreeNode::SetextHeaderTreeNode(int headingLevel)
     : m_headingLevel(headingLevel)
 {
 }
-
-void SetextHeaderTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                                      VfmdOutputDevice *outputDevice,
-                                      VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (format == VfmdConstants::HTML_FORMAT) {
-        if ((renderOptions & VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) == VfmdConstants::HTML_INDENT_ELEMENT_CONTENTS) {
-            renderHtmlIndent(outputDevice, ancestorNodes);
-        }
-        outputDevice->write((m_headingLevel == 1)? "<h1>" : "<h2>");
-        renderChildren(format, renderOptions, outputDevice, ancestorNodes);
-        outputDevice->write((m_headingLevel == 1)? "</h1>\n" : "</h2>\n");
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}

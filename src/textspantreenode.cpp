@@ -33,14 +33,3 @@ void TextSpanTreeNode::appendText(const VfmdByteArray &ba)
 {
     m_text.append(ba);
 }
-
-void TextSpanTreeNode::renderNode(VfmdConstants::RenderFormat format, int renderOptions,
-                                  VfmdOutputDevice *outputDevice,
-                                  VfmdElementTreeNodeStack *ancestorNodes) const
-{
-    if (format == VfmdConstants::HTML_FORMAT) {
-        HtmlTextRenderer::renderText(outputDevice, m_text, renderOptions);
-    } else {
-        VfmdElementTreeNode::renderNode(format, renderOptions, outputDevice, ancestorNodes);
-    }
-}
