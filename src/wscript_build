@@ -78,7 +78,8 @@ bld.objects(
         # Rendering the parse tree for output
 
         "renderers/vfmdrenderer.cpp",
-        "renderers/htmlrenderer.cpp"
+        "renderers/htmlrenderer.cpp",
+        "renderers/treerenderer.cpp"
 
         ],
 

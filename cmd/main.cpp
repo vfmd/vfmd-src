@@ -7,6 +7,7 @@
 #include "core/vfmdscopedpointer.h"
 #include "vfmdoutputdevice.h"
 #include "renderers/htmlrenderer.h"
+#include "renderers/treerenderer.h"
 
 #define BUFFER_SIZE 1024
 
@@ -57,7 +58,8 @@ int main(int argc, char *argv[])
 
     // Render the document
     if (isTreeFormatOutput) {
-        // Temporarily left unimplemented
+        TreeRenderer treeRenderer;
+        treeRenderer.render(document.parseTree());
     } else {
         HtmlRenderer htmlRenderer;
         htmlRenderer.render(document.parseTree());
