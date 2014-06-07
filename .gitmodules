@@ -1,0 +1,3 @@
+[submodule "tests/vfmd-test"]
+	path = tests/vfmd-test
+	url = https://github.com/vfmd/vfmd-test.git
