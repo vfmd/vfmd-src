@@ -1,0 +1,10 @@
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+script:
+    ./waf configure build_release &&
+        ./tests/vfmd-test/run_tests ./build/release/vfmd
+            --dir="tests/vfmd-test/tests/*/*" --actual-fails
