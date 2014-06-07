@@ -148,16 +148,6 @@ VfmdElementTreeNode *VfmdElementTreeNode::lastSiblingNode()
     return lastSibling;
 }
 
-bool VfmdElementTreeNode::hasTextContent() const
-{
-    return false;
-}
-
-VfmdByteArray VfmdElementTreeNode::textContent() const
-{
-    return VfmdByteArray();
-}
-
 void VfmdElementTreeNode::freeSubtreeSequence(VfmdElementTreeNode *subtree)
 {
     const VfmdElementTreeNode *node = subtree;

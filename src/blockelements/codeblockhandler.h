@@ -30,13 +30,12 @@ class CodeBlockTreeNode : public VfmdElementTreeNode {
 public:
     CodeBlockTreeNode(const VfmdByteArray &content);
 
+    VfmdByteArray textContent() const { return m_content; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return BLOCK; }
     virtual int elementType() const { return VfmdConstants::CODE_BLOCK_ELEMENT; }
     virtual const char *elementTypeString() const { return "code-block"; }
-
-    virtual bool hasTextContent() const { return true; }
-    virtual VfmdByteArray textContent() const { return m_content; }
 
 private:
     VfmdByteArray m_content;

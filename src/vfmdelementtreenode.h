@@ -46,9 +46,6 @@ public:
     virtual int elementType() const { return -1; }
     virtual const char *elementTypeString() const { return ""; }
 
-    virtual bool hasTextContent() const;
-    virtual VfmdByteArray textContent() const;
-
 public:
     static void freeSubtreeSequence(VfmdElementTreeNode *tree);
 

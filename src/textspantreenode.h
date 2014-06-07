@@ -16,13 +16,12 @@ public:
     void appendText(const char *str, int len = 0 /* zero implies null-terminated string */);
     void appendText(const VfmdByteArray &ba);
 
+    VfmdByteArray textContent() const { return m_text; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return TEXTSPAN; }
     virtual int elementType() const { return VfmdConstants::TEXTSPAN_ELEMENT; }
     virtual const char *elementTypeString() const { return "text-span"; }
-
-    virtual bool hasTextContent() const { return true; }
-    virtual VfmdByteArray textContent() const { return m_text; }
 
 private:
     VfmdByteArray m_text;

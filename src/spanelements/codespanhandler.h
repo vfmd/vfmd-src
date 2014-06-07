@@ -17,13 +17,12 @@ class CodeSpanTreeNode : public VfmdElementTreeNode {
 public:
     CodeSpanTreeNode(const VfmdByteArray& content) : m_content(content) { }
 
+    VfmdByteArray textContent() const { return m_content; }
+
     // Reimplemented
     virtual ElementClassification elementClassification() const { return SPAN; }
     virtual int elementType() const { return VfmdConstants::CODE_SPAN_ELEMENT; }
     virtual const char *elementTypeString() const { return "code-span"; }
-
-    virtual bool hasTextContent() const { return true; }
-    virtual VfmdByteArray textContent() const { return m_content; }
 
 private:
     VfmdByteArray m_content;
