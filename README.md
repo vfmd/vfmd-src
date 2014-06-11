@@ -1,5 +1,7 @@
 # vfmd
 
+[![Build Status](https://travis-ci.org/vfmd/vfmd-src.svg?branch=master)](https://travis-ci.org/vfmd/vfmd-src)
+
 vfmd is a Markdown parsing engine that adheres to the [vfmd
 specification]. vfmd handles all syntax constructs in the [original
 Markdown], and is designed to be cleanly extended to support additional
