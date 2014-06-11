@@ -15,3 +15,6 @@ before_install:
  # xmllint required for running vfmd-test tests
  - sudo apt-get update -qq
  - sudo apt-get install -qq libxml2 libxml2-utils
+
+cache:
+ - apt # Use Travis cache for Ubuntu packages
