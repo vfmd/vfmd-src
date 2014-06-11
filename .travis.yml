@@ -5,6 +5,13 @@ compiler:
   - clang
 
 script:
-    ./waf configure build_release &&
-        ./tests/vfmd-test/run_tests ./build/release/vfmd
-            --dir="tests/vfmd-test/tests/*/*" --actual-fails
+ - xmllint -version
+ - echo "<html></html>" | xmllint --c14n --format - && echo
+ - ./waf configure build_release &&
+       ./tests/vfmd-test/run_tests ./build/release/vfmd
+           --dir="tests/vfmd-test/tests/*/*" --actual-fails
+
+before_install:
+ # xmllint required for running vfmd-test tests
+ - sudo apt-get update -qq
+ - sudo apt-get install -qq libxml2 libxml2-utils
