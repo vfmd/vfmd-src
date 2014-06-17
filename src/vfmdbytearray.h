@@ -19,8 +19,8 @@ public:
     /* Create a byte array with a copy of the null-terminated string 'str' */
     VfmdByteArray(const char *str);
 
-    /* Create a byte array with a copy of 'length' bytes starting from 'data' */
-    VfmdByteArray(const char *data, int length);
+    /* Create a byte array with a copy of 'stringLength' bytes starting from 'stringData' */
+    VfmdByteArray(const char *stringData, int stringLength);
 
     /* Destructor */
     ~VfmdByteArray();
@@ -29,8 +29,8 @@ public:
     bool isValid() const;
     bool isInvalid() const;
 
-    /* Append a copy of 'length' bytes starting from 'data' */
-    void append(const char *data, int length);
+    /* Append a copy of 'stringLength' bytes starting from 'stringData' */
+    void append(const char *stringData, int stringLength);
 
     /* Append a copy of 'other' */
     void append(const VfmdByteArray &other);
@@ -93,7 +93,7 @@ public:
     VfmdByteArray chomped() const;
 
     /* Replacing a byte */
-    VfmdByteArray replaced(char byte, const char *str, int len, bool onlyWhenUnescaped = false) const;
+    VfmdByteArray replaced(char byte, const char *stringData, int stringLength, bool onlyWhenUnescaped = false) const;
 
     /* Ensure there are atleast 'length' bytes of allocated space.
      * This can cause an internal realloc and/or data copy. */

@@ -15,7 +15,7 @@ public:
 
     // If you have the complete document content available:
     // Use setContent()
-    void setContent(const char *data, int length);
+    void setContent(const char *stringData, int stringLength);
 
     // If you get the document content in chunks:
     // Use one or more addPartialContent() calls followed
@@ -26,7 +26,7 @@ public:
     // addPartialContent() has no effect.
     // This method returns true if the partial content was
     // added successfully and false if not.
-    bool addPartialContent(const char *data, int length);
+    bool addPartialContent(const char *stringData, int stringLength);
     void endOfContent();
 
     // You can obtain and modify the syntax registry before

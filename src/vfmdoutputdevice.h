@@ -10,7 +10,7 @@ public:
     VfmdOutputDevice();
     virtual ~VfmdOutputDevice();
     bool write(const char byte, int numberOfTimes = 1);
-    bool write(const char *data, int len = 0);
+    bool write(const char *stringData, int stringLength = 0);
     bool write(const VfmdByteArray &ba);
 
 protected:
