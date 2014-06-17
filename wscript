@@ -22,6 +22,7 @@ def build(bld):
 
     bld.recurse("src")
 
+    # Build vfmd command
     bld.program(
 
         source = [
@@ -30,8 +31,15 @@ def build(bld):
 
         target = "vfmd",
         use = "src",
-        includes = "src"
+        includes = "src",
+        name = "vfmd-cmd"
         )
+    bindir = "./" + bld.variant + "/bin"
+    bld(rule = "mkdir -p " + bindir + " && cp ${SRC} ${TGT}",
+        source = "vfmd",
+        target = "../../" + bld.variant + "/bin/vfmd",
+        depends = "vfmd-cmd")
+
 
 # Code for adding build_debug  build_release modes
 
