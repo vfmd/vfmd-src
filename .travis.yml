@@ -8,7 +8,7 @@ script:
  - xmllint -version
  - echo "<html></html>" | xmllint --c14n --format - && echo
  - ./waf configure build_release &&
-       ./tests/vfmd-test/run_tests ./build/release/vfmd
+       ./tests/vfmd-test/run_tests ./release/bin/vfmd
            --dir="tests/vfmd-test/tests/*/*" --actual-fails
 
 before_install:
