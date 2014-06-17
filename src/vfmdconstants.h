@@ -43,21 +43,6 @@ enum VfmdOpeningSpanTagStackNodeType {
     USER_STACK_NODE = 100
 };
 
-enum RenderFormat {
-    TREE_FORMAT,
-    HTML_FORMAT
-};
-
-enum TreeRenderOptions {
-    TREE_RENDER_INCLUDES_TEXT = 1
-};
-
-enum HtmlRenderOptions {
-    HTML_RENDER_VOID_TAGS_AS_SELF_CLOSING_TAGS = 1, // Render as "<br />" instead of "<br>"
-    HTML_INDENT_ELEMENT_CONTENTS = 2,
-    HTML_RENDER_ANY_LF_AS_BR = 4
-};
-
 };
 
 #endif // VFMDCONSTANTS_H
