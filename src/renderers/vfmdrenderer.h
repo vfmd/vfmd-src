@@ -11,7 +11,7 @@ public:
     VfmdRenderer();
     virtual ~VfmdRenderer();
 
-    void setOutputDevice(VfmdOutputDevice *outputDevice);
+    void setOutputDevice(VfmdOutputDevice *outputDeviceD);
     VfmdOutputDevice *outputDevice() const;
 
     void render(const VfmdElementTreeNode *parseTree);

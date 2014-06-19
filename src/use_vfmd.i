@@ -26,6 +26,13 @@
     }
 }
 
+/* When objects created in script-land are passed as the
+   following arguments to C++-land, C++ code takes ownership
+   of the objects. Script-language should not attempt to free
+   these objects. */
+
+%apply SWIGTYPE *DISOWN { VfmdOutputDevice *outputDeviceD } /* VfmdRenderer */
+
 /* Interface for using vfmd */
 
 %{
