@@ -17,8 +17,8 @@ def configure(cfg):
 
     cfg.setenv("release")
     cfg.load("compiler_c compiler_cxx")
-    cfg.env.append_value("CFLAGS", ["-O2"])
-    cfg.env.append_value("CXXFLAGS", ["-O2"])
+    cfg.env.append_value("CFLAGS", ["-O2", "-fPIC"])
+    cfg.env.append_value("CXXFLAGS", ["-O2", "-fPIC"])
     cfg.env.append_value("DEFINES", ["NDEBUG"])
 
     for_ruby = cfg.options.for_ruby
