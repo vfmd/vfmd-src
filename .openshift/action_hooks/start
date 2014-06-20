@@ -1,0 +1,25 @@
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_DIY_IP:8080
+
+# nohup $OPENSHIFT_REPO_DIR/diy/testrubyserver.rb $OPENSHIFT_DIY_IP $OPENSHIFT_REPO_DIR/diy |& /usr/bin/logshifter -tag diy &
+
+export RBENV_ROOT=$OPENSHIFT_DATA_DIR/.rbenv
+
+# We need rbenv to be installed
+if [ -d $RBENV_ROOT ]; then
+    # Init rbenv
+    export PATH="$RBENV_ROOT/bin:$PATH"
+    eval "$(rbenv init -)"
+    rbenv global 2.1.0
+    unset GEM_HOME
+
+    # Get markdownr.vfmd.org code and start it up
+    export MARKDOWNR_REPO_DIR=$OPENSHIFT_DATA_DIR/markdownr.vfmd.org
+    rm -rf $MARKDOWNR_REPO_DIR
+    git clone https://github.com/vfmd/markdownr.vfmd.org.git $MARKDOWNR_REPO_DIR
+    cd $MARKDOWNR_REPO_DIR && bundle install
+    cd $MARKDOWNR_REPO_DIR && rackup --host $OPENSHIFT_DIY_IP --port $OPENSHIFT_DIY_PORT -I $OPENSHIFT_REPO_DIR/release/lib/ruby/use_vfmd/ -O Quiet --daemonize config.ru 2> /dev/null
+    # |& /usr/bin/logshifter -tag orig_markdownr &
+fi

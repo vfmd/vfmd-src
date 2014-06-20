@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+export RBENV_ROOT=$OPENSHIFT_DATA_DIR/.rbenv
+export RBENV_RUBY_210=$RBENV_ROOT/versions/2.1.0
+export RB_INCLUDE=$RBENV_RUBY_210/include/ruby-2.1.0
+export RB_ARCH_INCLUDE=$RBENV_RUBY_210/include/ruby-2.1.0/x86_64-linux
+
+export SWIG_PATH=$OPENSHIFT_DATA_DIR/swig
+export PATH=$PATH:$SWIG_PATH/bin
+
+cd $OPENSHIFT_REPO_DIR && ./waf configure --for-ruby --ruby-include=$RB_INCLUDE --ruby-arch-include=$RB_ARCH_INCLUDE && ./waf build_release

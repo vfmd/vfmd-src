@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+export RBENV_ROOT=$OPENSHIFT_DATA_DIR/.rbenv
+
+if [ ! -d $RBENV_ROOT ]; then
+    echo "Installing openshift-rbenv"
+    wget https://raw.github.com/Seppone/openshift-rbenv-installer/master/bin/rbenv-installer
+    cat ./rbenv-installer | bash -s
+    export PATH="$RBENV_ROOT/bin:$PATH"
+    eval "$(rbenv init -)"
+    rbenv install 2.1.0
+    rbenv global 2.1.0
+    # Edit resolv.rb and replace: s/"0.0.0.0"/ENV['OPENSHIFT_DIY_IP']/g
+    # Ref: http://lists.openshift.redhat.com/openshift-archives/users/2014-March/msg00013.html
+    # gem install bundle
+    # install SWIG
+fi
