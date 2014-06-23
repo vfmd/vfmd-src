@@ -18,3 +18,19 @@ before_install:
 
 cache:
  - apt # Use Travis cache for Ubuntu packages
+
+# Deploy to OpenShift after tests pass
+before_deploy:
+  # See https://github.com/travis-ci/travis-ci/issues/2272
+  - git fetch --unshallow
+deploy:
+  provider: openshift
+  on:
+    # Deploy only once per push
+    condition: "$CC = gcc"
+    branch: master
+  user: roop@roopc.net
+  password:
+    secure: fLPD5b3TVcVSOdm9S4nrqhKaZm6Cl3Yexl3eYKV/W9Y6sqz46OOEUx7j94XDjib5vH4OyYiLD7s0hSFCsRUcB8ULq2zPWOdlMP+HJDNrSfKrzuaSoNJxyqMtoBjVERDTFQfcagHf3QyYyMt6jqio72M7c445IOWNrpx2QMbuaLM=
+  app: omr
+  domain: vfmd
