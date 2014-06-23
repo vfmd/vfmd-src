@@ -9,9 +9,9 @@ syntaxes without affecting the handling of the core syntax constructs.
 It can therefore be used as the parsing engine for different variants of
 Markdown.
 
-For more information on vfmd, please see <http://vfmd.github.io>
+For more information on vfmd, please see <http://www.vfmd.org>
 
-[vfmd specification]: http://vfmd.github.io/vfmd-spec/specification/
+[vfmd specification]: http://www.vfmd.org/vfmd-spec/specification/
 [original Markdown]: http://daringfireball.net/projects/markdown/syntax
 
 ## Unique features
@@ -92,11 +92,11 @@ the new syntaxes and register an instance of the new class with a
 registry of syntax constructs to enable them to be used during parsing.
 The core syntaxes themselves are implemented using the same interface.
 
-[vfmd-utf8]: http://vfmd.github.io/vfmd-spec/specification/#document
-[vfmd-html-difference]: http://vfmd.github.io/differences/#including-raw-html
-[Mixing HTML with vfmd]: http://vfmd.github.io/vfmd-spec/syntax/#mixing-html-with-vfmd
-[vfmd-syntax-verbatim-html]: http://vfmd.github.io/vfmd-spec/syntax/#verbatim-html
-[vfmd-spec-extending]: http://vfmd.github.io/vfmd-spec/specification/#extending-the-syntax
+[vfmd-utf8]: http://www.vfmd.org/vfmd-spec/specification/#document
+[vfmd-html-difference]: http://www.vfmd.org/differences/#including-raw-html
+[Mixing HTML with vfmd]: http://www.vfmd.org/vfmd-spec/syntax/#mixing-html-with-vfmd
+[vfmd-syntax-verbatim-html]: http://www.vfmd.org/vfmd-spec/syntax/#verbatim-html
+[vfmd-spec-extending]: http://www.vfmd.org/vfmd-spec/specification/#extending-the-syntax
 
 ## Building
 
@@ -134,7 +134,7 @@ the [vfmd specification][vfmd-spec].
 [waf]: https://code.google.com/p/waf/
 [let me know]: mailto:roop@roopc.net
 [vfmd-test]: https://github.com/vfmd/vfmd-test
-[vfmd-spec]: http://vfmd.github.io/vfmd-spec/specification/
+[vfmd-spec]: http://www.vfmd.org/vfmd-spec/specification/
 
 ## Feedback
 
