@@ -16,17 +16,17 @@ For more information on vfmd, please see <http://vfmd.github.io>
 
 ## Unique features
 
-### UTF-8-aware
+### Unicode-aware
 
 vfmd expects input in UTF-8 encoding and inherently handles multi-byte
 UTF-8 code points.
 
   1. Tab expansion is done based on the number of Unicode code points
      before the tab character in the line (most Markdown parsers count
-     the number of *bytes* rather than *code points*)
+     the number of *bytes* rather than *code points*).
   2. Detection of word boundaries (e.g. for identifying emphasis and
      automatic links) is done using Unicode Character Properties, to
-     enable the parser to work well for non-English text too
+     enable the parser to work well for non-English text too.
   3. Any bytes in the input that are invalid in UTF-8 (or insecure, like
      overlong sequences) are assumed to be a byte in ISO-8859-1 encoding
      [as per the vfmd specification][vfmd-utf8]. As a consequence, vfmd
@@ -35,9 +35,8 @@ UTF-8 code points.
 
 ### HTML-aware
 
-vfmd's handling of inline HTML is [different from the original
-Markdown][vfmd-html-difference]. Different HTML tags are handled
-differently, as described in [Mixing HTML with vfmd].
+This implementation of vfmd uses a HTML parser to correctly handle
+any inline HTML, including HTML5 elements.
 
   1. HTML tags and HTML comments can appear anywhere in a line, not
      necessarily at the start of the line
@@ -61,6 +60,13 @@ differently, as described in [Mixing HTML with vfmd].
      raw HTML. For example, the asterisks in `*A <u>B</u> C*` are
      recognized as emphasis tags, but those in `*A <p>B</p> C*` are not
      (because `p` tags cannot be contained in `em` tags).
+
+For information on using HTML with Markdown in vfmd, see [Mixing HTML
+with vfmd].
+
+For information on how vfmd's handling of inline HTML is different from
+the original Markdown, see [Differences: Including raw
+HTML][vfmd-html-difference].
 
 ### Parse-tree
 
