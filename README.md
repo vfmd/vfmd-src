@@ -119,21 +119,22 @@ Then you can run vfmd like:
     +- block (paragraph)
        |
        +- span (text-span)
-       |  "Hello "
+       |  'Hello '
        +- span (emphasis)
+          [*]
           |
           +- span (text-span)
-             "World"
+             'World'
 
     $ ./build/debug/vfmd input.md > output.html
 
-Please keep in mind that vfmd has not yet been subject to any
-significant level of testing, not even against the [vfmd-test]
-testsuite.
+vfmd is tested against the [vfmd-test] testsuite for compliance with
+the [vfmd specification][vfmd-spec].
 
 [waf]: https://code.google.com/p/waf/
 [let me know]: mailto:roop@roopc.net
 [vfmd-test]: https://github.com/vfmd/vfmd-test
+[vfmd-spec]: http://vfmd.github.io/vfmd-spec/specification/
 
 ## Feedback
 
